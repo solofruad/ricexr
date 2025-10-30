@@ -5,9 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 0
+    path: Assets/Scenes/SeleccionarHoja.unity
+    guid: 969f45beb761a9b45a7d7fd755c8a814
+  - enabled: 1
+    path: Assets/Scenes/prueba_deteccion_espacio.unity
+    guid: e99ed8188f4e828458cb168be516f082
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 4b3b210c80ea05b4da2b4ee4ddece997,
       type: 2}
