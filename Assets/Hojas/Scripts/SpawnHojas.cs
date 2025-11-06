@@ -48,7 +48,7 @@ public class SpawnHojas : MonoBehaviour
             grassParent = parent.transform;
             grassParent.SetParent(transform);
         }
-
+        Activar();
     }
 
     public void Activar()
