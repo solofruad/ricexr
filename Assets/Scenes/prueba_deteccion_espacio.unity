@@ -3121,7 +3121,7 @@ GameObject:
   - component: {fileID: 693940579}
   - component: {fileID: 693940578}
   m_Layer: 0
-  m_Name: PlanoSpawnerHojas
+  m_Name: SpawnearPlanos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4074,6 +4074,16 @@ PrefabInstance:
       propertyPath: _centerEyeCamera
       value: 
       objectReference: {fileID: 1095510856}
+    - target: {fileID: 3903482225804038116, guid: 0a7d2469f24041c4284c66706f84c45e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3903482225804038118, guid: 0a7d2469f24041c4284c66706f84c45e,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4148778239110795873, guid: 0a7d2469f24041c4284c66706f84c45e,
         type: 3}
       propertyPath: m_Name
@@ -5619,89 +5629,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!1 &1102595391
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1102595393}
-  - component: {fileID: 1102595394}
-  m_Layer: 0
-  m_Name: SpawnHojas
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1102595393
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1102595391}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.244, y: 0.206, z: 1.6267079}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1102595394
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1102595391}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2d7c51c99a0f6b449ac22f27dbd1687, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grassPrefabs:
-  - {fileID: 1670554414867062916, guid: 02b5b5cb87957394abf6d9528f734262, type: 3}
-  grassCount: 1000
-  spawnAreaSize: {x: 1.62, y: 1.33}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  raycastHeight: 10
-  totalSpawnDuration: 5
-  growDuration: 2
-  growCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spawnTimeVariation: 0.3
-  growTimeVariation: 0.5
-  scaleVariation: 1
-  rotationVariation: 180
-  grassParent: {fileID: 905839554}
 --- !u!1 &1110459135
 GameObject:
   m_ObjectHideFlags: 0
@@ -10383,7 +10310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _monoscopic: 0
   _sharpenType: 0
-  _enableDynamicResolution: 0
+  _enableDynamicResolution: 1
   minDynamicResolutionScale: 1
   maxDynamicResolutionScale: 1
   quest2MinDynamicResolutionScale: 0.7
@@ -11398,13 +11325,86 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1001 &7764128722735056139
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 852764291076323422, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_Name
+      value: SpawnHojas
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: grassParent
+      value: 
+      objectReference: {fileID: 905839554}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.244
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.206
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.6267079
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7593d80ed75534943be026f0e2cab1c5, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1630950058}
   - {fileID: 693940579}
-  - {fileID: 1102595393}
+  - {fileID: 7764128722735056139}
   - {fileID: 905839554}
   - {fileID: 2026813496}
   - {fileID: 228291334}
