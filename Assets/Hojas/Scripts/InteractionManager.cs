@@ -12,20 +12,11 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private Transform spawnParent;
 
     [Header("Animation Settings")]
-    [SerializeField] private float fadeDuration = 0.5f;
-    [SerializeField] private AnimationType animationType = AnimationType.ScaleDown;
+    [SerializeField] private float scaleDuration = 0.5f;
 
     private Vector3 targetPosition;
     private Quaternion targetRotation;
     private Vector3 targetScale;
-
-    public enum AnimationType
-    {
-        FadeOut,
-        ScaleDown,
-        ScaleAndFade,
-        Dissolve
-    }
 
     private bool hasBeenActivated = false;
 
@@ -52,10 +43,10 @@ public class InteractionManager : MonoBehaviour
         this.targetScale = targetScale;
 
         hasBeenActivated = true;
-        StartCoroutine(DisableAllAnchorsWithAnimation());
+        StartCoroutine(DisableAllPlanePrefabsWithAnimation());
     }
 
-    private IEnumerator DisableAllAnchorsWithAnimation()
+    private IEnumerator DisableAllPlanePrefabsWithAnimation()
     {
         MRUKRoom room = MRUK.Instance?.GetCurrentRoom();
 
@@ -65,182 +56,93 @@ public class InteractionManager : MonoBehaviour
             yield break;
         }
 
-        // Obtén todos los anchors
-        List<MRUKAnchor> anchors = new List<MRUKAnchor>();
+        // Obtén todos los PlanePrefab de cada anchor
+        List<GameObject> planePrefabs = new List<GameObject>();
 
-        // Puedes filtrar por tipo de anchor si quieres
         foreach (var anchor in room.Anchors)
-        {
-            anchors.Add(anchor);
-        }
-
-        // Anima todos los anchors
-        List<Coroutine> animations = new List<Coroutine>();
-
-        foreach (var anchor in anchors)
         {
             if (anchor != null && anchor.gameObject.activeInHierarchy)
             {
-                Coroutine anim = StartCoroutine(AnimateAnchorDisappearance(anchor.gameObject));
+                // Busca el PlanePrefab dentro del anchor
+                Transform planePrefab = FindPlanePrefab(anchor.transform);
+                if (planePrefab != null)
+                {
+                    planePrefabs.Add(planePrefab.gameObject);
+                }
+            }
+        }
+
+        // Anima todos los PlanePrefabs
+        List<Coroutine> animations = new List<Coroutine>();
+
+        foreach (var planePrefab in planePrefabs)
+        {
+            if (planePrefab != null && planePrefab.activeInHierarchy)
+            {
+                Coroutine anim = StartCoroutine(AnimatePlanePrefabScaleDown(planePrefab));
                 animations.Add(anim);
             }
         }
 
         // Espera a que todas las animaciones terminen
-        yield return new WaitForSeconds(fadeDuration);
+        yield return new WaitForSeconds(scaleDuration);
 
-        // Desactiva todos los anchors
-        foreach (var anchor in anchors)
+        // Desactiva solo los PlanePrefabs
+        foreach (var planePrefab in planePrefabs)
         {
-            if (anchor != null)
+            if (planePrefab != null)
             {
-                anchor.gameObject.SetActive(false);
+                planePrefab.SetActive(false);
             }
         }
 
         SpawnNewObject();
     }
 
-    private IEnumerator AnimateAnchorDisappearance(GameObject anchorObject)
+    // Busca el PlanePrefab en la jerarquía del anchor
+    private Transform FindPlanePrefab(Transform parent)
+    {
+        // Busca primero en los hijos directos
+        foreach (Transform child in parent)
+        {
+            if (child.name.Contains("PlanePrefab"))
+            {
+                return child;
+            }
+        }
+
+        // Si no lo encuentra, busca recursivamente
+        foreach (Transform child in parent)
+        {
+            Transform found = FindPlanePrefab(child);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    private IEnumerator AnimatePlanePrefabScaleDown(GameObject planePrefab)
     {
         float elapsed = 0f;
-        Vector3 originalScale = anchorObject.transform.localScale;
+        Vector3 originalScale = planePrefab.transform.localScale;
 
-        // Obtén todos los renderers para el fade
-        Renderer[] renderers = anchorObject.GetComponentsInChildren<Renderer>();
-        Canvas[] canvases = anchorObject.GetComponentsInChildren<Canvas>();
-        CanvasGroup canvasGroup = anchorObject.GetComponent<CanvasGroup>();
-
-        // Si hay canvas y no tiene CanvasGroup, agrégalo
-        if (canvases.Length > 0 && canvasGroup == null)
-        {
-            canvasGroup = anchorObject.AddComponent<CanvasGroup>();
-        }
-
-        // Guarda los materiales originales
-        Dictionary<Renderer, Material[]> originalMaterials = new Dictionary<Renderer, Material[]>();
-        Dictionary<Renderer, Material[]> fadeMaterials = new Dictionary<Renderer, Material[]>();
-
-        if (animationType == AnimationType.FadeOut || animationType == AnimationType.ScaleAndFade)
-        {
-            foreach (var renderer in renderers)
-            {
-                originalMaterials[renderer] = renderer.materials;
-                Material[] newMats = new Material[renderer.materials.Length];
-
-                for (int i = 0; i < renderer.materials.Length; i++)
-                {
-                    // Crea una copia del material para no afectar otros objetos
-                    newMats[i] = new Material(renderer.materials[i]);
-
-                    // Cambia a modo transparente si es necesario
-                    if (newMats[i].HasProperty("_Mode"))
-                    {
-                        newMats[i].SetFloat("_Mode", 3); // Transparent mode
-                    }
-
-                    // Habilita transparencia
-                    newMats[i].SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                    newMats[i].SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                    newMats[i].SetInt("_ZWrite", 0);
-                    newMats[i].DisableKeyword("_ALPHATEST_ON");
-                    newMats[i].EnableKeyword("_ALPHABLEND_ON");
-                    newMats[i].DisableKeyword("_ALPHAPREMULTIPLY_ON");
-                    newMats[i].renderQueue = 3000;
-                }
-
-                fadeMaterials[renderer] = newMats;
-                renderer.materials = newMats;
-            }
-        }
-
-        // Animación
-        while (elapsed < fadeDuration)
+        // Animación de escala
+        while (elapsed < scaleDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / fadeDuration;
+            float t = elapsed / scaleDuration;
             float easedT = EaseOutCubic(t);
 
-            switch (animationType)
-            {
-                case AnimationType.ScaleDown:
-                    anchorObject.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, easedT);
-                    break;
-
-                case AnimationType.FadeOut:
-                    // Fade materials
-                    foreach (var kvp in fadeMaterials)
-                    {
-                        foreach (var mat in kvp.Value)
-                        {
-                            Color color = mat.color;
-                            color.a = 1f - easedT;
-                            mat.color = color;
-
-                            if (mat.HasProperty("_BaseColor"))
-                            {
-                                mat.SetColor("_BaseColor", color);
-                            }
-                        }
-                    }
-
-                    // Fade canvas
-                    if (canvasGroup != null)
-                    {
-                        canvasGroup.alpha = 1f - easedT;
-                    }
-                    break;
-
-                case AnimationType.ScaleAndFade:
-                    // Scale
-                    anchorObject.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, easedT);
-
-                    // Fade materials
-                    foreach (var kvp in fadeMaterials)
-                    {
-                        foreach (var mat in kvp.Value)
-                        {
-                            Color color = mat.color;
-                            color.a = 1f - easedT;
-                            mat.color = color;
-
-                            if (mat.HasProperty("_BaseColor"))
-                            {
-                                mat.SetColor("_BaseColor", color);
-                            }
-                        }
-                    }
-
-                    // Fade canvas
-                    if (canvasGroup != null)
-                    {
-                        canvasGroup.alpha = 1f - easedT;
-                    }
-                    break;
-
-                case AnimationType.Dissolve:
-                    // Combina scale y rotación para un efecto de disolución
-                    anchorObject.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, easedT);
-                    anchorObject.transform.Rotate(Vector3.up, Time.deltaTime * 180f);
-
-                    if (canvasGroup != null)
-                    {
-                        canvasGroup.alpha = 1f - easedT;
-                    }
-                    break;
-            }
+            planePrefab.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, easedT);
 
             yield return null;
         }
 
-        // Limpia los materiales temporales
-        foreach (var kvp in fadeMaterials)
-        {
-            foreach (var mat in kvp.Value)
-            {
-                Destroy(mat);
-            }
-        }
+        // Asegura que termine en escala cero
+        planePrefab.transform.localScale = Vector3.zero;
     }
 
     private void SpawnNewObject()
@@ -252,9 +154,6 @@ public class InteractionManager : MonoBehaviour
         }
 
         ConfigureLeafSpawn();
-
-
-        //Debug.Log($"Spawned {prefabToSpawn.name} at {spawnPosition}");
     }
 
     private void ConfigureLeafSpawn()
@@ -266,15 +165,13 @@ public class InteractionManager : MonoBehaviour
         instance.transform.position = targetPosition;
         instance.transform.rotation = targetRotation;
 
-
         SpawnHojas leafSpawner = instance.GetComponent<SpawnHojas>();
 
         leafSpawner.SpawnAreaSize = new Vector2(targetScale.x, targetScale.y);
         Debug.Log(leafSpawner.SpawnAreaSize);
 
         leafSpawner.grassParent = parent;
-        leafSpawner.grassCount = Mathf.Max((int)Mathf.Sqrt(targetScale.x * targetScale.y), 20 );
-
+        leafSpawner.grassCount = Mathf.Max((int)(targetScale.x * targetScale.y * 0.7f), 20);
 
         leafSpawner.Activate();
     }
@@ -285,4 +182,3 @@ public class InteractionManager : MonoBehaviour
         return 1f - Mathf.Pow(1f - t, 3f);
     }
 }
-

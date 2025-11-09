@@ -9,16 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bfde92e0a2190c4ca32f6fb0a0c73ce, type: 3}
-  m_Name: MetaXRProjectSettings
+  m_Script: {fileID: 11500000, guid: 939e07d58bc74256b6cb58d86fe35a56, type: 3}
+  m_Name: OculusProjectSetupSettings
   m_EditorClassIdentifier: 
   boolProperties:
     keys:
-    - Meta.XR.SDK.UsageSettings.UsesProjectSetupTool
-    - Meta.XR.SDK.UsageSettings.UsesBuildingBlocks
-    - Meta.XR.SDK.UsageSettings.UsesXRSimulator
-    - Meta.XR.SDK.UsageSettings.UsesImmersiveDebugger
-    values: 01010101
+    - Meta.XR.SDK.edfb6eef6866b340551639f2f2c3213d.MarkedAsFixed.Standalone
+    - Meta.XR.SDK.31736735fee7ab217bea57cc359d9f23.MarkedAsFixed.Standalone
+    values: 0101
   intProperties:
     keys: []
     values: 
