@@ -6,12 +6,10 @@ public class SpawnHojas : MonoBehaviour
 {
     [Header("Grass Settings")]
     [SerializeField] private GameObject[] grassPrefabs;
-    [SerializeField] private int grassCount = 100;
+    [SerializeField] public int grassCount = 100;
 
-    [Header("Spawn Area")]
-    [SerializeField] private Vector2 spawnAreaSize = new Vector2(10f, 10f);
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private float raycastHeight = 10f;
+
+    [SerializeField] public Vector2 SpawnAreaSize { get; set; }
 
     [Header("Animation Settings")]
     [SerializeField] private float totalSpawnDuration = 10f;
@@ -25,7 +23,7 @@ public class SpawnHojas : MonoBehaviour
     [SerializeField] private float rotationVariation = 15f;
 
     [Header("Optimization")]
-    [SerializeField] private Transform grassParent;
+    [SerializeField] public Transform grassParent;
 
     private class GrassInstance
     {
@@ -48,10 +46,10 @@ public class SpawnHojas : MonoBehaviour
             grassParent = parent.transform;
             grassParent.SetParent(transform);
         }
-        Activar();
+        Activate();
     }
 
-    public void Activar()
+    public void Activate()
     {
         StartCoroutine(InitializeGrass());
     }
@@ -68,8 +66,10 @@ public class SpawnHojas : MonoBehaviour
             GameObject prefab = grassPrefabs[Random.Range(0, grassPrefabs.Length)];
             GameObject grass = Instantiate(prefab, spawnPositions[i], Quaternion.identity, grassParent);
 
-            // Rotación aleatoria
-            grass.transform.rotation = Quaternion.Euler(0, Random.Range(-rotationVariation, rotationVariation), 0);
+            // Rotación aleatoria + rotación del padre
+            float randomYRotation = Random.Range(-rotationVariation, rotationVariation);
+            float parentYRotation = transform.eulerAngles.y;
+            grass.transform.rotation = Quaternion.Euler(0, parentYRotation + randomYRotation, 0);
 
             // Guardar escala original y aplicar variación
             Vector3 baseScale = grass.transform.localScale;
@@ -167,21 +167,14 @@ public class SpawnHojas : MonoBehaviour
         {
             attempts++;
 
-            float randomX = Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2);
-            float randomZ = Random.Range(-spawnAreaSize.y / 2, spawnAreaSize.y / 2);
+            float randomX = Random.Range(-SpawnAreaSize.x / 2, SpawnAreaSize.x / 2);
+            float randomZ = Random.Range(-SpawnAreaSize.y / 2, SpawnAreaSize.y / 2);
 
-            Vector3 randomPos = transform.position + new Vector3(randomX, raycastHeight, randomZ);
+            // Posición local rotada según el transform del padre
+            Vector3 localPos = new Vector3(randomX, 0, randomZ);
+            Vector3 rotatedPos = transform.TransformPoint(localPos);
 
-            // Raycast para encontrar el suelo
-            if (Physics.Raycast(randomPos, Vector3.down, out RaycastHit hit, raycastHeight * 2, groundLayer))
-            {
-                positions.Add(hit.point);
-            }
-            else
-            {
-                // Si no hay suelo, usar posición plana
-                positions.Add(transform.position + new Vector3(randomX, 0, randomZ));
-            }
+            positions.Add(rotatedPos);
         }
 
         return positions;
@@ -190,7 +183,17 @@ public class SpawnHojas : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(transform.position, new Vector3(spawnAreaSize.x, 0.1f, spawnAreaSize.y));
+
+        // Dibujar área rotada
+        Vector3 c1 = transform.TransformPoint(new Vector3(-SpawnAreaSize.x / 2, 0, -SpawnAreaSize.y / 2));
+        Vector3 c2 = transform.TransformPoint(new Vector3(SpawnAreaSize.x / 2, 0, -SpawnAreaSize.y / 2));
+        Vector3 c3 = transform.TransformPoint(new Vector3(SpawnAreaSize.x / 2, 0, SpawnAreaSize.y / 2));
+        Vector3 c4 = transform.TransformPoint(new Vector3(-SpawnAreaSize.x / 2, 0, SpawnAreaSize.y / 2));
+
+        Gizmos.DrawLine(c1, c2);
+        Gizmos.DrawLine(c2, c3);
+        Gizmos.DrawLine(c3, c4);
+        Gizmos.DrawLine(c4, c1);
     }
 
     public void RespawnGrass()
