@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 550146771776781837}
   m_Layer: 0
-  m_Name: HojaPyri1
+  m_Name: Pyricularia1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -181,6 +181,7 @@ GameObject:
   - component: {fileID: 2469583679576808596}
   - component: {fileID: 7189467506772001227}
   - component: {fileID: 3376533365165179335}
+  - component: {fileID: 178354177855131214}
   m_Layer: 0
   m_Name: GrabHoja
   m_TagString: Untagged
@@ -206,6 +207,7 @@ Transform:
   - {fileID: 8853368693691264807}
   - {fileID: 5949575448787460700}
   - {fileID: 199684103200048651}
+  - {fileID: 9130553660617621684}
   m_Father: {fileID: 550146771776781837}
   m_LocalEulerAnglesHint: {x: 78.385, y: 83.209, z: 88.446}
 --- !u!54 &2469583679576808596
@@ -327,6 +329,35 @@ MonoBehaviour:
   _whenCancel:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &178354177855131214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3476833679653834164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce4ea0ac8fced4847b62dfece075411e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  diseaseName: Pyricularia
+  severity: 5
+  diseaseSpots:
+  - localPosition: {x: 0.091, y: 0.018, z: -0.388}
+    size: 0.1
+    customPrefab: {fileID: 0}
+  - localPosition: {x: 0.112, y: 0.023, z: -0.657}
+    size: 0.1
+    customPrefab: {fileID: 0}
+  markerPrefab: {fileID: 5379944017890052449, guid: 5335195cb523ae24a873ba11e5465b25,
+    type: 3}
+  markerColor: {r: 1, g: 0, b: 0, a: 1}
+  markerAlpha: 0.135
+  showMarkers: 1
+  animateMarkers: 1
+  pulseSpeed: 2
+  pulseScale: 1.2
 --- !u!1 &4211016607132248050
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,6 +441,37 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4214392007620641620
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9130553660617621684}
+  m_Layer: 0
+  m_Name: marler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9130553660617621684
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4214392007620641620}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.112, y: 0.023, z: -0.657}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7963535525132516532}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5101378113899350724
 GameObject:
   m_ObjectHideFlags: 0
