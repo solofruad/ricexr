@@ -56,12 +56,12 @@ PrefabInstance:
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].diseaseName
-      value: Pyricularia Oryzae
+      value: Pyricularia oryzae
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[1].diseaseName
-      value: Pyricularia Oryzae
+      value: Pyricularia oryzae
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}

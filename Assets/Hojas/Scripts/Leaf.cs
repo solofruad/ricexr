@@ -8,19 +8,17 @@ public class DiseaseSpot
 {
     public Vector3 localPosition;
     public float size = 0.05f;
-    [Tooltip("Nombre de la enfermedad (ej: Pyricularia, Helminthosporium)")]
-    public string diseaseName = "Pyricularia";
+    [Tooltip("Nombre de la enfermedad (ej: Pyricularia, Rhynchosporium)")]
+    public string diseaseName = "Pyricularia oryzae";
     [Range(1, 10)]
     [Tooltip("Severidad de la infección (1-10)")]
     public int severity = 5;
     public GameObject customPrefab; // Prefab específico para esta mancha (opcional)
+
 }
 
 public class Leaf : MonoBehaviour
 {
-       
-    
-
     [Header("Manchas de Enfermedad")]
     [Tooltip("Lista de posiciones locales donde están las manchas")]
     public List<DiseaseSpot> diseaseSpots = new List<DiseaseSpot>();
@@ -30,13 +28,13 @@ public class Leaf : MonoBehaviour
     public GameObject markerPrefab;
 
 
-    [SerializeField]
     public bool showMarkers = true;
 
     [Header("Configuración de Animación")]
     public bool animateMarkers = true;
     public float pulseSpeed = 2f;
     public float pulseScale = 1.2f;
+    public bool ableToShowMarkers = true;
 
     private List<GameObject> markerObjects = new List<GameObject>();
 
@@ -57,14 +55,14 @@ public class Leaf : MonoBehaviour
     private void OnSelect(PointerEvent pointerEvent)
     {
         //Debug.Log($"-----------------------------------------------------------");
-        
-        GamificationDeseaseSeverity.Instance.ActualLeafGrabbed = this;
+
+        GrabbableObjectListener.Instance.ActualLeafGrabbed = this;
     }
 
     private void OnUnselect(PointerEvent pointerEvent)
     {
         //Debug.Log($"Objeto deseleccionado: {pointerEvent.Identifier}");
-        GamificationDeseaseSeverity.Instance.ActualLeafGrabbed = null;
+        GrabbableObjectListener.Instance.ActualLeafGrabbed = null;
     }
 
    
@@ -95,7 +93,7 @@ public class Leaf : MonoBehaviour
             {
                 TextMeshProUGUI[] texts = marker.GetComponentsInChildren<TextMeshProUGUI>(true);
                 texts[0].text = spot.diseaseName;
-                texts[1].text = $"Severidad: {spot.severity}/10";
+                texts[1].text = $"Severidad: {spot.severity}/5";
                 markerObjects.Add(marker);
                 marker.SetActive(showMarkers);
             }
@@ -104,6 +102,11 @@ public class Leaf : MonoBehaviour
 
     public void SetMarkersVisibility(bool visible)
     {
+        if (!ableToShowMarkers)
+        {
+            return;
+        }
+
         foreach (GameObject marker in markerObjects)
         {
             if (marker != null)

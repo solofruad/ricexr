@@ -670,7 +670,8 @@ MonoBehaviour:
   animateMarkers: 1
   pulseSpeed: 2
   pulseScale: 1.2
-  pointableWrapper: {fileID: 0}
+  ableToShowMarkers: 1
+  pointableWrapper: {fileID: 4961314317621461471}
 --- !u!1 &9020422268904497308
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GamificationDeseaseSeverity : MonoBehaviour
+public class GrabbableObjectListener : MonoBehaviour
 {
-    public static GamificationDeseaseSeverity Instance { get; private set; }
+    public static GrabbableObjectListener Instance { get; private set; }
     [HideInInspector]
     public Leaf ActualLeafGrabbed { get; set; } = null;
     void Awake()
@@ -18,16 +18,6 @@ public class GamificationDeseaseSeverity : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
 }

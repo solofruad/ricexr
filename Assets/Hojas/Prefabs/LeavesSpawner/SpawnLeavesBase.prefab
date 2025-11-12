@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5826340320688208170}
   - component: {fileID: 2724775236167150408}
   m_Layer: 0
-  m_Name: SpawnLeaves
+  m_Name: SpawnLeavesBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,7 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grassPrefabs:
   - {fileID: 1670554414867062916, guid: 02b5b5cb87957394abf6d9528f734262, type: 3}
-  grassCount: 10
+  grassCount: 1
+  isGrassAbleToShowMarker: 1
   totalSpawnDuration: 4
   growDuration: 1.4
   growCurve:
@@ -64,17 +65,17 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -0.17087916
+      outSlope: -0.17087916
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.22083336
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   spawnTimeVariation: 0.3
-  growTimeVariation: 0.2
+  growTimeVariation: 0.3
   scaleVariation: 0.3
   rotationVariation: 180
   grassParent: {fileID: 0}

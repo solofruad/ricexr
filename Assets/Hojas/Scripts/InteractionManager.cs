@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Meta.XR.MRUtilityKit;
+using Unity.XR.CoreUtils;
 
 public class InteractionManager : MonoBehaviour
 {
     public static InteractionManager Instance { get; private set; }
 
     [Header("Spawn Settings")]
-    [SerializeField] private GameObject prefabToSpawn;
+    [SerializeField] private List<GameObject> prefabsToSpawn = new List<GameObject>();
     [SerializeField] private Transform spawnParent;
+    [SerializeField] private int currentLevelIndex = 0;
 
     [Header("Animation Settings")]
     [SerializeField] private float scaleDuration = 0.5f;
@@ -19,6 +21,7 @@ public class InteractionManager : MonoBehaviour
     private Vector3 targetScale;
 
     private bool hasBeenActivated = false;
+    private GameObject currentLeavesContainer = null;
 
     void Awake()
     {
@@ -111,15 +114,6 @@ public class InteractionManager : MonoBehaviour
             }
         }
 
-        // Si no lo encuentra, busca recursivamente
-        foreach (Transform child in parent)
-        {
-            Transform found = FindPlanePrefab(child);
-            if (found != null)
-            {
-                return found;
-            }
-        }
 
         return null;
     }
@@ -147,38 +141,136 @@ public class InteractionManager : MonoBehaviour
 
     private void SpawnNewObject()
     {
-        if (prefabToSpawn == null)
+        if (prefabsToSpawn.Count == 0)
         {
-            Debug.LogWarning("No prefab assigned to spawn!");
+            Debug.LogWarning("No hay prefabs en la lista!");
             return;
         }
 
-        ConfigureLeafSpawn();
+        if (currentLevelIndex >= prefabsToSpawn.Count)
+        {
+            Debug.Log("¡Todos los niveles completados!");
+            return;
+        }
+
+        GameObject currentPrefab = prefabsToSpawn[currentLevelIndex];
+
+        if (currentPrefab == null)
+        {
+            Debug.LogWarning($"Prefab en índice {currentLevelIndex} es null!");
+            return;
+        }
+
+        ConfigureLeafSpawn(currentPrefab);
     }
 
-    private void ConfigureLeafSpawn()
+    private void ConfigureLeafSpawn(GameObject prefabToSpawn)
     {
         Transform parent = spawnParent != null ? spawnParent : transform;
 
         parent.rotation = targetRotation;
         GameObject instance = Instantiate(prefabToSpawn, Vector3.zero, Quaternion.identity, parent);
-        instance.transform.position = targetPosition;
+        instance.transform.position = targetPosition - Vector3.up * 0.03f;
         instance.transform.rotation = targetRotation;
+
+        // Guardar referencia al contenedor actual de hojas
+        currentLeavesContainer = parent.gameObject;
 
         SpawnHojas leafSpawner = instance.GetComponent<SpawnHojas>();
 
-        leafSpawner.SpawnAreaSize = new Vector2(targetScale.x, targetScale.y);
-        Debug.Log(leafSpawner.SpawnAreaSize);
+        if (leafSpawner != null)
+        {
+            leafSpawner.SpawnAreaSize = new Vector2(targetScale.x, targetScale.y);
+            Debug.Log($"Nivel {currentLevelIndex}: SpawnAreaSize = {leafSpawner.SpawnAreaSize}");
 
-        leafSpawner.grassParent = parent;
-        leafSpawner.grassCount = Mathf.Max((int)(targetScale.x * targetScale.y * 0.7f), 20);
+            leafSpawner.grassParent = parent;
+            if (leafSpawner.grassCount == -1) { 
+                leafSpawner.grassCount = Mathf.Max((int)(targetScale.x * targetScale.y * 0.7f), 20);
+            }
 
-        leafSpawner.Activate();
+            leafSpawner.Activate();
+        }
+        else
+        {
+            Debug.LogWarning($"El prefab {prefabToSpawn.name} no tiene componente SpawnHojas");
+        }
+    }
+
+    public void AdvanceToNextLevel()
+    {
+        Debug.Log($"Avanzando del nivel {currentLevelIndex} al nivel {currentLevelIndex + 1}");
+
+        // Destruir todas las hojas actuales
+        DestroyCurrentLeaves();
+
+        // Avanzar al siguiente nivel
+        currentLevelIndex++;
+
+        // Verificar si hay más niveles
+        if (currentLevelIndex >= prefabsToSpawn.Count)
+        {
+            Debug.Log("¡Felicitaciones! Has completado todos los niveles.");
+            OnAllLevelsCompleted();
+            return;
+        }
+
+        // Spawnear el siguiente nivel
+        SpawnNewObject();
+    }
+
+    private void DestroyCurrentLeaves()
+    {
+        if (currentLeavesContainer != null)
+        {
+
+            // Destruir cada hoja individual
+            foreach (Transform leaf in currentLeavesContainer.transform)
+            {
+                if (leaf != null)
+                {
+                    Destroy(leaf.gameObject);
+                }
+            }
+
+            // Destruir el contenedor completo
+            //Destroy(currentLeavesContainer);
+            //currentLeavesContainer = null;
+        }
+    }
+
+    public void ResetToFirstLevel()
+    {
+        DestroyCurrentLeaves();
+        currentLevelIndex = 0;
+        SpawnNewObject();
+    }
+
+    private void OnAllLevelsCompleted()
+    {
+        // Aquí puedes poner lo que quieras que pase cuando se completen todos los niveles
+        // Por ejemplo: mostrar un menú de felicitaciones, estadísticas, etc.
+        Debug.Log("Todos los niveles completados. Puedes agregar aquí tu lógica de finalización.");
     }
 
     // Easing function para animación más suave
     private float EaseOutCubic(float t)
     {
         return 1f - Mathf.Pow(1f - t, 3f);
+    }
+
+    // Método público para obtener información del nivel actual
+    public int GetCurrentLevelIndex()
+    {
+        return currentLevelIndex;
+    }
+
+    public int GetTotalLevels()
+    {
+        return prefabsToSpawn.Count;
+    }
+
+    public string GetLevelProgress()
+    {
+        return $"Nivel {currentLevelIndex + 1} de {prefabsToSpawn.Count}";
     }
 }

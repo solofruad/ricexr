@@ -6,8 +6,8 @@ public class SpawnHojas : MonoBehaviour
 {
     [Header("Grass Settings")]
     [SerializeField] private GameObject[] grassPrefabs;
-    [SerializeField] public int grassCount = 100;
-
+    [SerializeField] public int grassCount = -1;
+    public bool isGrassAbleToShowMarker = true;
 
     [SerializeField] public Vector2 SpawnAreaSize { get; set; }
 
@@ -65,6 +65,8 @@ public class SpawnHojas : MonoBehaviour
 
             GameObject prefab = grassPrefabs[Random.Range(0, grassPrefabs.Length)];
             GameObject grass = Instantiate(prefab, spawnPositions[i], Quaternion.identity, grassParent);
+            grass.GetComponentInChildren<Leaf>().ableToShowMarkers = isGrassAbleToShowMarker;
+
 
             // Rotación aleatoria + rotación del padre
             float randomYRotation = Random.Range(-rotationVariation, rotationVariation);
