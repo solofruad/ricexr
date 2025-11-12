@@ -1,23 +1,25 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
+using Oculus.Interaction;
 
 [System.Serializable]
 public class DiseaseSpot
 {
     public Vector3 localPosition;
     public float size = 0.05f;
+    [Tooltip("Nombre de la enfermedad (ej: Pyricularia, Helminthosporium)")]
+    public string diseaseName = "Pyricularia";
+    [Range(1, 10)]
+    [Tooltip("Severidad de la infección (1-10)")]
+    public int severity = 5;
     public GameObject customPrefab; // Prefab específico para esta mancha (opcional)
 }
 
 public class Leaf : MonoBehaviour
 {
-    [Header("Información de la Enfermedad")]
-    [Tooltip("Nombre de la enfermedad (ej: Pyricularia, Helminthosporium)")]
-    public string diseaseName = "Pyricularia";
-
-    [Range(1, 10)]
-    [Tooltip("Severidad de la infección (1-10)")]
-    public int severity = 5;
+       
+    
 
     [Header("Manchas de Enfermedad")]
     [Tooltip("Lista de posiciones locales donde están las manchas")]
@@ -27,9 +29,8 @@ public class Leaf : MonoBehaviour
     [Tooltip("Prefab por defecto para los marcadores (si no se especifica uno por mancha)")]
     public GameObject markerPrefab;
 
-    public Color markerColor = Color.red;
-    [Range(0f, 1f)]
-    public float markerAlpha = 0.7f;
+
+    [SerializeField]
     public bool showMarkers = true;
 
     [Header("Configuración de Animación")]
@@ -39,11 +40,34 @@ public class Leaf : MonoBehaviour
 
     private List<GameObject> markerObjects = new List<GameObject>();
 
+    [SerializeField] private PointableUnityEventWrapper pointableWrapper;
+
     void Start()
     {
         GenerateMarkers();
+    
+        if (pointableWrapper != null)
+        {
+            // Suscribirse a los eventos
+            pointableWrapper.WhenSelect.AddListener(OnSelect);
+            pointableWrapper.WhenUnselect.AddListener(OnUnselect);
+        }
     }
 
+    private void OnSelect(PointerEvent pointerEvent)
+    {
+        Debug.Log($"-----------------------------------------------------------");
+        
+        GamificationDeseaseSeverity.Instance.ActualLeafGrabbed = this;
+    }
+
+    private void OnUnselect(PointerEvent pointerEvent)
+    {
+        Debug.Log($"Objeto deseleccionado: {pointerEvent.Identifier}");
+        GamificationDeseaseSeverity.Instance.ActualLeafGrabbed = null;
+    }
+
+   
     void Update()
     {
         if (animateMarkers && markerObjects.Count > 0)
@@ -69,13 +93,16 @@ public class Leaf : MonoBehaviour
 
             if (marker != null)
             {
+                TextMeshProUGUI[] texts = marker.GetComponentsInChildren<TextMeshProUGUI>(true);
+                texts[0].text = spot.diseaseName;
+                texts[1].text = $"Severidad: {spot.severity}/10";
                 markerObjects.Add(marker);
                 marker.SetActive(showMarkers);
             }
         }
     }
 
-    void SetMarkersVisibility(bool visible)
+    public void SetMarkersVisibility(bool visible)
     {
         foreach (GameObject marker in markerObjects)
         {
@@ -99,7 +126,7 @@ public class Leaf : MonoBehaviour
 
         // Instanciar el prefab
         GameObject marker = Instantiate(prefabToUse);
-        marker.name = $"Marker_{diseaseName}_{index}";
+        marker.name = $"Marker_{spot.diseaseName}_{index}";
         marker.transform.parent = transform;
         marker.transform.localPosition = spot.localPosition;
         marker.transform.localRotation = Quaternion.identity;
@@ -179,14 +206,14 @@ public class Leaf : MonoBehaviour
         GenerateMarkers();
     }
 
-
+    /*
     public string GetDiseaseInfo()
     {
         return $"Enfermedad: {diseaseName}\n" +
                $"Severidad: {severity}/10\n" +
                $"Manchas detectadas: {diseaseSpots.Count}";
     }
-
+    */
     public void SetMarkerPrefab(GameObject newPrefab)
     {
         markerPrefab = newPrefab;
@@ -202,10 +229,6 @@ public class Leaf : MonoBehaviour
         }
     }
 
-    void OnDestroy()
-    {
-        ClearMarkers();
-    }
 
     // Método de ayuda para añadir manchas en posiciones del mundo
     public void AddDiseaseSpotWorldPosition(Vector3 worldPosition, float size = 0.05f, GameObject customPrefab = null)
@@ -213,8 +236,18 @@ public class Leaf : MonoBehaviour
         Vector3 localPos = transform.InverseTransformPoint(worldPosition);
         AddDiseaseSpot(localPos, size, customPrefab);
     }
-}
+    void OnDestroy()
+    {
+        ClearMarkers();
+        if (pointableWrapper != null)
+        {
+            pointableWrapper.WhenSelect.RemoveListener(OnSelect);
+            pointableWrapper.WhenUnselect.RemoveListener(OnUnselect);
+        }
+    }
 
+}
+/*
 #if UNITY_EDITOR
 [UnityEditor.CustomEditor(typeof(Leaf))]
 public class PlantDiseaseDetectorEditor : UnityEditor.Editor
@@ -227,23 +260,8 @@ public class PlantDiseaseDetectorEditor : UnityEditor.Editor
 
         GUILayout.Space(10);
 
-        if (GUILayout.Button("Regenerar Marcadores"))
-        {
-            detector.GenerateMarkers();
-        }
-
-        if (GUILayout.Button("Limpiar Marcadores"))
-        {
-            detector.ClearMarkers();
-        }
-
-        if (GUILayout.Button("Toggle Marcadores"))
-        {
-            detector.ToggleMarkers();
-        }
-
         GUILayout.Space(10);
         GUILayout.Label(detector.GetDiseaseInfo(), UnityEditor.EditorStyles.helpBox);
     }
 }
-#endif
+#endif*/

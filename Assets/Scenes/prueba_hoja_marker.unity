@@ -362,13 +362,53 @@ PrefabInstance:
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
       propertyPath: grassCount
-      value: 100
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
       propertyPath: grassParent
       value: 
       objectReference: {fileID: 249169943}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: growCurve.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: growCurve.m_Curve.Array.data[1].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: growCurve.m_Curve.Array.data[0].inSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: growCurve.m_Curve.Array.data[1].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: growCurve.m_Curve.Array.data[0].outSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: growCurve.m_Curve.Array.data[1].inWeight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: growCurve.m_Curve.Array.data[1].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
+      propertyPath: growCurve.m_Curve.Array.data[0].outWeight
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
       propertyPath: m_LocalPosition.x

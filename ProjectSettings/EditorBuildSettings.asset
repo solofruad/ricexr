@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/SeleccionarHoja.unity
     guid: 969f45beb761a9b45a7d7fd755c8a814
   - enabled: 0
-    path: Assets/Scenes/prueba_deteccion_espacio.unity
+    path: Assets/Scenes/Main.unity
     guid: e99ed8188f4e828458cb168be516f082
   - enabled: 1
     path: Assets/Scenes/lanzar.unity
