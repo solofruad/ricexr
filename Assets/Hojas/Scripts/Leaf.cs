@@ -56,14 +56,14 @@ public class Leaf : MonoBehaviour
 
     private void OnSelect(PointerEvent pointerEvent)
     {
-        Debug.Log($"-----------------------------------------------------------");
+        //Debug.Log($"-----------------------------------------------------------");
         
         GamificationDeseaseSeverity.Instance.ActualLeafGrabbed = this;
     }
 
     private void OnUnselect(PointerEvent pointerEvent)
     {
-        Debug.Log($"Objeto deseleccionado: {pointerEvent.Identifier}");
+        //Debug.Log($"Objeto deseleccionado: {pointerEvent.Identifier}");
         GamificationDeseaseSeverity.Instance.ActualLeafGrabbed = null;
     }
 
