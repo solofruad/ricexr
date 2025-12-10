@@ -17,6 +17,28 @@ public class DiseaseSpot
 
 }
 
+/// <summary>
+/// Componente que representa una hoja con capacidad de mostrar manchas de enfermedad.
+/// 
+/// Funcionalidades principales:
+/// 1. Gestiona múltiples manchas de enfermedad con posición, tamaño y severidad individuales
+/// 2. Genera marcadores visuales para cada mancha (etiquetas con información)
+/// 3. Implementa animaciones de pulso para destacar los marcadores
+/// 4. Integra con Oculus Interaction para detectar cuándo la hoja es agarrada/soltada
+/// 5. Notifica al GrabbableObjectListener cuando es interactuada
+/// 
+/// Uso típico:
+/// - Configurar diseaseSpots en el inspector para definir las manchas
+/// - Los marcadores se generan automáticamente al inicio
+/// - Cuando el usuario agarra la hoja, se notifica al sistema global
+/// - Los sistemas de diagnóstico pueden acceder a la información de las manchas
+/// 
+/// Notas importantes:
+/// - Los marcadores usan TextMeshPro para mostrar información de enfermedad
+/// - Las posiciones de las manchas son locales al transform de la hoja
+/// - La animación de pulso se puede activar/desactivar según necesidad
+/// - Integra con el sistema de interacción de Meta para VR
+/// </summary>
 public class Leaf : MonoBehaviour
 {
     [Header("Manchas de Enfermedad")]
@@ -250,21 +272,3 @@ public class Leaf : MonoBehaviour
     }
 
 }
-/*
-#if UNITY_EDITOR
-[UnityEditor.CustomEditor(typeof(Leaf))]
-public class PlantDiseaseDetectorEditor : UnityEditor.Editor
-{
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-
-        Leaf detector = (Leaf)target;
-
-        GUILayout.Space(10);
-
-        GUILayout.Space(10);
-        GUILayout.Label(detector.GetDiseaseInfo(), UnityEditor.EditorStyles.helpBox);
-    }
-}
-#endif*/

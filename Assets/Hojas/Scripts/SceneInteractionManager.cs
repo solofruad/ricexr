@@ -4,9 +4,27 @@ using UnityEngine;
 using Meta.XR.MRUtilityKit;
 using Unity.XR.CoreUtils;
 
-public class InteractionManager : MonoBehaviour
+
+/// <summary>
+/// Clase que gestiona la interacción del usuario con el entorno de realidad mixta.
+/// 
+/// Funcionalidades principales:
+/// 1. Gestiona el ciclo de vida de los objetos interactivos mediante un patrón Singleton
+/// 2. Detecta y anima la desaparición de los planos existentes en el entorno MR
+/// 3. Instancia y configura nuevos objetos prefabricados en posiciones específicas
+/// 4. Implementa un sistema de niveles progresivos con transiciones animadas
+/// 5. Proporciona métodos para navegar entre niveles y reiniciar la experiencia
+/// 
+/// Flujo de trabajo:
+/// - El usuario selecciona un plano en el entorno de realidad mixta
+/// - Se activa OnAnchorSelected() que captura la posición, rotación y escala del plano
+/// - Todos los planos existentes se animan y desaparecen
+/// - Se instancia un nuevo objeto prefabricado en la ubicación seleccionada
+/// - El sistema mantiene un índice de nivel actual para cargar diferentes prefabs
+/// </summary>
+public class SceneInteractionManager : MonoBehaviour
 {
-    public static InteractionManager Instance { get; private set; }
+    public static SceneInteractionManager Instance { get; private set; }
 
     [Header("Spawn Settings")]
     [SerializeField] private List<GameObject> prefabsToSpawn = new List<GameObject>();
@@ -25,7 +43,7 @@ public class InteractionManager : MonoBehaviour
 
     void Awake()
     {
-        // Singleton pattern
+        // Singleton 
         if (Instance == null)
         {
             Instance = this;
@@ -176,7 +194,7 @@ public class InteractionManager : MonoBehaviour
         // Guardar referencia al contenedor actual de hojas
         currentLeavesContainer = parent.gameObject;
 
-        SpawnHojas leafSpawner = instance.GetComponent<SpawnHojas>();
+        LeavesSpawner leafSpawner = instance.GetComponent<LeavesSpawner>();
 
         if (leafSpawner != null)
         {

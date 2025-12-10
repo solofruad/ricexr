@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Simple clase que hace que el UI siempre mire a la cámara.
+/// 
+/// Es utilizada tanto en el mensaje mostrado por los planos azules con olas cuando se quiere elegir una superfie 
+/// para desplegar el cultivo, como en los tooltips de las hojas.
+/// 
+/// </summary>
+
 public class BillboardUI : MonoBehaviour
 {
     private Transform cameraTransform;

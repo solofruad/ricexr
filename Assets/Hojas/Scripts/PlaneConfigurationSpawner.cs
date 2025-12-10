@@ -8,7 +8,27 @@ using Random = System.Random;
 
 namespace Meta.XR.MRUtilityKit
 {
-    public class PlanoSpawnHojas : AnchorPrefabSpawner
+    /// <summary>
+    /// Sistema especializado para spawnear planos azules con olas sobre superficies detectadas por el MRUtilityKit.
+    /// 
+    /// Funcionalidades principales:
+    /// 1. Hereda de AnchorPrefabSpawner para integración con el sistema de MRUtilityKit
+    /// 2. Implementa lógica personalizada para escalado y alineación de prefabs de planos
+    /// 3. Mantiene la altura original del plano mientras ajusta ancho y profundidad al volumen del anchor
+    /// 4. Posiciona los planos con una separación vertical configurable para evitar clipping
+    /// 
+    /// Uso típico:
+    /// - Detecta superficies planas en el entorno de realidad mixta
+    /// - Spawnea planos sobre la CARA SUPERIOR de estas superficies
+    /// - Ajusta automáticamente el tamaño del plano al tamaño de la superficie detectada
+    /// - Mantiene una separación vertical para evitar problemas de z-fighting
+    /// 
+    /// Configuración:
+    /// - El prefab debe ser un plano orientado horizontalmente
+    /// - SeparaciónVertical controla la distancia entre el plano y la superficie real
+    /// - Las escalas X y Z se ajustan automáticamente al volumen del anchor
+    /// </summary>
+    public class PlaneConfigurationSpawner : AnchorPrefabSpawner
     {
         public float SeparacionVertical = 0.1f;
         /// <summary>

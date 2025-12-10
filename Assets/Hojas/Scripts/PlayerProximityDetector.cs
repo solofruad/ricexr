@@ -2,7 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DetectarJugadorCerca : MonoBehaviour
+
+/// <summary>
+/// CLASE ASOCIADA A LOS PLANOS AZULES CON OLAS
+/// Clase que detecta la proximidad del jugador y controla la visibilidad de elementos UI/visuales.
+/// 
+/// Funcionalidades principales:
+/// 1. Detecta cuando el jugador entra/sale de un área de activación de los planos azules con olas definida por un BoxCollider
+/// 2. Muestra/oculta elementos de UI cuando el jugador está cerca
+/// 3. Ajusta automáticamente la escala de elementos visuales para mantener proporciones correctas
+/// 4. Maneja múltiples métodos de identificación del jugador (LayerMask y Tag)
+/// 5. Asegura que la UI se oculte cuando el objeto se deshabilita
+/// 
+/// Configuración requerida:
+/// - El GameObject debe tener un BoxCollider con "Is Trigger" habilitado
+/// - Debe tener un GameObject hijo con elementos UI a mostrar/ocultar
+/// - Debe tener un GameObject hijo con elementos visuales a escalar
+/// - El jugador debe tener configurado el Layer y/o Tag especificado
+/// 
+/// Flujo de trabajo:
+/// - En Start(): Ajusta la escala de los elementos visuales y el BoxCollider
+/// - Cuando el jugador entra: Activa la UI y cualquier animación relacionada
+/// - Cuando el jugador sale: Desactiva la UI
+/// - Si el objeto se deshabilita: Desactiva la UI automáticamente
+/// </summary>
+public class PlayerProximityDetector : MonoBehaviour
 {
     [Header("Detección del Player")]
     [Tooltip("Layer asignado al jugador")]

@@ -1,8 +1,35 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/// <summary>
+/// Sistema de selección de enfermedades para simulación de diagnóstico vegetal.
+/// 
+/// Funcionalidades principales:
+/// 1. Gestiona dos grupos de selección: Enfermedades y Niveles de Severidad
+/// 2. Valida las selecciones del usuario contra datos predefinidos en objetos Leaf
+/// 3. Proporciona feedback visual inmediato (correcto/incorrecto)
+/// 4. Permite un margen de error configurable para la severidad
+/// 5. Integra con el sistema de progreso de niveles del SceneInteractionManager
+/// 6. Maneja la visualización de marcadores de enfermedad en las hojas
+/// 
+/// Flujo de trabajo:
+/// 1. Usuario selecciona una enfermedad y nivel de severidad mediante Toggles
+/// 2. Usuario presiona botón de submit para validar
+/// 3. Sistema verifica si hay una hoja seleccionada/agarrada
+/// 4. Compara la selección con los datos de enfermedad de la hoja
+/// 5. Muestra feedback visual (correcto/incorrecto)
+/// 6. Si es correcto: muestra marcadores y avanza al siguiente nivel
+/// 7. Resetea la selección para el siguiente diagnóstico
+/// 
+/// Configuración requerida:
+/// - Debe existir un GrabbableObjectListener con referencia a la hoja actual
+/// - Debe existir un SceneInteractionManager para avanzar niveles
+/// - Las listas diseaseToggles y diseaseNames deben estar sincronizadas
+/// - Los objetos de feedback deben estar configurados
+/// </summary>
 public class DiseaseSelectionSystem : MonoBehaviour
 {
     [Header("Toggle Groups")]
@@ -27,17 +54,20 @@ public class DiseaseSelectionSystem : MonoBehaviour
     [Tooltip("Toggles de severidad en orden (1-5)")]
     public List<Toggle> severityToggles = new List<Toggle>();
 
-    [Header("Bot�n de Submit")]
+    [Header("Botón de Submit")]
     public Button submitButton;
 
     [Header("Objetos de Feedback")]
-    [Tooltip("GameObject que se mostrar� cuando sea correcto")]
+    [Tooltip("GameObject que se mostrará cuando sea correcto")]
     public GameObject correctFeedbackObject;
 
-    [Tooltip("GameObject que se mostrar� cuando sea incorrecto")]
+    [Tooltip("GameObject que se mostrará cuando sea incorrecto")]
     public GameObject incorrectFeedbackObject;
 
-    [Tooltip("Duraci�n que el feedback estar� visible")]
+    [Tooltip("GameObject que se mostrará cuando no hay hoja seleccionada")]
+    public GameObject noLeafSelectedFeedbackObject;
+
+    [Tooltip("Duración que el feedback estará visible")]
     public float feedbackDuration = 3f;
 
     [Tooltip("Margen de error permitido en la severidad")]
@@ -50,7 +80,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
             submitButton.onClick.AddListener(OnSubmit);
         }
 
-        // Asegurarse de que los objetos de feedback est�n ocultos al inicio
+        // Asegurarse de que los objetos de feedback estén ocultos al inicio
         if (correctFeedbackObject != null)
         {
             correctFeedbackObject.SetActive(false);
@@ -60,6 +90,26 @@ public class DiseaseSelectionSystem : MonoBehaviour
         {
             incorrectFeedbackObject.SetActive(false);
         }
+
+        if (noLeafSelectedFeedbackObject != null)  
+        {
+            noLeafSelectedFeedbackObject.SetActive(false);
+        }
+    }
+
+    void ShowNoLeafFeedback()
+    {
+        if (noLeafSelectedFeedbackObject == null)
+        {
+            Debug.LogWarning("No hay objeto asignado para feedback de 'sin hoja seleccionada'");
+            return;
+        }
+
+        // Mostrar el objeto
+        noLeafSelectedFeedbackObject.SetActive(true);
+
+        // Ocultarlo después de un tiempo
+        StartCoroutine(HideFeedbackAfterDelay(noLeafSelectedFeedbackObject));
     }
 
     void OnSubmit()
@@ -70,6 +120,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
         if (currentLeaf == null)
         {
             Debug.LogWarning("No hay ninguna hoja agarrada");
+            ShowNoLeafFeedback(); 
             return;
         }
 
@@ -103,7 +154,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
             currentLeaf.showMarkers = true;
             currentLeaf.SetMarkersVisibility(true);
 
-            // Avanzar al siguiente nivel despu�s de mostrar el feedback
+            // Avanzar al siguiente nivel después de mostrar el feedback
             StartCoroutine(AdvanceToNextLevel());
         }
     }
@@ -124,7 +175,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
             return null;
         }
 
-        // Encontrar el �ndice del toggle activo
+        // Encontrar el índice del toggle activo
         int index = diseaseToggles.IndexOf(activeToggle);
 
         if (index >= 0 && index < diseaseNames.Count)
@@ -152,7 +203,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
             return -1;
         }
 
-        // Encontrar el �ndice del toggle activo (�ndice + 1 = severidad)
+        // Encontrar el índice del toggle activo (índice + 1 = severidad)
         int index = severityToggles.IndexOf(activeToggle);
 
         if (index >= 0)
@@ -186,7 +237,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
         // Log de resultados
         if (isCorrect)
         {
-            Debug.Log($"�CORRECTO! Enfermedad: {selectedDisease}, Severidad: {selectedSeverity}");
+            Debug.Log($"¡CORRECTO! Enfermedad: {selectedDisease}, Severidad: {selectedSeverity}");
         }
         else
         {
@@ -233,7 +284,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
         // Mostrar el objeto
         objectToShow.SetActive(true);
 
-        // Ocultarlo despu�s de un tiempo
+        // Ocultarlo después de un tiempo
         StartCoroutine(HideFeedbackAfterDelay(objectToShow));
     }
 
@@ -252,13 +303,13 @@ public class DiseaseSelectionSystem : MonoBehaviour
         // Esperar a que termine de mostrarse el feedback
         yield return new WaitForSeconds(feedbackDuration);
 
-        // Resetear la selecci�n
+        // Resetear la selección
         ResetSelection();
 
         // Notificar al InteractionManager para que avance al siguiente nivel
-        if (InteractionManager.Instance != null)
+        if (SceneInteractionManager.Instance != null)
         {
-            InteractionManager.Instance.AdvanceToNextLevel();
+            SceneInteractionManager.Instance.AdvanceToNextLevel();
         }
         else
         {
@@ -287,4 +338,4 @@ public class DiseaseSelectionSystem : MonoBehaviour
             submitButton.onClick.RemoveListener(OnSubmit);
         }
     }
-}
+}   

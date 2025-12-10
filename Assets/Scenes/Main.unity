@@ -1182,7 +1182,7 @@ GameObject:
   - component: {fileID: 693940579}
   - component: {fileID: 693940578}
   m_Layer: 0
-  m_Name: SpawnearIndicadoresUIPlanos
+  m_Name: BluePlaneSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1519,6 +1519,12 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1202483717 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 685263020411030498, guid: 15667e6656432b641b5e5cbbc615ae0d,
+    type: 3}
+  m_PrefabInstance: {fileID: 603182512}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1299026589 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7691946416639491955, guid: 15667e6656432b641b5e5cbbc615ae0d,
@@ -1726,7 +1732,8 @@ MonoBehaviour:
   submitButton: {fileID: 1067985954}
   correctFeedbackObject: {fileID: 1028194427}
   incorrectFeedbackObject: {fileID: 1926438237}
-  feedbackDuration: 3
+  noLeafSelectedFeedbackObject: {fileID: 1202483717}
+  feedbackDuration: 4
   MarginOfError: 0
 --- !u!4 &1527153848
 Transform:
@@ -2089,7 +2096,7 @@ GameObject:
   - component: {fileID: 1886615857}
   - component: {fileID: 1886615856}
   m_Layer: 0
-  m_Name: SurfaceInteractionManager
+  m_Name: SceneInteractionManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2667,12 +2674,12 @@ SceneRoots:
   m_Roots:
   - {fileID: 1630950058}
   - {fileID: 1618627223}
+  - {fileID: 932730034}
   - {fileID: 1900167012}
   - {fileID: 1939426422}
   - {fileID: 1886615857}
   - {fileID: 1193198298}
   - {fileID: 693940579}
   - {fileID: 2028551050}
-  - {fileID: 932730034}
   - {fileID: 1527153848}
   - {fileID: 603182512}

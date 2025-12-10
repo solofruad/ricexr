@@ -2,7 +2,30 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class SpawnHojas : MonoBehaviour
+/// <summary>
+/// Clase que gestiona la generación y animación de hojas en un área definida.
+/// 
+/// Funcionalidades principales:
+/// 1. Genera múltiples instancias de prefabs de hojas dentro de un área rectangular personalizable
+/// 2. Implementa un sistema de spawn progresivo con animaciones de crecimiento 
+/// 3. Aplica variaciones aleatorias en posición, rotación, escala y tiempos de animación
+/// 4. Proporciona controles de optimización mediante el uso de un contenedor padre organizado
+/// 5. Incluye capacidad de respawn y regeneración de toda la vegetación
+/// 
+/// Flujo de trabajo:
+/// - Al activarse, genera posiciones aleatorias dentro del área de spawn definida por SpawnAreaSize
+/// - Crea instancias de los prefabs de vegetación pero las inicializa con escala cero (invisibles)
+/// - Programa un sistema de delay escalonado para el inicio de las animaciones
+/// - Ejecuta animaciones de crecimiento suaves utilizando AnimationCurve para el control de easing
+/// - Mantiene una lista interna de todas las instancias para permitir su gestión centralizada
+/// 
+/// Notas importantes:
+/// - El área de spawn se rota según la rotación del GameObject padre
+/// - Las animaciones usan variaciones aleatorias para evitar patrones repetitivos
+/// - El sistema es eficiente al crear todas las instancias al inicio y luego solo animarlas
+/// - Incluye visualización del área de spawn en el editor mediante Gizmos
+/// </summary>
+public class LeavesSpawner : MonoBehaviour
 {
     [Header("Grass Settings")]
     [SerializeField] private GameObject[] grassPrefabs;
@@ -58,14 +81,24 @@ public class SpawnHojas : MonoBehaviour
     {
         List<Vector3> spawnPositions = GenerateSpawnPositions();
 
+        // Decide how many to spawn (handle inspector values <= 0 gracefully)
+        int spawnCount = spawnPositions.Count;
+        if (grassCount > 0)
+        {
+            spawnCount = Mathf.Min(grassCount, spawnPositions.Count);
+        }
+
+        if (spawnCount == 0) yield break;
+
         // Crear todas las hojas de inmediato pero invisibles
-        for (int i = 0; i < Mathf.Min(grassCount, spawnPositions.Count); i++)
+        for (int i = 0; i < spawnCount; i++)
         {
             if (grassPrefabs == null || grassPrefabs.Length == 0) yield break;
 
             GameObject prefab = grassPrefabs[Random.Range(0, grassPrefabs.Length)];
             GameObject grass = Instantiate(prefab, spawnPositions[i], Quaternion.identity, grassParent);
-            grass.GetComponentInChildren<Leaf>().ableToShowMarkers = isGrassAbleToShowMarker;
+            var leaf = grass.GetComponentInChildren<Leaf>();
+            if (leaf != null) leaf.ableToShowMarkers = isGrassAbleToShowMarker;
 
 
             // Rotación aleatoria + rotación del padre
@@ -82,9 +115,13 @@ public class SpawnHojas : MonoBehaviour
             grass.transform.localScale = Vector3.zero;
 
             // Calcular delay de spawn
-            float normalizedIndex = i / (float)grassCount;
+            float normalizedIndex = i / (float)Mathf.Max(1, spawnCount); // use actual spawnCount to avoid divide-by-zero
             float spawnDelay = (normalizedIndex * totalSpawnDuration) + Random.Range(-spawnTimeVariation, spawnTimeVariation);
             spawnDelay = Mathf.Max(0f, spawnDelay);
+
+            // Ensure grow duration is never zero or negative
+            float instanceGrowDuration = growDuration + Random.Range(-growTimeVariation, growTimeVariation);
+            instanceGrowDuration = Mathf.Max(0.001f, instanceGrowDuration);
 
             GrassInstance instance = new GrassInstance
             {
@@ -92,7 +129,7 @@ public class SpawnHojas : MonoBehaviour
                 originalScale = finalScale,
                 targetPosition = spawnPositions[i],
                 spawnDelay = spawnDelay,
-                growDuration = growDuration + Random.Range(-growTimeVariation, growTimeVariation),
+                growDuration = instanceGrowDuration,
                 isGrowing = false,
                 growProgress = 0f
             };
@@ -126,23 +163,24 @@ public class SpawnHojas : MonoBehaviour
                     grass.isGrowing = true;
                 }
 
-                // Animar crecimiento
-                if (grass.isGrowing && grass.growProgress < 1f)
+                // If this grass is not yet fully grown, we are not complete
+                if (grass.growProgress < 1f)
                 {
                     allComplete = false;
 
-                    grass.growProgress += Time.deltaTime / grass.growDuration;
-                    grass.growProgress = Mathf.Clamp01(grass.growProgress);
+                    // Only advance growth when the spawn delay has passed (isGrowing)
+                    if (grass.isGrowing)
+                    {
+                        grass.growProgress += Time.deltaTime / grass.growDuration;
+                        grass.growProgress = Mathf.Clamp01(grass.growProgress);
 
-                    float curveValue = growCurve.Evaluate(grass.growProgress);
+                        float curveValue = growCurve.Evaluate(grass.growProgress);
 
-                    // Aplicar escala con crecimiento vertical
-                    Vector3 currentScale = Vector3.Lerp(Vector3.zero, grass.originalScale, curveValue);
-                    grass.transform.localScale = currentScale;
-
-                    // Ajustar posición para que crezca desde abajo
-                    //float heightOffset = grass.originalScale.y * curveValue * 0.5f;
-                    //grass.transform.position = grass.targetPosition + new Vector3(0, heightOffset, 0);
+                        // Aplicar escala con crecimiento vertical
+                        Vector3 currentScale = Vector3.Lerp(Vector3.zero, grass.originalScale, curveValue);
+                        grass.transform.localScale = currentScale;
+                    }
+                    // if not yet isGrowing, leave scale at zero until spawnDelay reached
                 }
                 else if (grass.growProgress >= 1f)
                 {
@@ -163,9 +201,10 @@ public class SpawnHojas : MonoBehaviour
     {
         List<Vector3> positions = new List<Vector3>();
         int attempts = 0;
-        int maxAttempts = grassCount * 3;
+        int maxAttempts = Mathf.Max(1, (grassCount > 0 ? grassCount : 1) * 3);
 
-        while (positions.Count < grassCount && attempts < maxAttempts)
+        int targetCount = (grassCount > 0) ? grassCount : 1;
+        while (positions.Count < targetCount && attempts < maxAttempts)
         {
             attempts++;
 
