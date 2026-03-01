@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 11c5f080213041d4bb44233244b1f231
+guid: 8e59a7e6becf0e84982e18a611190746
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,13 +7,63 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: pyri1
+    second: {fileID: 2100000, guid: 77b7668b8c1023943b1d854a3ee04c58, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: pyri2
     second: {fileID: 2100000, guid: a789c9729a2f7b74c8192d40ee5e0259, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: pyri3
+    second: {fileID: 2100000, guid: 66d9e80810757bf48b1b2d6a7561da0f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: pyri4
+    second: {fileID: 2100000, guid: b3f5176a3d0b4684eb8719017b19e371, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: pyri5
+    second: {fileID: 2100000, guid: 39105bca38d9fda48a724b2a70dfb6c8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: pyri6
+    second: {fileID: 2100000, guid: 971c84d0605d8ad4e945e3a102b865c4, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: IMG_7955
+    second: {fileID: 2800000, guid: f547f00fcd2dcbc479b90098aca4385f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: IMG_8453
+    second: {fileID: 2800000, guid: 2d0e4109783972243ada88e36e220644, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: IMG_8460
+    second: {fileID: 2800000, guid: 66a804bf7123b2647a2935a69306a47d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: IMG_8520
+    second: {fileID: 2800000, guid: 529d5acc6d1905f40a4a2d9ce1e4f68a, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: IMG_9014
-    second: {fileID: 2800000, guid: 866b0cc8dc6b1b54bb74af089e803a43, type: 3}
+    second: {fileID: 2800000, guid: 34714d30c27a9424fb4fc16c637fd896, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: IMG_9075
+    second: {fileID: 2800000, guid: 9de9bf364ef41a54b90e459bf1ffd9fc, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

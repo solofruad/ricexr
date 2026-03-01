@@ -448,7 +448,7 @@ GameObject:
   - component: {fileID: 3402469764762400243}
   - component: {fileID: 1574271310268298247}
   m_Layer: 4
-  m_Name: Hor
+  m_Name: Horizontal Layout 123
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -662,7 +662,7 @@ GameObject:
   - component: {fileID: 1487563114294877290}
   - component: {fileID: 6955897060725005828}
   m_Layer: 4
-  m_Name: Hor (1)
+  m_Name: Horizontal Layout 45
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -791,7 +791,7 @@ GameObject:
   - component: {fileID: 779555004718583486}
   - component: {fileID: 3784401203540966487}
   m_Layer: 0
-  m_Name: PrimaryButton_IconAndLabel_UnityUIButton
+  m_Name: Continuar Button
   m_TagString: QDSUIPrimaryButton
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -919,7 +919,7 @@ GameObject:
   - component: {fileID: 8546087196336951239}
   - component: {fileID: 7283101378462375809}
   m_Layer: 4
-  m_Name: Ver
+  m_Name: Disease Vertical Layout
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -984,7 +984,7 @@ GameObject:
   - component: {fileID: 6040901463769715588}
   - component: {fileID: 2535443867314378921}
   m_Layer: 4
-  m_Name: Ver
+  m_Name: Toggles Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2164,7 +2164,7 @@ PrefabInstance:
     - target: {fileID: 4697734090168343230, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
       propertyPath: m_Name
-      value: SeverityButton
+      value: Button 1
       objectReference: {fileID: 0}
     - target: {fileID: 5154786634699651288, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
@@ -2388,7 +2388,7 @@ PrefabInstance:
     - target: {fileID: 4697734090168343230, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
       propertyPath: m_Name
-      value: SeverityButton (2)
+      value: Button 3
       objectReference: {fileID: 0}
     - target: {fileID: 5154786634699651288, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
@@ -2687,7 +2687,7 @@ PrefabInstance:
     - target: {fileID: 7922623383524267024, guid: 040567cd4431b484e9999e28a102d366,
         type: 3}
       propertyPath: m_Name
-      value: ButtonShelf_IconAndLabel_Toggle
+      value: Toggle Pyricularia
       objectReference: {fileID: 0}
     - target: {fileID: 8743731163281776065, guid: 040567cd4431b484e9999e28a102d366,
         type: 3}
@@ -2829,7 +2829,7 @@ PrefabInstance:
     - target: {fileID: 4697734090168343230, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
       propertyPath: m_Name
-      value: SeverityButton (4)
+      value: Button 5
       objectReference: {fileID: 0}
     - target: {fileID: 5154786634699651288, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
@@ -3140,7 +3140,7 @@ PrefabInstance:
     - target: {fileID: 4697734090168343230, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
       propertyPath: m_Name
-      value: SeverityButton (1)
+      value: Button 2
       objectReference: {fileID: 0}
     - target: {fileID: 5154786634699651288, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
@@ -3451,7 +3451,7 @@ PrefabInstance:
     - target: {fileID: 7922623383524267024, guid: 040567cd4431b484e9999e28a102d366,
         type: 3}
       propertyPath: m_Name
-      value: ButtonShelf_IconAndLabel_Toggle (1)
+      value: Toggle Rhynchosporium
       objectReference: {fileID: 0}
     - target: {fileID: 8743731163281776065, guid: 040567cd4431b484e9999e28a102d366,
         type: 3}
@@ -3593,7 +3593,7 @@ PrefabInstance:
     - target: {fileID: 4697734090168343230, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
       propertyPath: m_Name
-      value: SeverityButton (3)
+      value: Button 4
       objectReference: {fileID: 0}
     - target: {fileID: 5154786634699651288, guid: 1dca7ecc89d4dcd499d3c942bb891fb7,
         type: 3}
@@ -4222,6 +4222,11 @@ PrefabInstance:
     - target: {fileID: 7114770130731238580, guid: df64bf5efda75be4db0c812f9277d678,
         type: 3}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7114770130731238580, guid: df64bf5efda75be4db0c812f9277d678,
+        type: 3}
+      propertyPath: m_ShowMaskGraphic
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7114770130731238582, guid: df64bf5efda75be4db0c812f9277d678,

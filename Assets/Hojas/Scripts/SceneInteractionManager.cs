@@ -6,25 +6,16 @@ using Unity.XR.CoreUtils;
 
 
 /// <summary>
-/// Clase que gestiona la interacción del usuario con el entorno de realidad mixta.
+/// Clase SINGLETON que gestiona la interacción del usuario con el entorno de realidad mixta.
 /// 
-/// Funcionalidades principales:
-/// 1. Gestiona el ciclo de vida de los objetos interactivos mediante un patrón Singleton
-/// 2. Detecta y anima la desaparición de los planos existentes en el entorno MR
-/// 3. Instancia y configura nuevos objetos prefabricados en posiciones específicas
-/// 4. Implementa un sistema de niveles progresivos con transiciones animadas
-/// 5. Proporciona métodos para navegar entre niveles y reiniciar la experiencia
-/// 
-/// Flujo de trabajo:
-/// - El usuario selecciona un plano en el entorno de realidad mixta
-/// - Se activa OnAnchorSelected() que captura la posición, rotación y escala del plano
-/// - Todos los planos existentes se animan y desaparecen
-/// - Se instancia un nuevo objeto prefabricado en la ubicación seleccionada
-/// - El sistema mantiene un índice de nivel actual para cargar diferentes prefabs
+/// CAMBIO: Ya NO se activa en Start. Espera a que MainMenuController llame a WaitForStartSignal()
+/// para comenzar a detectar clicks en los planos.
+/// Notifica a SessionMetricsTracker al iniciar/completar cada nivel.
+/// Notifica a EndSessionController cuando se completan todos los niveles.
 /// </summary>
 public class SceneInteractionManager : MonoBehaviour
 {
-    public static SceneInteractionManager Instance { get; private set; }
+  public static SceneInteractionManager Instance { get; private set; }
 
     [Header("Spawn Settings")]
     [SerializeField] private List<GameObject> prefabsToSpawn = new List<GameObject>();
@@ -38,257 +29,205 @@ public class SceneInteractionManager : MonoBehaviour
     private Quaternion targetRotation;
     private Vector3 targetScale;
 
-    private bool hasBeenActivated = false;
+ private bool hasBeenActivated = false;
+
+    // ?? NUEVO: el manager solo acepta clicks una vez que el menú lo autoriza ??
+    private bool _isReady = false;
+
     private GameObject currentLeavesContainer = null;
 
     void Awake()
     {
-        // Singleton 
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+   if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
-    // Este método se llamará desde el botón UI
+    // ?? NUEVO: llamado por MainMenuController al pulsar "Iniciar pruebas" ????
+    /// <summary>
+    /// Habilita el SceneInteractionManager para recibir clicks en los planos.
+    /// Llamar esto SOLO desde MainMenuController.OnStartClicked().
+    /// </summary>
+    public void WaitForStartSignal()
+    {
+  _isReady = true;
+  Debug.Log("[SceneManager] Listo para recibir selección de plano.");
+
+        // Registrar inicio del primer nivel en métricas
+        if (SessionMetricsTracker.Instance != null)
+            SessionMetricsTracker.Instance.StartLevel(currentLevelIndex);
+    }
+
+    // ?? Click en botón del plano ?????????????????????????????????????????
     public void OnAnchorButtonClicked(Vector3 targetPosition, Quaternion targetRotation, Vector3 targetScale)
     {
-        if (hasBeenActivated) return; // Evita clicks múltiples
+        // Ignorar si el menú aún no autorizó o si ya se activó
+        if (!_isReady)        return;
+        if (hasBeenActivated) return;
 
-        this.targetPosition = targetPosition;
+    this.targetPosition = targetPosition;
         this.targetRotation = targetRotation;
-        this.targetScale = targetScale;
+        this.targetScale    = targetScale;
 
         hasBeenActivated = true;
         StartCoroutine(DisableAllPlanePrefabsWithAnimation());
     }
 
+    // ?? Corrutinas de animación de planos ????????????????????????????????
     private IEnumerator DisableAllPlanePrefabsWithAnimation()
     {
-        MRUKRoom room = MRUK.Instance?.GetCurrentRoom();
+     MRUKRoom room = MRUK.Instance?.GetCurrentRoom();
 
         if (room == null)
         {
-            Debug.LogWarning("No room found!");
+       Debug.LogWarning("No room found!");
             yield break;
         }
 
-        // Obtén todos los PlanePrefab de cada anchor
-        List<GameObject> planePrefabs = new List<GameObject>();
-
+   List<GameObject> planePrefabs = new List<GameObject>();
         foreach (var anchor in room.Anchors)
-        {
-            if (anchor != null && anchor.gameObject.activeInHierarchy)
-            {
-                // Busca el PlanePrefab dentro del anchor
-                Transform planePrefab = FindPlanePrefab(anchor.transform);
-                if (planePrefab != null)
-                {
-                    planePrefabs.Add(planePrefab.gameObject);
-                }
-            }
+ {
+     if (anchor != null && anchor.gameObject.activeInHierarchy)
+     {
+    Transform planePrefab = FindPlanePrefab(anchor.transform);
+       if (planePrefab != null) planePrefabs.Add(planePrefab.gameObject);
+     }
         }
 
-        // Anima todos los PlanePrefabs
-        List<Coroutine> animations = new List<Coroutine>();
-
+     List<Coroutine> animations = new List<Coroutine>();
         foreach (var planePrefab in planePrefabs)
         {
             if (planePrefab != null && planePrefab.activeInHierarchy)
-            {
-                Coroutine anim = StartCoroutine(AnimatePlanePrefabScaleDown(planePrefab));
-                animations.Add(anim);
-            }
+        animations.Add(StartCoroutine(AnimatePlanePrefabScaleDown(planePrefab)));
         }
 
-        // Espera a que todas las animaciones terminen
-        yield return new WaitForSeconds(scaleDuration);
+     // Espera a que todas las animaciones terminen
+     yield return new WaitForSeconds(scaleDuration);
 
-        // Desactiva solo los PlanePrefabs
         foreach (var planePrefab in planePrefabs)
-        {
-            if (planePrefab != null)
-            {
-                planePrefab.SetActive(false);
-            }
-        }
+       if (planePrefab != null) planePrefab.SetActive(false);
 
         SpawnNewObject();
     }
 
-    // Busca el PlanePrefab en la jerarquía del anchor
     private Transform FindPlanePrefab(Transform parent)
     {
-        // Busca primero en los hijos directos
         foreach (Transform child in parent)
-        {
-            if (child.name.Contains("PlanePrefab"))
-            {
-                return child;
-            }
-        }
-
-
+            if (child.name.Contains("PlanePrefab")) return child;
         return null;
     }
 
     private IEnumerator AnimatePlanePrefabScaleDown(GameObject planePrefab)
     {
-        float elapsed = 0f;
-        Vector3 originalScale = planePrefab.transform.localScale;
+        float elapsed       = 0f;
+     Vector3 originalScale = planePrefab.transform.localScale;
 
-        // Animación de escala
         while (elapsed < scaleDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / scaleDuration;
-            float easedT = EaseOutCubic(t);
-
-            planePrefab.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, easedT);
-
-            yield return null;
+ float easedT = EaseOutCubic(elapsed / scaleDuration);
+  planePrefab.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, easedT);
+        yield return null;
         }
 
-        // Asegura que termine en escala cero
-        planePrefab.transform.localScale = Vector3.zero;
+      planePrefab.transform.localScale = Vector3.zero;
     }
 
+    // ?? Spawn del nivel actual ????????????????????????????????????????????
     private void SpawnNewObject()
     {
-        if (prefabsToSpawn.Count == 0)
-        {
-            Debug.LogWarning("No hay prefabs en la lista!");
-            return;
-        }
+        if (prefabsToSpawn.Count == 0)           { Debug.LogWarning("No hay prefabs en la lista!"); return; }
+     if (currentLevelIndex >= prefabsToSpawn.Count) { Debug.Log("¡Todos los niveles completados!"); return; }
 
-        if (currentLevelIndex >= prefabsToSpawn.Count)
-        {
-            Debug.Log("¡Todos los niveles completados!");
-            return;
-        }
-
-        GameObject currentPrefab = prefabsToSpawn[currentLevelIndex];
-
-        if (currentPrefab == null)
-        {
-            Debug.LogWarning($"Prefab en índice {currentLevelIndex} es null!");
-            return;
-        }
+   GameObject currentPrefab = prefabsToSpawn[currentLevelIndex];
+        if (currentPrefab == null)     { Debug.LogWarning($"Prefab en índice {currentLevelIndex} es null!"); return; }
 
         ConfigureLeafSpawn(currentPrefab);
     }
 
     private void ConfigureLeafSpawn(GameObject prefabToSpawn)
     {
-        Transform parent = spawnParent != null ? spawnParent : transform;
+Transform parent = spawnParent != null ? spawnParent : transform;
+        parent.rotation  = targetRotation;
 
-        parent.rotation = targetRotation;
         GameObject instance = Instantiate(prefabToSpawn, Vector3.zero, Quaternion.identity, parent);
-        instance.transform.position = targetPosition - Vector3.up * 0.03f;
+    instance.transform.position = targetPosition - Vector3.up * 0.03f;
         instance.transform.rotation = targetRotation;
 
-        // Guardar referencia al contenedor actual de hojas
         currentLeavesContainer = parent.gameObject;
 
         LeavesSpawner leafSpawner = instance.GetComponent<LeavesSpawner>();
-
         if (leafSpawner != null)
         {
             leafSpawner.SpawnAreaSize = new Vector2(targetScale.x, targetScale.y);
-            Debug.Log($"Nivel {currentLevelIndex}: SpawnAreaSize = {leafSpawner.SpawnAreaSize}");
+       leafSpawner.grassParent   = parent;
 
-            leafSpawner.grassParent = parent;
-            if (leafSpawner.grassCount == -1) { 
-                leafSpawner.grassCount = Mathf.Max((int)(targetScale.x * targetScale.y * 0.7f), 20);
-            }
+      if (leafSpawner.grassCount == -1)
+   leafSpawner.grassCount = Mathf.Max((int)(targetScale.x * targetScale.y * 0.7f), 20);
 
-            leafSpawner.Activate();
+  leafSpawner.Activate();
         }
         else
         {
-            Debug.LogWarning($"El prefab {prefabToSpawn.name} no tiene componente SpawnHojas");
+ Debug.LogWarning($"El prefab {prefabToSpawn.name} no tiene componente LeavesSpawner");
         }
     }
 
+    // ?? Avance de nivel ???????????????????????????????????????????????????
     public void AdvanceToNextLevel()
     {
         Debug.Log($"Avanzando del nivel {currentLevelIndex} al nivel {currentLevelIndex + 1}");
 
-        // Destruir todas las hojas actuales
         DestroyCurrentLeaves();
-
-        // Avanzar al siguiente nivel
         currentLevelIndex++;
 
-        // Verificar si hay más niveles
-        if (currentLevelIndex >= prefabsToSpawn.Count)
-        {
-            Debug.Log("¡Felicitaciones! Has completado todos los niveles.");
-            OnAllLevelsCompleted();
-            return;
-        }
+     if (currentLevelIndex >= prefabsToSpawn.Count)
+      {
+     Debug.Log("¡Felicitaciones! Has completado todos los niveles.");
+  OnAllLevelsCompleted();
+      return;
+      }
 
-        // Spawnear el siguiente nivel
+        // Notificar métricas: inicio del nuevo nivel
+        if (SessionMetricsTracker.Instance != null)
+       SessionMetricsTracker.Instance.StartLevel(currentLevelIndex);
+
         SpawnNewObject();
     }
 
     private void DestroyCurrentLeaves()
     {
-        if (currentLeavesContainer != null)
-        {
+        if (currentLeavesContainer == null) return;
 
-            // Destruir cada hoja individual
-            foreach (Transform leaf in currentLeavesContainer.transform)
-            {
-                if (leaf != null)
-                {
-                    Destroy(leaf.gameObject);
-                }
-            }
-
-            // Destruir el contenedor completo
-            //Destroy(currentLeavesContainer);
-            //currentLeavesContainer = null;
-        }
+        foreach (Transform leaf in currentLeavesContainer.transform)
+       if (leaf != null) Destroy(leaf.gameObject);
     }
 
     public void ResetToFirstLevel()
     {
         DestroyCurrentLeaves();
         currentLevelIndex = 0;
+
+        if (SessionMetricsTracker.Instance != null)
+            SessionMetricsTracker.Instance.StartLevel(currentLevelIndex);
+
         SpawnNewObject();
     }
 
     private void OnAllLevelsCompleted()
-    {
-        // Aquí puedes poner lo que quieras que pase cuando se completen todos los niveles
-        // Por ejemplo: mostrar un menú de felicitaciones, estadísticas, etc.
-        Debug.Log("Todos los niveles completados. Puedes agregar aquí tu lógica de finalización.");
+  {
+        Debug.Log("Todos los niveles completados.");
+
+      // ?? NUEVO: mostrar panel de fin de sesión ????????????????????????
+        if (EndSessionController.Instance != null)
+        EndSessionController.Instance.ShowEndPanel();
+        else
+      Debug.LogWarning("[SceneManager] EndSessionController no encontrado en escena.");
     }
 
-    // Easing function para animación más suave
-    private float EaseOutCubic(float t)
-    {
-        return 1f - Mathf.Pow(1f - t, 3f);
-    }
+    // ?? Helpers ???????????????????????????????????????????????????????????
+  private float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
 
-    // Método público para obtener información del nivel actual
-    public int GetCurrentLevelIndex()
-    {
-        return currentLevelIndex;
-    }
-
-    public int GetTotalLevels()
-    {
-        return prefabsToSpawn.Count;
-    }
-
-    public string GetLevelProgress()
-    {
-        return $"Nivel {currentLevelIndex + 1} de {prefabsToSpawn.Count}";
-    }
+    public int    GetCurrentLevelIndex() => currentLevelIndex;
+    public int    GetTotalLevels()       => prefabsToSpawn.Count;
+  public string GetLevelProgress()     => $"Nivel {currentLevelIndex + 1} de {prefabsToSpawn.Count}";
 }
