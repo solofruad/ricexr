@@ -61,5 +61,15 @@ namespace Meta.XR.MRUtilityKit
                 SeparacionVertical
             );
         }
+
+        /// <summary>
+        /// Expone el spawn de prefabs para poder llamarlo desde SceneInteractionManager
+        /// cuando el usuario presiona "Iniciar" en el menú principal.
+        /// </summary>
+        /// <param name="room">La habitación para la cual se spawnearán los prefabs.</param>
+        public void SpawnForRoom(MRUKRoom room)
+        {
+            SpawnPrefabs(room);
+        }
     }
 }

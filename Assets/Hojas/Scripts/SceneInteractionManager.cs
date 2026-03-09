@@ -1,12 +1,14 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Meta.XR.MRUtilityKit;
 using Unity.XR.CoreUtils;
+using System;
+using System.Threading.Tasks;
 
 
 /// <summary>
-/// Clase SINGLETON que gestiona la interacci�n del usuario con el entorno de realidad mixta.
+/// Clase SINGLETON que gestiona la interacción del usuario con el entorno de realidad mixta.
 /// 
 /// CAMBIO: Ya NO se activa en Start. Espera a que MainMenuController llame a WaitForStartSignal()
 /// para comenzar a detectar clicks en los planos.
@@ -22,6 +24,11 @@ public class SceneInteractionManager : MonoBehaviour
     [SerializeField] private Transform spawnParent;
     [SerializeField] private int currentLevelIndex = 0;
 
+    // ── NUEVO: referencia al spawner de planos ────────────────────────────
+    [Header("Planos MR")]
+    [Tooltip("El PlaneConfigurationSpawner de la escena (Spawn On Start debe estar en None)")]
+    [SerializeField] private PlaneConfigurationSpawner planeSpawner;
+
     [Header("Animation Settings")]
     [SerializeField] private float scaleDuration = 0.5f;
 
@@ -31,16 +38,21 @@ public class SceneInteractionManager : MonoBehaviour
 
  private bool hasBeenActivated = false;
 
-    // ?? NUEVO: el manager solo acepta clicks una vez que el men� lo autoriza ??
+    // ?? NUEVO: el manager solo acepta clicks una vez que el menú lo autoriza ??
     private bool _isReady = false;
 
     private GameObject currentLeavesContainer = null;
 
     void Awake()
     {
-   if (Instance == null) Instance = this;
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
+
+    //void Start()
+    //{
+    //    WaitForStartSignal();
+    //}
 
     // ?? NUEVO: llamado por MainMenuController al pulsar "Iniciar pruebas" ????
     /// <summary>
@@ -49,18 +61,35 @@ public class SceneInteractionManager : MonoBehaviour
     /// </summary>
     public void WaitForStartSignal()
     {
-  _isReady = true;
-  Debug.Log("[SceneManager] Listo para recibir selecci�n de plano.");
+        _isReady = true;
+        Debug.Log("[SceneManager] Listo para recibir selección de plano.");
 
-        // Registrar inicio del primer nivel en m�tricas
+        //await Task.Delay(500);
+        // Disparar el spawn de los planos azules ahora que el menú lo autorizó
+        if (planeSpawner != null)
+        {
+        MRUKRoom room = MRUK.Instance?.GetCurrentRoom();
+        if (room != null)
+            {
+                planeSpawner.SpawnForRoom(room);Console.WriteLine($"[SceneManager] Spawn de planos solicitado para room {room}");
+            }
+        else
+            Debug.LogWarning("[SceneManager] No se encontró room para spawnear planos.");
+   }
+        else
+        {
+    Debug.LogWarning("[SceneManager] planeSpawner no asignado.");
+        }
+
+ // Registrar inicio del primer nivel en métricas
         if (SessionMetricsTracker.Instance != null)
-            SessionMetricsTracker.Instance.StartLevel(currentLevelIndex);
+ SessionMetricsTracker.Instance.StartLevel(currentLevelIndex);
     }
 
-    // ?? Click en bot�n del plano ?????????????????????????????????????????
+    // ?? Click en botón del plano ?????????????????????????????????????????
     public void OnAnchorButtonClicked(Vector3 targetPosition, Quaternion targetRotation, Vector3 targetScale)
     {
-        // Ignorar si el men� a�n no autoriz� o si ya se activ�
+        // Ignorar si el menú aún no autorizó o si ya se activó
         if (!_isReady)        return;
         if (hasBeenActivated) return;
 
@@ -72,7 +101,7 @@ public class SceneInteractionManager : MonoBehaviour
         StartCoroutine(DisableAllPlanePrefabsWithAnimation());
     }
 
-    // ?? Corrutinas de animaci�n de planos ????????????????????????????????
+    // ?? Corrutinas de animación de planos ????????????????????????????????
     private IEnumerator DisableAllPlanePrefabsWithAnimation()
     {
      MRUKRoom room = MRUK.Instance?.GetCurrentRoom();
@@ -136,10 +165,10 @@ public class SceneInteractionManager : MonoBehaviour
     private void SpawnNewObject()
     {
         if (prefabsToSpawn.Count == 0)           { Debug.LogWarning("No hay prefabs en la lista!"); return; }
-     if (currentLevelIndex >= prefabsToSpawn.Count) { Debug.Log("�Todos los niveles completados!"); return; }
+     if (currentLevelIndex >= prefabsToSpawn.Count) { Debug.Log("¡Todos los niveles completados!"); return; }
 
    GameObject currentPrefab = prefabsToSpawn[currentLevelIndex];
-        if (currentPrefab == null)     { Debug.LogWarning($"Prefab en �ndice {currentLevelIndex} es null!"); return; }
+        if (currentPrefab == null)     { Debug.LogWarning($"Prefab en índice {currentLevelIndex} es null!"); return; }
 
         ConfigureLeafSpawn(currentPrefab);
     }
@@ -182,12 +211,12 @@ Transform parent = spawnParent != null ? spawnParent : transform;
 
      if (currentLevelIndex >= prefabsToSpawn.Count)
       {
-     Debug.Log("�Felicitaciones! Has completado todos los niveles.");
+     Debug.Log("¡Felicitaciones! Has completado todos los niveles.");
   OnAllLevelsCompleted();
       return;
       }
 
-        // Notificar m�tricas: inicio del nuevo nivel
+        // Notificar métricas: inicio del nuevo nivel
         if (SessionMetricsTracker.Instance != null)
        SessionMetricsTracker.Instance.StartLevel(currentLevelIndex);
 
@@ -217,7 +246,7 @@ Transform parent = spawnParent != null ? spawnParent : transform;
   {
         Debug.Log("Todos los niveles completados.");
 
-      // ?? NUEVO: mostrar panel de fin de sesi�n ????????????????????????
+      // ?? NUEVO: mostrar panel de fin de sesión ????????????????????????
         if (EndSessionController.Instance != null)
         EndSessionController.Instance.ShowEndPanel();
         else

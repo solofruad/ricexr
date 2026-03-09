@@ -141,6 +141,11 @@ public class DiseaseSelectionSystem : MonoBehaviour
             return;
         }
 
+        // Obtener índice del nivel actual para las métricas
+        int levelIndex = SceneInteractionManager.Instance != null
+   ? SceneInteractionManager.Instance.GetCurrentLevelIndex()
+            : 0;
+
         // Validar contra la hoja
         bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity);
 
@@ -150,13 +155,23 @@ public class DiseaseSelectionSystem : MonoBehaviour
         // Si es correcto, mostrar marcadores y avanzar al siguiente nivel
         if (isCorrect)
         {
+            // Registrar nivel completado en métricas
+            if (SessionMetricsTracker.Instance != null)
+     SessionMetricsTracker.Instance.CompleteLevel(levelIndex, selectedDisease, selectedSeverity);
+
             currentLeaf.ableToShowMarkers = true;
             currentLeaf.showMarkers = true;
             currentLeaf.SetMarkersVisibility(true);
 
-            // Avanzar al siguiente nivel después de mostrar el feedback
+    // Avanzar al siguiente nivel después de mostrar el feedback
             StartCoroutine(AdvanceToNextLevel());
-        }
+      }
+    else
+        {
+          // Registrar intento fallido en métricas
+       if (SessionMetricsTracker.Instance != null)
+SessionMetricsTracker.Instance.RegisterFailedAttempt(levelIndex, selectedDisease, selectedSeverity);
+    }
     }
 
     string GetSelectedDisease()
