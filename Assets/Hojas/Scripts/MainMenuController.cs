@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -20,6 +21,9 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private SceneInteractionManager sceneInteractionManager;
     [SerializeField] private LeaderboardController leaderboardController;
 
+    [Header("Animación")]
+    [SerializeField] private float animDuration = 0.3f;
+
     void Start()
     {
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
@@ -33,8 +37,6 @@ public class MainMenuController : MonoBehaviour
 
     private void OnStartClicked()
     {
-        if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
-
         if (SessionMetricsTracker.Instance != null)
             SessionMetricsTracker.Instance.StartSession();
 
@@ -42,6 +44,26 @@ public class MainMenuController : MonoBehaviour
             sceneInteractionManager.WaitForStartSignal();
         else
             Debug.LogWarning("[MainMenu] No se encontró SceneInteractionManager.");
+
+        // Ocultar el menú con animación
+        if (mainMenuPanel != null)
+            StartCoroutine(HidePanel());
+    }
+
+    private IEnumerator HidePanel()
+    {
+        float elapsed = 0f;
+        Vector3 originalScale = mainMenuPanel.transform.localScale;
+        while (elapsed < animDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / animDuration);
+            float easedT = 1f - Mathf.Pow(1f - t, 3f);
+            mainMenuPanel.transform.localScale = Vector3.LerpUnclamped(originalScale, Vector3.zero, easedT);
+            yield return null;
+        }
+        mainMenuPanel.transform.localScale = Vector3.zero;
+        mainMenuPanel.SetActive(false);
     }
 
     void OnDestroy()

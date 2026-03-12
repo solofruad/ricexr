@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using TMPro;  // solo para los labels de resumen y filas de detalle
 
 /// <summary>
 /// PANEL DE FIN DE SESIÓN
@@ -32,6 +32,10 @@ public class EndSessionController : MonoBehaviour
     [Header("Panel raíz")]
     [SerializeField] private GameObject endPanel;
 
+    [Header("Posicionamiento en mundo")]
+    [Tooltip("Desplazamiento sobre el plano elegido. Y = altura sobre la superficie")]
+    [SerializeField] private Vector3 positionOffset = new Vector3(0f, 0.3f, 0f);
+
     [Header("Textos de resumen")]
     [SerializeField] private TextMeshProUGUI congratsLabel;
     [SerializeField] private TextMeshProUGUI totalTimeLabel;
@@ -44,15 +48,19 @@ public class EndSessionController : MonoBehaviour
     [SerializeField] private GameObject levelDetailRowPrefab;
 
     [Header("Input de apodo")]
- [Tooltip("Campo de texto donde el jugador escribe su apodo al final")]
-    [SerializeField] private TMP_InputField nicknameInput;
+    [Tooltip("Campo de texto Legacy (InputField) donde el jugador escribe su apodo al final")]
+    [SerializeField] private InputField nicknameInput;
 
     [Header("Botón guardar")]
     [SerializeField] private Button saveButton;
-    [SerializeField] private TextMeshProUGUI saveButtonLabel;
+    [SerializeField] private Text saveButtonLabel;
 
-    // Guarda el resultado pendiente hasta que el usuario ingrese el apodo
+    [Header("Animación de aparición")]
+    [SerializeField] private float animDuration = 0.3f;
+
     private SessionMetricsTracker.SessionResult _pendingResult;
+    private Coroutine _animCoroutine;
+    private Vector3 _originalScale;
 
     // ?? Lifecycle ????????????????????????????????????????????????????????
     void Awake()
@@ -63,6 +71,12 @@ public class EndSessionController : MonoBehaviour
 
     void Start()
     {
+        // Guardar la escala original antes de ocultar el panel
+        if (endPanel != null)
+            _originalScale = endPanel.transform.localScale;
+        else
+            _originalScale = Vector3.one;
+
         if (endPanel != null) endPanel.SetActive(false);
         if (saveButton != null) saveButton.onClick.AddListener(OnSaveClicked);
     }
@@ -89,11 +103,60 @@ public class EndSessionController : MonoBehaviour
         FillUI(_pendingResult);
 
         endPanel.SetActive(true);
+        // La posición la aplica SceneInteractionManager llamando PlaceAt() justo después
 
-        // Limpiar campo de apodo
-  if (nicknameInput != null) nicknameInput.text = "";
+        if (nicknameInput != null) nicknameInput.text = "";
         if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
     }
+
+    /// <summary>
+    /// Posiciona el endPanel sobre el plano elegido y lo orienta hacia la cámara.
+    /// Llamar justo después de ShowEndPanel() desde SceneInteractionManager.
+    /// </summary>
+    public void PlaceAt(Vector3 planePosition, Vector3 planeNormal)
+    {
+        if (endPanel == null) return;
+
+        Vector3 worldPos = planePosition
+            + Vector3.up  * positionOffset.y
+            + planeNormal * positionOffset.z
+            + new Vector3(positionOffset.x, 0f, 0f);
+
+        endPanel.transform.position = worldPos;
+
+        Vector3 toCam = Camera.main != null
+            ? Camera.main.transform.position - worldPos
+            : Vector3.forward;
+        toCam.y = 0f;
+        if (toCam != Vector3.zero)
+            endPanel.transform.rotation = Quaternion.LookRotation(-toCam);
+    }
+
+    /// <summary>Muestra el panel de fin con animación de escala (llamar desde SceneInteractionManager).</summary>
+    public void ShowAnimated()
+    {
+        ShowEndPanel();   // llena la UI y activa el panel
+        if (endPanel == null) return;
+        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
+        _animCoroutine = StartCoroutine(ScalePanel(Vector3.zero, _originalScale));
+    }
+
+    private IEnumerator ScalePanel(Vector3 from, Vector3 to)
+    {
+        endPanel.transform.localScale = from;
+        float elapsed = 0f;
+        while (elapsed < animDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = EaseOutCubic(Mathf.Clamp01(elapsed / animDuration));
+            endPanel.transform.localScale = Vector3.LerpUnclamped(from, to, t);
+            yield return null;
+        }
+        endPanel.transform.localScale = to;
+        _animCoroutine = null;
+    }
+
+    private float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
 
     // ?? Privados ?????????????????????????????????????????????????????????
 
@@ -105,16 +168,16 @@ public class EndSessionController : MonoBehaviour
         if (result == null) return;
 
  if (totalTimeLabel  != null)
-            totalTimeLabel.text  = $"Tiempo total: {FormatTime(result.totalTimeSeconds)}";
+            totalTimeLabel.text  = $"{FormatTime(result.totalTimeSeconds)}";
 
 if (failuresLabel   != null)
-         failuresLabel.text   = $"Total de fallos: {result.totalFailures}";
+         failuresLabel.text   = $"{result.totalFailures}";
 
         if (avgTimeLabel    != null)
-     avgTimeLabel.text    = $"Tiempo promedio por prueba: {FormatTime(result.averageTimePerLevel)}";
+     avgTimeLabel.text    = $"{FormatTime(result.averageTimePerLevel)}";
 
         if (totalLevelsLabel != null)
-      totalLevelsLabel.text = $"Pruebas completadas: {result.totalLevels}";
+      totalLevelsLabel.text = $"{result.totalLevels}";
 
         // Llenar filas de detalle por nivel
         FillLevelDetails(result.levels);
@@ -124,22 +187,42 @@ if (failuresLabel   != null)
     {
         if (levelDetailContainer == null || levelDetailRowPrefab == null) return;
 
-        // Limpiar filas anteriores
         foreach (Transform child in levelDetailContainer)
             Destroy(child.gameObject);
 
-if (levels == null) return;
+        if (levels == null) return;
 
         foreach (var lm in levels)
-      {
-        GameObject row = Instantiate(levelDetailRowPrefab, levelDetailContainer);
-        TextMeshProUGUI[] texts = row.GetComponentsInChildren<TextMeshProUGUI>(true);
-
-          // [0] Nivel  [1] Tiempo  [2] Fallos
-            if (texts.Length > 0) texts[0].text = $"Prueba {lm.levelIndex + 1}";
-         if (texts.Length > 1) texts[1].text = FormatTime(lm.timeToComplete);
-  if (texts.Length > 2) texts[2].text = $"{lm.failCount} fallo{(lm.failCount != 1 ? "s" : "")}";
+        {
+            GameObject row = Instantiate(levelDetailRowPrefab, levelDetailContainer);
+            SetText(row, "LevelText",   $"Prueba {lm.levelIndex + 1}");
+            SetText(row, "TimeText",    FormatTime(lm.timeToComplete));
+            SetText(row, "FailsText",   $"{lm.failCount} fallo{(lm.failCount != 1 ? "s" : "")}");
         }
+    }
+
+    /// <summary>Busca un hijo por nombre (recursivo) y asigna el texto TMP.</summary>
+    private void SetText(GameObject root, string objectName, string value)
+    {
+        Transform found = FindDeep(root.transform, objectName);
+        if (found == null)
+        {
+            Debug.LogWarning($"[EndSession] No se encontró '{objectName}' en el prefab de fila.");
+            return;
+        }
+        TextMeshProUGUI tmp = found.GetComponent<TextMeshProUGUI>();
+        if (tmp != null) tmp.text = value;
+    }
+
+    private Transform FindDeep(Transform parent, string name)
+    {
+        if (parent.name == name) return parent;
+        foreach (Transform child in parent)
+        {
+            Transform result = FindDeep(child, name);
+            if (result != null) return result;
+        }
+        return null;
     }
 
     private void OnSaveClicked()

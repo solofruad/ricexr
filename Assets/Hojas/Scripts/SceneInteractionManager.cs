@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Meta.XR.MRUtilityKit;
@@ -68,15 +69,7 @@ public class SceneInteractionManager : MonoBehaviour
                 Debug.LogWarning("[SceneManager] No se encontró room para spawnear planos.");
         }
         else
-        {
             Debug.LogWarning("[SceneManager] planeSpawner no asignado.");
-        }
-
-        // Mostrar la UI de diagnóstico ahora que la sesión comenzó
-        if (DiseaseSelectionSystem.Instance != null)
-            DiseaseSelectionSystem.Instance.Show();
-        else
-            Debug.LogWarning("[SceneManager] DiseaseSelectionSystem no encontrado.");
 
         // Registrar inicio del primer nivel en métricas
         if (SessionMetricsTracker.Instance != null)
@@ -181,6 +174,15 @@ Transform parent = spawnParent != null ? spawnParent : transform;
 
         currentLeavesContainer = parent.gameObject;
 
+        // Mostrar y posicionar la UI de diagnóstico al lado del plano elegido
+        if (DiseaseSelectionSystem.Instance != null)
+        {
+            Vector3 planeRight  = targetRotation * Vector3.right;
+            Vector3 planeNormal = targetRotation * Vector3.up;
+            DiseaseSelectionSystem.Instance.PlaceNextTo(targetPosition, planeRight, planeNormal);
+            DiseaseSelectionSystem.Instance.ShowAnimated();
+        }
+
         LeavesSpawner leafSpawner = instance.GetComponent<LeavesSpawner>();
         if (leafSpawner != null)
         {
@@ -240,14 +242,21 @@ Transform parent = spawnParent != null ? spawnParent : transform;
     }
 
     private void OnAllLevelsCompleted()
-  {
+    {
         Debug.Log("Todos los niveles completados.");
 
-      // ?? NUEVO: mostrar panel de fin de sesión ????????????????????????
+        // Ocultar la UI de diagnóstico
+        if (DiseaseSelectionSystem.Instance != null)
+            DiseaseSelectionSystem.Instance.HideAnimated();
+
         if (EndSessionController.Instance != null)
-        EndSessionController.Instance.ShowEndPanel();
+        {
+            Vector3 planeNormal = targetRotation * Vector3.up;
+            EndSessionController.Instance.PlaceAt(targetPosition, planeNormal);
+            EndSessionController.Instance.ShowAnimated();
+        }
         else
-      Debug.LogWarning("[SceneManager] EndSessionController no encontrado en escena.");
+            Debug.LogWarning("[SceneManager] EndSessionController no encontrado en escena.");
     }
 
     // ?? Helpers ???????????????????????????????????????????????????????????

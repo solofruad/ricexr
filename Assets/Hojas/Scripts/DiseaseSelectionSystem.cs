@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -33,6 +32,10 @@ public class DiseaseSelectionSystem : MonoBehaviour
     [Header("Panel raíz")]
     [Tooltip("Raíz de toda la UI del selector. Se oculta al inicio y se activa al iniciar pruebas.")]
     public GameObject diseaseSelectionPanel;
+
+    [Header("Posicionamiento en mundo")]
+    [Tooltip("Desplazamiento relativo al plano elegido. X = lateral, Y = altura, Z = profundidad")]
+    public Vector3 positionOffset = new Vector3(0.6f, 0.1f, 0f);
     [Header("Toggle Groups")]
     [Tooltip("ToggleGroup para las enfermedades")]
     public ToggleGroup diseaseToggleGroup;
@@ -74,10 +77,23 @@ public class DiseaseSelectionSystem : MonoBehaviour
     [Tooltip("Margen de error permitido en la severidad")]
     public int MarginOfError = 0;
 
+    [Header("Animación de aparición")]
+    [Tooltip("Duración en segundos del agrandar/achicar al mostrar u ocultar")]
+    public float animDuration = 0.3f;
+
+    private Coroutine _animCoroutine;
+    private Vector3 _originalScale;
+
     void Start()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        // Guardar la escala original antes de ocultar el panel
+        if (diseaseSelectionPanel != null)
+            _originalScale = diseaseSelectionPanel.transform.localScale;
+        else
+            _originalScale = Vector3.one;
 
         // Ocultar la UI hasta que el usuario pulse "Iniciar"
         if (diseaseSelectionPanel        != null) diseaseSelectionPanel.SetActive(false);
@@ -91,18 +107,80 @@ public class DiseaseSelectionSystem : MonoBehaviour
 
     // ── API pública ───────────────────────────────────────────────────────
 
-    /// <summary>Muestra la UI del selector. Llamar desde SceneInteractionManager.WaitForStartSignal().</summary>
-    public void Show()
+    /// <summary>Muestra el panel con animación de escala.</summary>
+    public void ShowAnimated()
     {
-        if (diseaseSelectionPanel != null)
-            diseaseSelectionPanel.SetActive(true);
+        if (diseaseSelectionPanel == null) return;
+        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
+        diseaseSelectionPanel.SetActive(true);
+        _animCoroutine = StartCoroutine(ScalePanel(Vector3.zero, _originalScale));
     }
 
-    /// <summary>Oculta la UI del selector.</summary>
+    /// <summary>Oculta el panel con animación de escala.</summary>
+    public void HideAnimated()
+    {
+        if (diseaseSelectionPanel == null) return;
+        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
+        _animCoroutine = StartCoroutine(ScalePanel(_originalScale, Vector3.zero, deactivateAfter: true));
+    }
+
+    /// <summary>Muestra instantáneamente (sin animación).</summary>
+    public void Show()
+    {
+        if (diseaseSelectionPanel == null) return;
+        diseaseSelectionPanel.transform.localScale = _originalScale;
+        diseaseSelectionPanel.SetActive(true);
+    }
+
+    /// <summary>Oculta instantáneamente (sin animación).</summary>
     public void Hide()
     {
-        if (diseaseSelectionPanel != null)
-            diseaseSelectionPanel.SetActive(false);
+        if (diseaseSelectionPanel == null) return;
+        diseaseSelectionPanel.SetActive(false);
+    }
+
+    private IEnumerator ScalePanel(Vector3 from, Vector3 to, bool deactivateAfter = false)
+    {
+        diseaseSelectionPanel.transform.localScale = from;
+        float elapsed = 0f;
+        while (elapsed < animDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = EaseOutCubic(Mathf.Clamp01(elapsed / animDuration));
+            diseaseSelectionPanel.transform.localScale = Vector3.LerpUnclamped(from, to, t);
+            yield return null;
+        }
+        diseaseSelectionPanel.transform.localScale = to;
+        if (deactivateAfter) diseaseSelectionPanel.SetActive(false);
+        _animCoroutine = null;
+    }
+
+    private float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
+
+    /// <summary>
+    /// Posiciona el panel al lado del plano elegido y lo orienta hacia la cámara.
+    /// planePosition: centro del plano en world space.
+    /// planeRight: vector derecha del plano para desplazar lateralmente.
+    /// </summary>
+    public void PlaceNextTo(Vector3 planePosition, Vector3 planeRight, Vector3 planeNormal)
+    {
+        if (diseaseSelectionPanel == null) return;
+
+        // Desplazar lateralmente usando el eje derecho del plano + offset configurable
+        Vector3 worldPos = planePosition
+            + planeRight   * positionOffset.x
+            + Vector3.up   * positionOffset.y
+            + planeNormal  * positionOffset.z;
+
+        diseaseSelectionPanel.transform.position = worldPos;
+
+        // Girar para que mire hacia la cámara (Billboard horizontal)
+        Vector3 toCam = Camera.main != null
+            ? Camera.main.transform.position - worldPos
+            : Vector3.forward;
+        toCam.y = 0f;
+        if (toCam != Vector3.zero)
+            diseaseSelectionPanel.transform.rotation = Quaternion.LookRotation(-toCam);
     }
 
     void ShowNoLeafFeedback()

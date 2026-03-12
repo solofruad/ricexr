@@ -29,8 +29,10 @@ public class LeaderboardController : MonoBehaviour
     [Tooltip("Prefab de una fila del leaderboard")]
     [SerializeField] private GameObject entryPrefab;
 
-    [Tooltip("Texto que aparece cuando no hay datos guardados")]
-    [SerializeField] private TextMeshProUGUI emptyLabel;
+    [Tooltip("Prefab que se instancia cuando no hay datos guardados (puede ser cualquier GameObject)")]
+    [SerializeField] private GameObject emptyPrefab;
+
+    private GameObject _emptyInstance;
 
     // Nombres de los GameObjects TMP dentro del prefab de fila
     private const string NICKNAME_OBJ  = "NicknameText";
@@ -38,6 +40,7 @@ public class LeaderboardController : MonoBehaviour
     private const string TOTALTIME_OBJ = "TotalTimeText";
     private const string FAILURES_OBJ  = "FailuresText";
     private const string AVGTIME_OBJ   = "AvgTimeText";
+    private const string NUMBER_OBJ    = "Number";
 
     /// <summary>Limpia la lista y la vuelve a llenar con los datos actuales del JSON.</summary>
     public void Populate()
@@ -64,17 +67,21 @@ public class LeaderboardController : MonoBehaviour
         // Ordenar por tiempo total ascendente (menor tiempo = mejor)
         sessions.Sort((a, b) => a.totalTimeSeconds.CompareTo(b.totalTimeSeconds));
 
-        foreach (var session in sessions)
-            CreateRow(session);
+        int rank = 1;
+        foreach (var session in sessions){
+            CreateRow(session, rank);
+            rank++;
+        }
     }
 
 
-    private void CreateRow(SessionMetricsTracker.SessionResult session)
+    private void CreateRow(SessionMetricsTracker.SessionResult session, int rank)
     {
         if (entryPrefab == null || entryContainer == null) return;
 
         GameObject row = Instantiate(entryPrefab, entryContainer);
 
+        SetText(row, NUMBER_OBJ,    $"{rank}");
         SetText(row, NICKNAME_OBJ,  string.IsNullOrEmpty(session.nickname) ? "—" : session.nickname);
         SetText(row, DATE_OBJ,      session.dateTime);
         SetText(row, TOTALTIME_OBJ, FormatTime(session.totalTimeSeconds));
@@ -122,12 +129,31 @@ public class LeaderboardController : MonoBehaviour
         if (entryContainer == null) return;
         foreach (Transform child in entryContainer)
             Destroy(child.gameObject);
+
+        // Destruir instancia del empty si existe
+        if (_emptyInstance != null)
+        {
+            Destroy(_emptyInstance);
+            _emptyInstance = null;
+        }
     }
 
     private void ShowEmpty(bool show)
     {
-        if (emptyLabel != null)
-            emptyLabel.gameObject.SetActive(show);
+        if (!show)
+        {
+            if (_emptyInstance != null)
+            {
+                Destroy(_emptyInstance);
+                _emptyInstance = null;
+            }
+            return;
+        }
+
+        if (emptyPrefab == null || entryContainer == null) return;
+        if (_emptyInstance != null) return;  // ya existe
+
+        _emptyInstance = Instantiate(emptyPrefab, entryContainer);
     }
 
     private string FormatTime(float seconds)
