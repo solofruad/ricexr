@@ -1,37 +1,38 @@
 ﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 /// <summary>
 /// Sistema de selección de enfermedades para simulación de diagnóstico vegetal.
-/// 
+///
 /// Funcionalidades principales:
 /// 1. Gestiona dos grupos de selección: Enfermedades y Niveles de Severidad
-/// 2. Valida las selecciones del usuario contra datos predefinidos en objetos Leaf
-/// 3. Proporciona feedback visual inmediato (correcto/incorrecto)
-/// 4. Permite un margen de error configurable para la severidad
-/// 5. Integra con el sistema de progreso de niveles del SceneInteractionManager
-/// 6. Maneja la visualización de marcadores de enfermedad en las hojas
-/// 
+/// 2. Valida las selecciones del usuario contra TODOS los DiseaseSpots de la hoja
+/// 3. Si un spot tiene severity == -1, solo se valida la enfermedad (severidad ignorada)
+/// 4. Proporciona feedback visual inmediato (correcto/incorrecto)
+/// 5. Permite un margen de error configurable para la severidad
+/// 6. Integra con el sistema de progreso de niveles del SceneInteractionManager
+/// 7. Se mantiene oculto hasta que SceneInteractionManager llama a Show()
+///
 /// Flujo de trabajo:
-/// 1. Usuario selecciona una enfermedad y nivel de severidad mediante Toggles
-/// 2. Usuario presiona botón de submit para validar
-/// 3. Sistema verifica si hay una hoja seleccionada/agarrada
-/// 4. Compara la selección con los datos de enfermedad de la hoja
-/// 5. Muestra feedback visual (correcto/incorrecto)
-/// 6. Si es correcto: muestra marcadores y avanza al siguiente nivel
-/// 7. Resetea la selección para el siguiente diagnóstico
-/// 
-/// Configuración requerida:
-/// - Debe existir un GrabbableObjectListener con referencia a la hoja actual
-/// - Debe existir un SceneInteractionManager para avanzar niveles
-/// - Las listas diseaseToggles y diseaseNames deben estar sincronizadas
-/// - Los objetos de feedback deben estar configurados
+/// 1. SceneInteractionManager.WaitForStartSignal() → Show()
+/// 2. Usuario selecciona enfermedad y severidad mediante Toggles
+/// 3. Usuario presiona botón de submit
+/// 4. Sistema verifica hoja agarrada y compara con TODOS sus DiseaseSpots
+/// 5. Muestra feedback visual y registra métricas
+/// 6. Si correcto: muestra marcadores y avanza nivel
 /// </summary>
 public class DiseaseSelectionSystem : MonoBehaviour
 {
+    public static DiseaseSelectionSystem Instance { get; private set; }
+
+    // ── Panel raíz ────────────────────────────────────────────────────────
+    [Header("Panel raíz")]
+    [Tooltip("Raíz de toda la UI del selector. Se oculta al inicio y se activa al iniciar pruebas.")]
+    public GameObject diseaseSelectionPanel;
     [Header("Toggle Groups")]
     [Tooltip("ToggleGroup para las enfermedades")]
     public ToggleGroup diseaseToggleGroup;
@@ -75,26 +76,33 @@ public class DiseaseSelectionSystem : MonoBehaviour
 
     void Start()
     {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        // Ocultar la UI hasta que el usuario pulse "Iniciar"
+        if (diseaseSelectionPanel        != null) diseaseSelectionPanel.SetActive(false);
+        if (correctFeedbackObject        != null) correctFeedbackObject.SetActive(false);
+        if (incorrectFeedbackObject      != null) incorrectFeedbackObject.SetActive(false);
+        if (noLeafSelectedFeedbackObject != null) noLeafSelectedFeedbackObject.SetActive(false);
+
         if (submitButton != null)
-        {
             submitButton.onClick.AddListener(OnSubmit);
-        }
+    }
 
-        // Asegurarse de que los objetos de feedback estén ocultos al inicio
-        if (correctFeedbackObject != null)
-        {
-            correctFeedbackObject.SetActive(false);
-        }
+    // ── API pública ───────────────────────────────────────────────────────
 
-        if (incorrectFeedbackObject != null)
-        {
-            incorrectFeedbackObject.SetActive(false);
-        }
+    /// <summary>Muestra la UI del selector. Llamar desde SceneInteractionManager.WaitForStartSignal().</summary>
+    public void Show()
+    {
+        if (diseaseSelectionPanel != null)
+            diseaseSelectionPanel.SetActive(true);
+    }
 
-        if (noLeafSelectedFeedbackObject != null)  
-        {
-            noLeafSelectedFeedbackObject.SetActive(false);
-        }
+    /// <summary>Oculta la UI del selector.</summary>
+    public void Hide()
+    {
+        if (diseaseSelectionPanel != null)
+            diseaseSelectionPanel.SetActive(false);
     }
 
     void ShowNoLeafFeedback()
@@ -146,32 +154,28 @@ public class DiseaseSelectionSystem : MonoBehaviour
    ? SceneInteractionManager.Instance.GetCurrentLevelIndex()
             : 0;
 
-        // Validar contra la hoja
-        bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity);
+        // Validar contra TODOS los spots de la hoja
+        DiseaseSpot matchedSpot;
+        bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity, out matchedSpot);
 
-        // Mostrar feedback
         ShowFeedback(isCorrect);
 
-        // Si es correcto, mostrar marcadores y avanzar al siguiente nivel
         if (isCorrect)
         {
-            // Registrar nivel completado en métricas
             if (SessionMetricsTracker.Instance != null)
-     SessionMetricsTracker.Instance.CompleteLevel(levelIndex, selectedDisease, selectedSeverity);
+                SessionMetricsTracker.Instance.CompleteLevel(levelIndex, selectedDisease, selectedSeverity);
 
             currentLeaf.ableToShowMarkers = true;
-            currentLeaf.showMarkers = true;
+            currentLeaf.showMarkers       = true;
             currentLeaf.SetMarkersVisibility(true);
 
-    // Avanzar al siguiente nivel después de mostrar el feedback
             StartCoroutine(AdvanceToNextLevel());
-      }
-    else
+        }
+        else
         {
-          // Registrar intento fallido en métricas
-       if (SessionMetricsTracker.Instance != null)
-SessionMetricsTracker.Instance.RegisterFailedAttempt(levelIndex, selectedDisease, selectedSeverity);
-    }
+            if (SessionMetricsTracker.Instance != null)
+                SessionMetricsTracker.Instance.RegisterFailedAttempt(levelIndex, selectedDisease, selectedSeverity);
+        }
     }
 
     string GetSelectedDisease()
@@ -230,48 +234,48 @@ SessionMetricsTracker.Instance.RegisterFailedAttempt(levelIndex, selectedDisease
         return -1;
     }
 
-    bool ValidateSelection(Leaf leaf, string selectedDisease, int selectedSeverity)
+    /// <summary>
+    /// Devuelve true si la selección coincide con CUALQUIERA de los DiseaseSpots de la hoja.
+    /// Si un spot tiene severity == -1, la severidad se ignora y solo se valida la enfermedad.
+    /// El spot que coincidió se devuelve en matchedSpot.
+    /// </summary>
+    bool ValidateSelection(Leaf leaf, string selectedDisease, int selectedSeverity, out DiseaseSpot matchedSpot)
     {
-        // Obtener la primera mancha de la hoja
-        if (leaf.diseaseSpots.Count == 0)
+        matchedSpot = null;
+
+        if (leaf.diseaseSpots == null || leaf.diseaseSpots.Count == 0)
         {
             Debug.LogWarning("La hoja no tiene manchas configuradas");
             return false;
         }
 
-        DiseaseSpot firstSpot = leaf.diseaseSpots[0];
-
-        // Validar enfermedad (debe coincidir exactamente)
-        bool diseaseCorrect = selectedDisease == firstSpot.diseaseName;
-
-        // Validar severidad (permitir margen de error configurado)
-        bool severityCorrect = Mathf.Abs(selectedSeverity - firstSpot.severity) <= MarginOfError;
-
-        bool isCorrect = diseaseCorrect && severityCorrect;
-
-        // Log de resultados
-        if (isCorrect)
+        foreach (DiseaseSpot spot in leaf.diseaseSpots)
         {
-            Debug.Log($"¡CORRECTO! Enfermedad: {selectedDisease}, Severidad: {selectedSeverity}");
-        }
-        else
-        {
-            string errorMsg = "INCORRECTO. ";
+            bool diseaseMatch = selectedDisease == spot.diseaseName;
 
-            if (!diseaseCorrect)
+            // Si severity == -1 en el spot, no se evalúa la severidad
+            bool severityMatch = spot.severity == -1
+                ? true
+                : Mathf.Abs(selectedSeverity - spot.severity) <= MarginOfError;
+
+            if (diseaseMatch && severityMatch)
             {
-                errorMsg += $"Enfermedad: {selectedDisease} (Correcto: {firstSpot.diseaseName}). ";
+                matchedSpot = spot;
+                Debug.Log($"¡CORRECTO! Enfermedad: {selectedDisease}, Severidad: {selectedSeverity}");
+                return true;
             }
-
-            if (!severityCorrect)
-            {
-                errorMsg += $"Severidad: {selectedSeverity} (Correcto: {firstSpot.severity})";
-            }
-
-            Debug.Log(errorMsg);
         }
 
-        return isCorrect;
+        // Construir mensaje con todas las opciones válidas
+        StringBuilder sb = new StringBuilder("INCORRECTO. Seleccionaste: ");
+        sb.Append($"{selectedDisease} Sev:{selectedSeverity}. Válidos: ");
+        foreach (DiseaseSpot spot in leaf.diseaseSpots)
+        {
+            string sevStr = spot.severity == -1 ? "cualquiera" : spot.severity.ToString();
+            sb.Append($"[{spot.diseaseName} Sev:{sevStr}] ");
+        }
+        Debug.Log(sb.ToString());
+        return false;
     }
 
     void ShowFeedback(bool isCorrect)

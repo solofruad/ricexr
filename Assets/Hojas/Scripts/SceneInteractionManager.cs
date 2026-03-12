@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Meta.XR.MRUtilityKit;
 using Unity.XR.CoreUtils;
-using System;
-using System.Threading.Tasks;
 
 
 /// <summary>
@@ -49,10 +47,6 @@ public class SceneInteractionManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    //void Start()
-    //{
-    //    WaitForStartSignal();
-    //}
 
     // ?? NUEVO: llamado por MainMenuController al pulsar "Iniciar pruebas" ????
     /// <summary>
@@ -64,26 +58,29 @@ public class SceneInteractionManager : MonoBehaviour
         _isReady = true;
         Debug.Log("[SceneManager] Listo para recibir selección de plano.");
 
-        //await Task.Delay(500);
         // Disparar el spawn de los planos azules ahora que el menú lo autorizó
         if (planeSpawner != null)
         {
-        MRUKRoom room = MRUK.Instance?.GetCurrentRoom();
-        if (room != null)
-            {
-                planeSpawner.SpawnForRoom(room);Console.WriteLine($"[SceneManager] Spawn de planos solicitado para room {room}");
-            }
-        else
-            Debug.LogWarning("[SceneManager] No se encontró room para spawnear planos.");
-   }
+            MRUKRoom room = MRUK.Instance?.GetCurrentRoom();
+            if (room != null)
+                planeSpawner.SpawnForRoom(room);
+            else
+                Debug.LogWarning("[SceneManager] No se encontró room para spawnear planos.");
+        }
         else
         {
-    Debug.LogWarning("[SceneManager] planeSpawner no asignado.");
+            Debug.LogWarning("[SceneManager] planeSpawner no asignado.");
         }
 
- // Registrar inicio del primer nivel en métricas
+        // Mostrar la UI de diagnóstico ahora que la sesión comenzó
+        if (DiseaseSelectionSystem.Instance != null)
+            DiseaseSelectionSystem.Instance.Show();
+        else
+            Debug.LogWarning("[SceneManager] DiseaseSelectionSystem no encontrado.");
+
+        // Registrar inicio del primer nivel en métricas
         if (SessionMetricsTracker.Instance != null)
- SessionMetricsTracker.Instance.StartLevel(currentLevelIndex);
+            SessionMetricsTracker.Instance.StartLevel(currentLevelIndex);
     }
 
     // ?? Click en botón del plano ?????????????????????????????????????????
