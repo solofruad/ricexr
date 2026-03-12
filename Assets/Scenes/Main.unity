@@ -1092,7 +1092,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 2840649047106571781, guid: 15667e6656432b641b5e5cbbc615ae0d, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 15667e6656432b641b5e5cbbc615ae0d, type: 3}
@@ -7322,7 +7323,7 @@ MonoBehaviour:
   Colliders: 1
   CutHoles: 0
   castShadows: 0
-  hideMesh: 0
+  hideMesh: 1
   Layer: 0
   textureCoordinateModes:
   - WallU: 5
