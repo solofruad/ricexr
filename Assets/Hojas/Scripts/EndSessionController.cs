@@ -55,12 +55,19 @@ public class EndSessionController : MonoBehaviour
     [SerializeField] private Button saveButton;
     [SerializeField] private Text saveButtonLabel;
 
+    [Header("Referencias post-guardado")]
+    [Tooltip("Panel del menú principal para volver a mostrarlo al terminar")]
+    [SerializeField] private GameObject mainMenuPanel;
+    [Tooltip("LeaderboardController para refrescar la lista al volver al menú")]
+    [SerializeField] private LeaderboardController leaderboardController;
+
     [Header("Animación de aparición")]
     [SerializeField] private float animDuration = 0.3f;
 
     private SessionMetricsTracker.SessionResult _pendingResult;
     private Coroutine _animCoroutine;
     private Vector3 _originalScale;
+    private Vector3 _menuOriginalScale;
 
     // ?? Lifecycle ????????????????????????????????????????????????????????
     void Awake()
@@ -71,11 +78,16 @@ public class EndSessionController : MonoBehaviour
 
     void Start()
     {
-        // Guardar la escala original antes de ocultar el panel
+        // Guardar escalas originales antes de ocultar los paneles
         if (endPanel != null)
             _originalScale = endPanel.transform.localScale;
         else
             _originalScale = Vector3.one;
+
+        if (mainMenuPanel != null)
+            _menuOriginalScale = mainMenuPanel.transform.localScale;
+        else
+            _menuOriginalScale = Vector3.one;
 
         if (endPanel != null) endPanel.SetActive(false);
         if (saveButton != null) saveButton.onClick.AddListener(OnSaveClicked);
@@ -230,28 +242,68 @@ if (failuresLabel   != null)
         if (_pendingResult == null)
         {
             Debug.LogWarning("[EndSession] No hay resultado pendiente para guardar.");
-  return;
-    }
+            return;
+        }
 
         // Asignar apodo
-      string nickname = nicknameInput != null ? nicknameInput.text.Trim() : "";
+        string nickname = nicknameInput != null ? nicknameInput.text.Trim() : "";
         if (string.IsNullOrEmpty(nickname)) nickname = "Anónimo";
-      _pendingResult.nickname = nickname;
+        _pendingResult.nickname = nickname;
 
         // Guardar en JSON
-  bool saved = SessionDataSaver.Instance != null && SessionDataSaver.Instance.SaveSession(_pendingResult);
+        bool saved = SessionDataSaver.Instance != null && SessionDataSaver.Instance.SaveSession(_pendingResult);
 
-      if (saved)
+        if (saved)
         {
             Debug.Log($"[EndSession] Datos guardados para: {nickname}");
             if (saveButtonLabel != null) saveButtonLabel.text = "¡Guardado!";
-    saveButton.interactable = false;
-  }
+            saveButton.interactable = false;
+
+            // Ocultar el panel y volver al menú
+            StartCoroutine(ReturnToMenu());
+        }
         else
         {
-         Debug.LogWarning("[EndSession] No se pudo guardar la sesión.");
+            Debug.LogWarning("[EndSession] No se pudo guardar la sesión.");
             if (saveButtonLabel != null) saveButtonLabel.text = "Error al guardar";
         }
+    }
+
+    private IEnumerator ReturnToMenu()
+    {
+        // Pequeña pausa para que el usuario vea "¡Guardado!"
+        yield return new WaitForSeconds(1.2f);
+
+        // Ocultar EndPanel con animación
+        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
+        _animCoroutine = StartCoroutine(ScalePanel(_originalScale, Vector3.zero));
+        yield return new WaitForSeconds(animDuration);
+        if (endPanel != null) endPanel.SetActive(false);
+
+        // Restaurar el botón para una posible reutilización
+        if (saveButton   != null) saveButton.interactable = true;
+        if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
+        _pendingResult = null;
+
+        // Volver a mostrar el menú principal
+        if (mainMenuPanel != null)
+        {
+            mainMenuPanel.transform.localScale = Vector3.zero;
+            mainMenuPanel.SetActive(true);
+            float elapsed = 0f;
+            while (elapsed < animDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = 1f - Mathf.Pow(1f - Mathf.Clamp01(elapsed / animDuration), 3f);
+                mainMenuPanel.transform.localScale = Vector3.LerpUnclamped(Vector3.zero, _menuOriginalScale, t);
+                yield return null;
+            }
+            mainMenuPanel.transform.localScale = _menuOriginalScale;
+        }
+
+        // Refrescar el leaderboard con el nuevo dato
+        if (leaderboardController != null)
+            leaderboardController.Populate();
     }
 
     private string FormatTime(float seconds)
