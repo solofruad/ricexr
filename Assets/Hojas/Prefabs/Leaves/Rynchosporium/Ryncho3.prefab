@@ -197,17 +197,22 @@ PrefabInstance:
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.x
-      value: -0.018
+      value: -0.015
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.y
-      value: 0.739
+      value: 0.774
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.z
-      value: -0.027
+      value: -0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 7726722856430163968, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.024
       objectReference: {fileID: 0}
     - target: {fileID: 7900291983998647829, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
@@ -258,6 +263,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8027357745950617870, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 0.07723416
+      objectReference: {fileID: 0}
+    - target: {fileID: 8027357745950617870, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: m_Size.z
+      value: 0.9296903
+      objectReference: {fileID: 0}
+    - target: {fileID: 8027357745950617870, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: m_Center.x
+      value: 0.0020605512
+      objectReference: {fileID: 0}
+    - target: {fileID: 8027357745950617870, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: m_Center.z
+      value: -0.46317014
       objectReference: {fileID: 0}
     - target: {fileID: 9020422268904497308, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}

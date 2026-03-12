@@ -202,17 +202,17 @@ PrefabInstance:
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.x
-      value: 0.029
+      value: 0.027
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.y
-      value: 0.837
+      value: 0.844
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.z
-      value: -0.081
+      value: -0.083
       objectReference: {fileID: 0}
     - target: {fileID: 7726722856430163968, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
@@ -287,7 +287,7 @@ PrefabInstance:
     - target: {fileID: 8027357745950617870, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: m_Size.y
-      value: 0.13040042
+      value: 0.09802292
       objectReference: {fileID: 0}
     - target: {fileID: 8027357745950617870, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
@@ -302,12 +302,12 @@ PrefabInstance:
     - target: {fileID: 8027357745950617870, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: m_Center.y
-      value: 0.029538343
+      value: 0.04572709
       objectReference: {fileID: 0}
     - target: {fileID: 8027357745950617870, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: m_Center.z
-      value: -0.4985145
+      value: -0.4985137
       objectReference: {fileID: 0}
     - target: {fileID: 9020422268904497308, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
