@@ -145,6 +145,7 @@ MonoBehaviour:
   startButton: {fileID: 3566963199638329492}
   sceneInteractionManager: {fileID: 0}
   leaderboardController: {fileID: 4129617153693685567}
+  animDuration: 0.8
 --- !u!1 &4876376004710381620
 GameObject:
   m_ObjectHideFlags: 0
@@ -1233,8 +1234,7 @@ MonoBehaviour:
   entryContainer: {fileID: 7063079472457624092}
   entryPrefab: {fileID: 9035803654405759405, guid: 4a7f57588dc380d4cb5b0fa71bbfde5b,
     type: 3}
-  emptyLabel: {fileID: 5528829922914327923, guid: 611b31ec43a75ff41aeefbb29eebeea8,
-    type: 3}
+  emptyPrefab: {fileID: 0}
 --- !u!114 &5706346475831133226
 MonoBehaviour:
   m_ObjectHideFlags: 0
