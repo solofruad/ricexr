@@ -82,12 +82,18 @@ public class DiseaseSelectionSystem : MonoBehaviour
     [Tooltip("Duracion en segundos del agrandar/achicar al mostrar u ocultar")]
     public float animDuration = 0.3f;
 
+    private Vector3 _originalScale = Vector3.one;
+
     void Start()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        if (diseaseSelectionPanel != null) diseaseSelectionPanel.SetActive(false);
+        if (diseaseSelectionPanel != null)
+        {
+            _originalScale = diseaseSelectionPanel.transform.localScale;
+            diseaseSelectionPanel.SetActive(false);
+        }
         if (correctFeedbackObject != null) correctFeedbackObject.SetActive(false);
         if (incorrectFeedbackObject != null) incorrectFeedbackObject.SetActive(false);
         if (noLeafSelectedFeedbackObject != null) noLeafSelectedFeedbackObject.SetActive(false);
@@ -96,7 +102,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
             submitButton.onClick.AddListener(OnSubmit);
     }
 
-    // ── API publica ───────────────────────────────────────────────────────
+
 
     /// <summary>Muestra el panel con animacion de escala.</summary>
     public void ShowAnimated()
@@ -105,7 +111,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
         diseaseSelectionPanel.transform.DOKill();
         diseaseSelectionPanel.transform.localScale = Vector3.zero;
         diseaseSelectionPanel.SetActive(true);
-        diseaseSelectionPanel.transform.DOScale(Vector3.one, animDuration).SetEase(Ease.OutBack);
+        diseaseSelectionPanel.transform.DOScale(_originalScale, animDuration).SetEase(Ease.OutBack);
     }
 
     /// <summary>Oculta el panel con animacion de escala.</summary>
@@ -123,7 +129,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
     public void Show()
     {
         if (diseaseSelectionPanel == null) return;
-        diseaseSelectionPanel.transform.localScale = Vector3.one;
+        diseaseSelectionPanel.transform.localScale = _originalScale;
         diseaseSelectionPanel.SetActive(true);
     }
 
@@ -159,7 +165,6 @@ public class DiseaseSelectionSystem : MonoBehaviour
     }
 
     // ── Logica de submit ─────────────────────────────────────────────────
-
     void OnSubmit()
     {
         Leaf currentLeaf = GrabbableObjectListener.Instance.ActualLeafGrabbed;
@@ -221,7 +226,6 @@ public class DiseaseSelectionSystem : MonoBehaviour
     }
 
     // ── Helpers de seleccion ─────────────────────────────────────────────
-
     string GetSelectedDisease()
     {
         if (diseaseToggleGroup == null)
@@ -300,7 +304,6 @@ public class DiseaseSelectionSystem : MonoBehaviour
         return false;
     }
 
-    // ── Feedback ─────────────────────────────────────────────────────────
 
     void ShowFeedback(bool isCorrect)
     {

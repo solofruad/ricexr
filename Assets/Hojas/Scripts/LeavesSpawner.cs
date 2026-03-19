@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 
 /// <summary>
 /// Clase que gestiona la generación y animación de hojas en un área definida.
@@ -16,7 +17,7 @@ using System.Collections.Generic;
 /// - Al activarse, genera posiciones aleatorias dentro del área de spawn definida por SpawnAreaSize
 /// - Crea instancias de los prefabs de vegetación pero las inicializa con escala cero (invisibles)
 /// - Programa un sistema de delay escalonado para el inicio de las animaciones
-/// - Ejecuta animaciones de crecimiento suaves utilizando AnimationCurve para el control de easing
+/// - Ejecuta animaciones de crecimiento suaves usando DOTween con AnimationCurve como ease
 /// - Mantiene una lista interna de todas las instancias para permitir su gestión centralizada
 /// 
 /// Notas importantes:
@@ -34,6 +35,9 @@ public class LeavesSpawner : MonoBehaviour
 
     [SerializeField] public Vector2 SpawnAreaSize { get; set; }
 
+    [Tooltip("Margen de seguridad para evitar que las hojas se salgan del borde (en metros).")]
+    [SerializeField] private float safeMargin = 0.1f;
+
     [Header("Animation Settings")]
     [SerializeField] private float totalSpawnDuration = 10f;
     [SerializeField] private float growDuration = 4f;
@@ -48,18 +52,7 @@ public class LeavesSpawner : MonoBehaviour
     [Header("Optimization")]
     [SerializeField] public Transform grassParent;
 
-    private class GrassInstance
-    {
-        public Transform transform;
-        public Vector3 originalScale;
-        public Vector3 targetPosition;
-        public float spawnDelay;
-        public float growDuration;
-        public bool isGrowing;
-        public float growProgress;
-    }
-
-    private List<GrassInstance> activeGrass = new List<GrassInstance>();
+    private List<Transform> activeGrass = new List<Transform>();
 
     private void Start()
     {
@@ -81,137 +74,68 @@ public class LeavesSpawner : MonoBehaviour
     {
         List<Vector3> spawnPositions = GenerateSpawnPositions();
 
-        // Decide how many to spawn (handle inspector values <= 0 gracefully)
         int spawnCount = spawnPositions.Count;
         if (grassCount > 0)
-        {
             spawnCount = Mathf.Min(grassCount, spawnPositions.Count);
-        }
 
         if (spawnCount == 0) yield break;
+        if (grassPrefabs == null || grassPrefabs.Length == 0) yield break;
 
-        // Crear todas las hojas de inmediato pero invisibles
         for (int i = 0; i < spawnCount; i++)
         {
-            if (grassPrefabs == null || grassPrefabs.Length == 0) yield break;
-
             GameObject prefab = grassPrefabs[Random.Range(0, grassPrefabs.Length)];
             GameObject grass = Instantiate(prefab, spawnPositions[i], Quaternion.identity, grassParent);
+
             var leaf = grass.GetComponentInChildren<Leaf>();
             if (leaf != null) leaf.ableToShowMarkers = isGrassAbleToShowMarker;
 
-
-            // Rotación aleatoria + rotación del padre
             float randomYRotation = Random.Range(-rotationVariation, rotationVariation);
             float parentYRotation = transform.eulerAngles.y;
             grass.transform.rotation = Quaternion.Euler(0, parentYRotation + randomYRotation, 0);
 
-            // Guardar escala original y aplicar variación
             Vector3 baseScale = grass.transform.localScale;
             float scaleMultiplier = 1f + Random.Range(-scaleVariation, scaleVariation);
             Vector3 finalScale = baseScale * scaleMultiplier;
 
-            // Empezar con escala 0
             grass.transform.localScale = Vector3.zero;
 
-            // Calcular delay de spawn
-            float normalizedIndex = i / (float)Mathf.Max(1, spawnCount); // use actual spawnCount to avoid divide-by-zero
+            float normalizedIndex = i / (float)Mathf.Max(1, spawnCount - 1);
             float spawnDelay = (normalizedIndex * totalSpawnDuration) + Random.Range(-spawnTimeVariation, spawnTimeVariation);
             spawnDelay = Mathf.Max(0f, spawnDelay);
 
-            // Ensure grow duration is never zero or negative
             float instanceGrowDuration = growDuration + Random.Range(-growTimeVariation, growTimeVariation);
             instanceGrowDuration = Mathf.Max(0.001f, instanceGrowDuration);
 
-            GrassInstance instance = new GrassInstance
-            {
-                transform = grass.transform,
-                originalScale = finalScale,
-                targetPosition = spawnPositions[i],
-                spawnDelay = spawnDelay,
-                growDuration = instanceGrowDuration,
-                isGrowing = false,
-                growProgress = 0f
-            };
+            activeGrass.Add(grass.transform);
 
-            activeGrass.Add(instance);
+            grass.transform
+                .DOScale(finalScale, instanceGrowDuration)
+                .SetDelay(spawnDelay)
+                .SetEase(growCurve)
+                .OnComplete(() => Debug.Log("Hoja creció completamente."));
         }
-
-        // Iniciar animación
-        StartCoroutine(AnimateAllGrass());
 
         yield return null;
-    }
-
-    private IEnumerator AnimateAllGrass()
-    {
-        float elapsedTime = 0f;
-        bool allComplete = false;
-
-        while (!allComplete)
-        {
-            allComplete = true;
-            elapsedTime += Time.deltaTime;
-
-            foreach (var grass in activeGrass)
-            {
-                if (grass.transform == null) continue;
-
-                // Verificar si debe empezar a crecer
-                if (!grass.isGrowing && elapsedTime >= grass.spawnDelay)
-                {
-                    grass.isGrowing = true;
-                }
-
-                // If this grass is not yet fully grown, we are not complete
-                if (grass.growProgress < 1f)
-                {
-                    allComplete = false;
-
-                    // Only advance growth when the spawn delay has passed (isGrowing)
-                    if (grass.isGrowing)
-                    {
-                        grass.growProgress += Time.deltaTime / grass.growDuration;
-                        grass.growProgress = Mathf.Clamp01(grass.growProgress);
-
-                        float curveValue = growCurve.Evaluate(grass.growProgress);
-
-                        // Aplicar escala con crecimiento vertical
-                        Vector3 currentScale = Vector3.Lerp(Vector3.zero, grass.originalScale, curveValue);
-                        grass.transform.localScale = currentScale;
-                    }
-                    // if not yet isGrowing, leave scale at zero until spawnDelay reached
-                }
-                else if (grass.growProgress >= 1f)
-                {
-                    // Asegurar valores finales
-                    grass.transform.localScale = grass.originalScale;
-                    float finalHeightOffset = grass.originalScale.y * 0.5f;
-                    //grass.transform.position = grass.targetPosition + new Vector3(0, finalHeightOffset, 0);
-                }
-            }
-
-            yield return null;
-        }
-
-        Debug.Log("¡Todas las hojas han crecido completamente!");
     }
 
     private List<Vector3> GenerateSpawnPositions()
     {
         List<Vector3> positions = new List<Vector3>();
         int attempts = 0;
-        int maxAttempts = Mathf.Max(1, (grassCount > 0 ? grassCount : 1) * 3);
-
         int targetCount = (grassCount > 0) ? grassCount : 1;
+        int maxAttempts = Mathf.Max(1, targetCount * 3);
+
         while (positions.Count < targetCount && attempts < maxAttempts)
         {
             attempts++;
 
-            float randomX = Random.Range(-SpawnAreaSize.x / 2, SpawnAreaSize.x / 2);
-            float randomZ = Random.Range(-SpawnAreaSize.y / 2, SpawnAreaSize.y / 2);
+            // Se calcula el área efectiva restando el margen a cada lado
+            float effectiveWidthX = Mathf.Max(0, SpawnAreaSize.x - (safeMargin * 2));
+            float effectiveWidthZ = Mathf.Max(0, SpawnAreaSize.y - (safeMargin * 2));
 
-            // Posición local rotada según el transform del padre
+            float randomX = Random.Range(-effectiveWidthX / 2f, effectiveWidthX / 2f);
+            float randomZ = Random.Range(-effectiveWidthZ / 2f, effectiveWidthZ / 2f);
+
             Vector3 localPos = new Vector3(randomX, 0, randomZ);
             Vector3 rotatedPos = transform.TransformPoint(localPos);
 
@@ -221,35 +145,26 @@ public class LeavesSpawner : MonoBehaviour
         return positions;
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.green;
-
-        // Dibujar área rotada
-        Vector3 c1 = transform.TransformPoint(new Vector3(-SpawnAreaSize.x / 2, 0, -SpawnAreaSize.y / 2));
-        Vector3 c2 = transform.TransformPoint(new Vector3(SpawnAreaSize.x / 2, 0, -SpawnAreaSize.y / 2));
-        Vector3 c3 = transform.TransformPoint(new Vector3(SpawnAreaSize.x / 2, 0, SpawnAreaSize.y / 2));
-        Vector3 c4 = transform.TransformPoint(new Vector3(-SpawnAreaSize.x / 2, 0, SpawnAreaSize.y / 2));
-
-        Gizmos.DrawLine(c1, c2);
-        Gizmos.DrawLine(c2, c3);
-        Gizmos.DrawLine(c3, c4);
-        Gizmos.DrawLine(c4, c1);
-    }
-
     public void RespawnGrass()
     {
-        StopAllCoroutines();
-
-        foreach (var instance in activeGrass)
+        foreach (var t in activeGrass)
         {
-            if (instance.transform != null)
+            if (t != null)
             {
-                Destroy(instance.transform.gameObject);
+                t.DOKill();
+                Destroy(t.gameObject);
             }
         }
 
         activeGrass.Clear();
         StartCoroutine(InitializeGrass());
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var t in activeGrass)
+        {
+            if (t != null) t.DOKill();
+        }
     }
 }

@@ -65,8 +65,10 @@ public class EndSessionController : MonoBehaviour
     [SerializeField] private float animDuration = 0.3f;
 
     private SessionMetricsTracker.SessionResult _pendingResult;
+    private Vector3 _originalScale = Vector3.one;
+    private Vector3 _menuOriginalScale = Vector3.one;
 
-    // ── Lifecycle ────────────────────────────────────────────────────────────
+    
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -75,7 +77,17 @@ public class EndSessionController : MonoBehaviour
 
     void Start()
     {
-        if (endPanel != null) endPanel.SetActive(false);
+        if (endPanel != null)
+        {
+            _originalScale = endPanel.transform.localScale;
+            endPanel.SetActive(false);
+        }
+        
+        if (mainMenuPanel != null)
+        {
+            _menuOriginalScale = mainMenuPanel.transform.localScale;
+        }
+
         if (saveButton != null) saveButton.onClick.AddListener(OnSaveClicked);
     }
 
@@ -127,7 +139,7 @@ public class EndSessionController : MonoBehaviour
             endPanel.transform.rotation = Quaternion.LookRotation(-toCam);
     }
 
-    /// <summary>Muestra el panel de fin con animacion de escala.</summary>
+    /// <summary>Muestra el panel de fin con animacion de escala (llamar desde SceneInteractionManager).</summary>
     public void ShowAnimated()
     {
         ShowEndPanel();
@@ -135,7 +147,7 @@ public class EndSessionController : MonoBehaviour
 
         endPanel.transform.DOKill();
         endPanel.transform.localScale = Vector3.zero;
-        endPanel.transform.DOScale(Vector3.one, animDuration).SetEase(Ease.OutBack);
+        endPanel.transform.DOScale(_originalScale, animDuration).SetEase(Ease.OutBack);
     }
 
     // ── Privados ─────────────────────────────────────────────────────────────
@@ -248,15 +260,11 @@ public class EndSessionController : MonoBehaviour
     {
         if (mainMenuPanel == null) return;
 
-        // Siempre hacer reset a escala 1 antes de animar.
-        // El bug original capturaba _menuOriginalScale en Start() cuando el panel
-        // podia tener una escala diferente, y ademas el while loop no tenia
-        // yield return null por lo que nunca animaba correctamente.
         mainMenuPanel.transform.DOKill();
         mainMenuPanel.transform.localScale = Vector3.zero;
         mainMenuPanel.SetActive(true);
         mainMenuPanel.transform
-            .DOScale(Vector3.one, animDuration)
+            .DOScale(_menuOriginalScale, animDuration)
             .SetEase(Ease.OutBack)
             .OnComplete(() =>
             {

@@ -258,6 +258,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothSpeed: 5
   lockYAxis: 0
+  matchCameraUpVector: 1
 --- !u!1 &7368700664804550559
 GameObject:
   m_ObjectHideFlags: 0
