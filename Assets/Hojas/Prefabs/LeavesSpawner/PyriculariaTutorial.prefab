@@ -20,6 +20,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
+      propertyPath: totalSpawnDuration
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
       propertyPath: grassPrefabs.Array.size
       value: 4
       objectReference: {fileID: 0}

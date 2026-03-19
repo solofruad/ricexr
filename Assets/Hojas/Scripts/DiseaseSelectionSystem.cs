@@ -1,14 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 /// <summary>
-/// Sistema de selección de enfermedades para simulación de diagnóstico vegetal.
+/// Sistema de seleccion de enfermedades para simulacion de diagnostico vegetal.
 ///
 /// Funcionalidades principales:
-/// 1. Gestiona dos grupos de selección: Enfermedades y Niveles de Severidad
+/// 1. Gestiona dos grupos de seleccion: Enfermedades y Niveles de Severidad
 /// 2. Valida las selecciones del usuario contra TODOS los DiseaseSpots de la hoja
 /// 3. Si un spot tiene severity == -1, solo se valida la enfermedad (severidad ignorada)
 /// 4. Proporciona feedback visual inmediato (correcto/incorrecto)
@@ -17,25 +17,26 @@ using UnityEngine.UI;
 /// 7. Se mantiene oculto hasta que SceneInteractionManager llama a Show()
 ///
 /// Flujo de trabajo:
-/// 1. SceneInteractionManager.WaitForStartSignal() → Show()
+/// 1. SceneInteractionManager.WaitForStartSignal() → ShowAnimated()
 /// 2. Usuario selecciona enfermedad y severidad mediante Toggles
-/// 3. Usuario presiona botón de submit
+/// 3. Usuario presiona boton de submit
 /// 4. Sistema verifica hoja agarrada y compara con TODOS sus DiseaseSpots
-/// 5. Muestra feedback visual y registra métricas
+/// 5. Muestra feedback visual y registra metricas
 /// 6. Si correcto: muestra marcadores y avanza nivel
 /// </summary>
 public class DiseaseSelectionSystem : MonoBehaviour
 {
     public static DiseaseSelectionSystem Instance { get; private set; }
 
-    // ── Panel raíz ────────────────────────────────────────────────────────
-    [Header("Panel raíz")]
-    [Tooltip("Raíz de toda la UI del selector. Se oculta al inicio y se activa al iniciar pruebas.")]
+    // ── Panel raiz ────────────────────────────────────────────────────────
+    [Header("Panel raiz")]
+    [Tooltip("Raiz de toda la UI del selector. Se oculta al inicio y se activa al iniciar pruebas.")]
     public GameObject diseaseSelectionPanel;
 
     [Header("Posicionamiento en mundo")]
     [Tooltip("Desplazamiento relativo al plano elegido. X = lateral, Y = altura, Z = profundidad")]
     public Vector3 positionOffset = new Vector3(0.6f, 0.1f, 0f);
+
     [Header("Toggle Groups")]
     [Tooltip("ToggleGroup para las enfermedades")]
     public ToggleGroup diseaseToggleGroup;
@@ -58,123 +59,97 @@ public class DiseaseSelectionSystem : MonoBehaviour
     [Tooltip("Toggles de severidad en orden (1-5)")]
     public List<Toggle> severityToggles = new List<Toggle>();
 
-    [Header("Botón de Submit")]
+    [Header("Boton de Submit")]
     public Button submitButton;
 
     [Header("Objetos de Feedback")]
-    [Tooltip("GameObject que se mostrará cuando sea correcto")]
+    [Tooltip("GameObject que se mostrara cuando sea correcto")]
     public GameObject correctFeedbackObject;
 
-    [Tooltip("GameObject que se mostrará cuando sea incorrecto")]
+    [Tooltip("GameObject que se mostrara cuando sea incorrecto")]
     public GameObject incorrectFeedbackObject;
 
-    [Tooltip("GameObject que se mostrará cuando no hay hoja seleccionada")]
+    [Tooltip("GameObject que se mostrara cuando no hay hoja seleccionada")]
     public GameObject noLeafSelectedFeedbackObject;
 
-    [Tooltip("Duración que el feedback estará visible")]
+    [Tooltip("Duracion que el feedback estara visible")]
     public float feedbackDuration = 3f;
 
     [Tooltip("Margen de error permitido en la severidad")]
     public int MarginOfError = 0;
 
-    [Header("Animación de aparición")]
-    [Tooltip("Duración en segundos del agrandar/achicar al mostrar u ocultar")]
+    [Header("Animacion de aparicion")]
+    [Tooltip("Duracion en segundos del agrandar/achicar al mostrar u ocultar")]
     public float animDuration = 0.3f;
-
-    private Coroutine _animCoroutine;
-    private Vector3 _originalScale;
 
     void Start()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // Guardar la escala original antes de ocultar el panel
-        if (diseaseSelectionPanel != null)
-            _originalScale = diseaseSelectionPanel.transform.localScale;
-        else
-            _originalScale = Vector3.one;
-
-        // Ocultar la UI hasta que el usuario pulse "Iniciar"
-        if (diseaseSelectionPanel        != null) diseaseSelectionPanel.SetActive(false);
-        if (correctFeedbackObject        != null) correctFeedbackObject.SetActive(false);
-        if (incorrectFeedbackObject      != null) incorrectFeedbackObject.SetActive(false);
+        if (diseaseSelectionPanel != null) diseaseSelectionPanel.SetActive(false);
+        if (correctFeedbackObject != null) correctFeedbackObject.SetActive(false);
+        if (incorrectFeedbackObject != null) incorrectFeedbackObject.SetActive(false);
         if (noLeafSelectedFeedbackObject != null) noLeafSelectedFeedbackObject.SetActive(false);
 
         if (submitButton != null)
             submitButton.onClick.AddListener(OnSubmit);
     }
 
-    // ── API pública ───────────────────────────────────────────────────────
+    // ── API publica ───────────────────────────────────────────────────────
 
-    /// <summary>Muestra el panel con animación de escala.</summary>
+    /// <summary>Muestra el panel con animacion de escala.</summary>
     public void ShowAnimated()
     {
         if (diseaseSelectionPanel == null) return;
-        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
+        diseaseSelectionPanel.transform.DOKill();
+        diseaseSelectionPanel.transform.localScale = Vector3.zero;
         diseaseSelectionPanel.SetActive(true);
-        _animCoroutine = StartCoroutine(ScalePanel(Vector3.zero, _originalScale));
+        diseaseSelectionPanel.transform.DOScale(Vector3.one, animDuration).SetEase(Ease.OutBack);
     }
 
-    /// <summary>Oculta el panel con animación de escala.</summary>
+    /// <summary>Oculta el panel con animacion de escala.</summary>
     public void HideAnimated()
     {
         if (diseaseSelectionPanel == null) return;
-        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
-        _animCoroutine = StartCoroutine(ScalePanel(_originalScale, Vector3.zero, deactivateAfter: true));
+        diseaseSelectionPanel.transform.DOKill();
+        diseaseSelectionPanel.transform
+            .DOScale(Vector3.zero, animDuration)
+            .SetEase(Ease.InBack)
+            .OnComplete(() => diseaseSelectionPanel.SetActive(false));
     }
 
-    /// <summary>Muestra instantáneamente (sin animación).</summary>
+    /// <summary>Muestra instantaneamente (sin animacion).</summary>
     public void Show()
     {
         if (diseaseSelectionPanel == null) return;
-        diseaseSelectionPanel.transform.localScale = _originalScale;
+        diseaseSelectionPanel.transform.localScale = Vector3.one;
         diseaseSelectionPanel.SetActive(true);
     }
 
-    /// <summary>Oculta instantáneamente (sin animación).</summary>
+    /// <summary>Oculta instantaneamente (sin animacion).</summary>
     public void Hide()
     {
         if (diseaseSelectionPanel == null) return;
         diseaseSelectionPanel.SetActive(false);
     }
 
-    private IEnumerator ScalePanel(Vector3 from, Vector3 to, bool deactivateAfter = false)
-    {
-        diseaseSelectionPanel.transform.localScale = from;
-        float elapsed = 0f;
-        while (elapsed < animDuration)
-        {
-            elapsed += Time.deltaTime;
-            float t = EaseOutCubic(Mathf.Clamp01(elapsed / animDuration));
-            diseaseSelectionPanel.transform.localScale = Vector3.LerpUnclamped(from, to, t);
-            yield return null;
-        }
-        diseaseSelectionPanel.transform.localScale = to;
-        if (deactivateAfter) diseaseSelectionPanel.SetActive(false);
-        _animCoroutine = null;
-    }
-
-    private float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
-
     /// <summary>
-    /// Posiciona el panel al lado del plano elegido y lo orienta hacia la cámara.
+    /// Posiciona el panel al lado del plano elegido y lo orienta hacia la camara.
     /// planePosition: centro del plano en world space.
-    /// planeRight: vector derecha del plano para desplazar lateralmente.
+    /// planeRight:    vector derecha del plano para desplazar lateralmente.
     /// </summary>
     public void PlaceNextTo(Vector3 planePosition, Vector3 planeRight, Vector3 planeNormal)
     {
         if (diseaseSelectionPanel == null) return;
 
-        // Desplazar lateralmente usando el eje derecho del plano + offset configurable
         Vector3 worldPos = planePosition
-            + planeRight   * positionOffset.x
-            + Vector3.up   * positionOffset.y
-            + planeNormal  * positionOffset.z;
+            + planeRight * positionOffset.x
+            + Vector3.up * positionOffset.y
+            + planeNormal * positionOffset.z;
 
         diseaseSelectionPanel.transform.position = worldPos;
 
-        // Girar para que mire hacia la cámara (Billboard horizontal)
         Vector3 toCam = Camera.main != null
             ? Camera.main.transform.position - worldPos
             : Vector3.forward;
@@ -183,38 +158,22 @@ public class DiseaseSelectionSystem : MonoBehaviour
             diseaseSelectionPanel.transform.rotation = Quaternion.LookRotation(-toCam);
     }
 
-    void ShowNoLeafFeedback()
-    {
-        if (noLeafSelectedFeedbackObject == null)
-        {
-            Debug.LogWarning("No hay objeto asignado para feedback de 'sin hoja seleccionada'");
-            return;
-        }
-
-        // Mostrar el objeto
-        noLeafSelectedFeedbackObject.SetActive(true);
-
-        // Ocultarlo después de un tiempo
-        StartCoroutine(HideFeedbackAfterDelay(noLeafSelectedFeedbackObject));
-    }
+    // ── Logica de submit ─────────────────────────────────────────────────
 
     void OnSubmit()
     {
-        // Verificar que hay una hoja agarrada
         Leaf currentLeaf = GrabbableObjectListener.Instance.ActualLeafGrabbed;
 
         if (currentLeaf == null)
         {
             Debug.LogWarning("No hay ninguna hoja agarrada");
-            ShowNoLeafFeedback(); 
+            ShowFeedbackObject(noLeafSelectedFeedbackObject);
             return;
         }
 
-        // Obtener las selecciones actuales
         string selectedDisease = GetSelectedDisease();
         int selectedSeverity = GetSelectedSeverity();
 
-        // Verificar que se ha seleccionado algo
         if (string.IsNullOrEmpty(selectedDisease))
         {
             Debug.LogWarning("Debes seleccionar una enfermedad");
@@ -227,14 +186,11 @@ public class DiseaseSelectionSystem : MonoBehaviour
             return;
         }
 
-        // Obtener índice del nivel actual para las métricas
         int levelIndex = SceneInteractionManager.Instance != null
-   ? SceneInteractionManager.Instance.GetCurrentLevelIndex()
+            ? SceneInteractionManager.Instance.GetCurrentLevelIndex()
             : 0;
 
-        // Validar contra TODOS los spots de la hoja
-        DiseaseSpot matchedSpot;
-        bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity, out matchedSpot);
+        bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity, out _);
 
         ShowFeedback(isCorrect);
 
@@ -244,10 +200,18 @@ public class DiseaseSelectionSystem : MonoBehaviour
                 SessionMetricsTracker.Instance.CompleteLevel(levelIndex, selectedDisease, selectedSeverity);
 
             currentLeaf.ableToShowMarkers = true;
-            currentLeaf.showMarkers       = true;
+            currentLeaf.showMarkers = true;
             currentLeaf.SetMarkersVisibility(true);
 
-            StartCoroutine(AdvanceToNextLevel());
+            // Esperar al feedback y luego avanzar nivel
+            DOVirtual.DelayedCall(feedbackDuration, () =>
+            {
+                ResetSelection();
+                if (SceneInteractionManager.Instance != null)
+                    SceneInteractionManager.Instance.AdvanceToNextLevel();
+                else
+                    Debug.LogWarning("SceneInteractionManager.Instance no encontrado");
+            });
         }
         else
         {
@@ -255,6 +219,8 @@ public class DiseaseSelectionSystem : MonoBehaviour
                 SessionMetricsTracker.Instance.RegisterFailedAttempt(levelIndex, selectedDisease, selectedSeverity);
         }
     }
+
+    // ── Helpers de seleccion ─────────────────────────────────────────────
 
     string GetSelectedDisease()
     {
@@ -264,23 +230,14 @@ public class DiseaseSelectionSystem : MonoBehaviour
             return null;
         }
 
-        // Obtener el toggle activo del grupo
         Toggle activeToggle = diseaseToggleGroup.GetFirstActiveToggle();
+        if (activeToggle == null) return null;
 
-        if (activeToggle == null)
-        {
-            return null;
-        }
-
-        // Encontrar el índice del toggle activo
         int index = diseaseToggles.IndexOf(activeToggle);
-
         if (index >= 0 && index < diseaseNames.Count)
-        {
             return diseaseNames[index];
-        }
 
-        Debug.LogWarning($"Toggle activo no encontrado en la lista de disease toggles");
+        Debug.LogWarning("Toggle activo no encontrado en la lista de disease toggles");
         return null;
     }
 
@@ -292,30 +249,20 @@ public class DiseaseSelectionSystem : MonoBehaviour
             return -1;
         }
 
-        // Obtener el toggle activo del grupo
         Toggle activeToggle = severityToggleGroup.GetFirstActiveToggle();
+        if (activeToggle == null) return -1;
 
-        if (activeToggle == null)
-        {
-            return -1;
-        }
-
-        // Encontrar el índice del toggle activo (índice + 1 = severidad)
         int index = severityToggles.IndexOf(activeToggle);
+        if (index >= 0) return index + 1;
 
-        if (index >= 0)
-        {
-            return index + 1;
-        }
-
-        Debug.LogWarning($"Toggle activo no encontrado en la lista de severity toggles");
+        Debug.LogWarning("Toggle activo no encontrado en la lista de severity toggles");
         return -1;
     }
 
     /// <summary>
-    /// Devuelve true si la selección coincide con CUALQUIERA de los DiseaseSpots de la hoja.
+    /// Devuelve true si la seleccion coincide con CUALQUIERA de los DiseaseSpots de la hoja.
     /// Si un spot tiene severity == -1, la severidad se ignora y solo se valida la enfermedad.
-    /// El spot que coincidió se devuelve en matchedSpot.
+    /// El spot que coincidio se devuelve en matchedSpot.
     /// </summary>
     bool ValidateSelection(Leaf leaf, string selectedDisease, int selectedSeverity, out DiseaseSpot matchedSpot)
     {
@@ -330,8 +277,6 @@ public class DiseaseSelectionSystem : MonoBehaviour
         foreach (DiseaseSpot spot in leaf.diseaseSpots)
         {
             bool diseaseMatch = selectedDisease == spot.diseaseName;
-
-            // Si severity == -1 en el spot, no se evalúa la severidad
             bool severityMatch = spot.severity == -1
                 ? true
                 : Mathf.Abs(selectedSeverity - spot.severity) <= MarginOfError;
@@ -344,9 +289,8 @@ public class DiseaseSelectionSystem : MonoBehaviour
             }
         }
 
-        // Construir mensaje con todas las opciones válidas
-        StringBuilder sb = new StringBuilder("INCORRECTO. Seleccionaste: ");
-        sb.Append($"{selectedDisease} Sev:{selectedSeverity}. Válidos: ");
+        var sb = new StringBuilder("INCORRECTO. Seleccionaste: ");
+        sb.Append($"{selectedDisease} Sev:{selectedSeverity}. Validos: ");
         foreach (DiseaseSpot spot in leaf.diseaseSpots)
         {
             string sevStr = spot.severity == -1 ? "cualquiera" : spot.severity.ToString();
@@ -356,83 +300,44 @@ public class DiseaseSelectionSystem : MonoBehaviour
         return false;
     }
 
+    // ── Feedback ─────────────────────────────────────────────────────────
+
     void ShowFeedback(bool isCorrect)
     {
-        // Ocultar ambos objetos primero
-        if (correctFeedbackObject != null)
-        {
-            correctFeedbackObject.SetActive(false);
-        }
+        if (correctFeedbackObject != null) correctFeedbackObject.SetActive(false);
+        if (incorrectFeedbackObject != null) incorrectFeedbackObject.SetActive(false);
 
-        if (incorrectFeedbackObject != null)
-        {
-            incorrectFeedbackObject.SetActive(false);
-        }
+        GameObject target = isCorrect ? correctFeedbackObject : incorrectFeedbackObject;
+        ShowFeedbackObject(target);
+    }
 
-        // Seleccionar el objeto apropiado
-        GameObject objectToShow = isCorrect ? correctFeedbackObject : incorrectFeedbackObject;
-
-        if (objectToShow == null)
+    void ShowFeedbackObject(GameObject feedbackObject)
+    {
+        if (feedbackObject == null)
         {
-            Debug.LogWarning($"No hay objeto asignado para feedback {(isCorrect ? "correcto" : "incorrecto")}");
+            Debug.LogWarning("No hay objeto asignado para este tipo de feedback");
             return;
         }
 
-        // Mostrar el objeto
-        objectToShow.SetActive(true);
-
-        // Ocultarlo después de un tiempo
-        StartCoroutine(HideFeedbackAfterDelay(objectToShow));
-    }
-
-    IEnumerator HideFeedbackAfterDelay(GameObject feedbackObject)
-    {
-        yield return new WaitForSeconds(feedbackDuration);
-
-        if (feedbackObject != null)
+        feedbackObject.SetActive(true);
+        DOVirtual.DelayedCall(feedbackDuration, () =>
         {
-            feedbackObject.SetActive(false);
-        }
-    }
-
-    IEnumerator AdvanceToNextLevel()
-    {
-        // Esperar a que termine de mostrarse el feedback
-        yield return new WaitForSeconds(feedbackDuration);
-
-        // Resetear la selección
-        ResetSelection();
-
-        // Notificar al InteractionManager para que avance al siguiente nivel
-        if (SceneInteractionManager.Instance != null)
-        {
-            SceneInteractionManager.Instance.AdvanceToNextLevel();
-        }
-        else
-        {
-            Debug.LogWarning("InteractionManager.Instance no encontrado");
-        }
+            if (feedbackObject != null)
+                feedbackObject.SetActive(false);
+        });
     }
 
     public void ResetSelection()
     {
-        // Desactivar todos los toggles
-        if (diseaseToggleGroup != null)
-        {
-            diseaseToggleGroup.SetAllTogglesOff();
-        }
-
-        if (severityToggleGroup != null)
-        {
-            severityToggleGroup.SetAllTogglesOff();
-        }
+        if (diseaseToggleGroup != null) diseaseToggleGroup.SetAllTogglesOff();
+        if (severityToggleGroup != null) severityToggleGroup.SetAllTogglesOff();
     }
 
     void OnDestroy()
     {
         if (submitButton != null)
-        {
             submitButton.onClick.RemoveListener(OnSubmit);
-        }
+
+        diseaseSelectionPanel?.transform.DOKill();
     }
-}   
+}

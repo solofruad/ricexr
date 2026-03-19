@@ -1,13 +1,12 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using DG.Tweening;
 
 /// <summary>
-/// MENÚ PRINCIPAL
-/// 
-/// Controla la pantalla de inicio. El leaderboard siempre está visible.
-/// Solo tiene un botón: "Iniciar Pruebas".
+/// MENU PRINCIPAL
+///
+/// Controla la pantalla de inicio. El leaderboard siempre esta visible.
+/// Solo tiene un boton: "Iniciar Pruebas".
 /// </summary>
 public class MainMenuController : MonoBehaviour
 {
@@ -21,14 +20,13 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private SceneInteractionManager sceneInteractionManager;
     [SerializeField] private LeaderboardController leaderboardController;
 
-    [Header("Animación")]
+    [Header("Animacion")]
     [SerializeField] private float animDuration = 0.3f;
 
     void Start()
     {
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
 
-        // Poblar el leaderboard al inicio (siempre visible)
         if (leaderboardController != null)
             leaderboardController.Populate();
 
@@ -43,31 +41,21 @@ public class MainMenuController : MonoBehaviour
         if (sceneInteractionManager != null)
             sceneInteractionManager.WaitForStartSignal();
         else
-            Debug.LogWarning("[MainMenu] No se encontró SceneInteractionManager.");
+            Debug.LogWarning("[MainMenu] No se encontro SceneInteractionManager.");
 
-        // Ocultar el menú con animación
         if (mainMenuPanel != null)
-            StartCoroutine(HidePanel());
-    }
-
-    private IEnumerator HidePanel()
-    {
-        float elapsed = 0f;
-        Vector3 originalScale = mainMenuPanel.transform.localScale;
-        while (elapsed < animDuration)
         {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / animDuration);
-            float easedT = 1f - Mathf.Pow(1f - t, 3f);
-            mainMenuPanel.transform.localScale = Vector3.LerpUnclamped(originalScale, Vector3.zero, easedT);
-            yield return null;
+            mainMenuPanel.transform.DOKill();
+            mainMenuPanel.transform
+                .DOScale(Vector3.zero, animDuration)
+                .SetEase(Ease.InBack)
+                .OnComplete(() => mainMenuPanel.SetActive(false));
         }
-        mainMenuPanel.transform.localScale = Vector3.zero;
-        mainMenuPanel.SetActive(false);
     }
 
     void OnDestroy()
     {
         if (startButton != null) startButton.onClick.RemoveListener(OnStartClicked);
+        mainMenuPanel?.transform.DOKill();
     }
 }

@@ -1,35 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;  // solo para los labels de resumen y filas de detalle
+using TMPro;
+using DG.Tweening;
 
 /// <summary>
-/// PANEL DE FIN DE SESI�N
-/// 
-/// Se activa autom�ticamente cuando SceneInteractionManager llama a OnAllLevelsCompleted().
+/// PANEL DE FIN DE SESION
+///
+/// Se activa automaticamente cuando SceneInteractionManager llama a OnAllLevelsCompleted().
 /// Flujo del panel:
 ///   1. Muestra un mensaje de felicitaciones animado
-///   2. Muestra las m�tricas obtenidas en la sesi�n (tiempo, fallos, promedio)
-/// 3. Pide al usuario que ingrese un apodo
+///   2. Muestra las metricas obtenidas en la sesion (tiempo, fallos, promedio)
+///   3. Pide al usuario que ingrese un apodo
 ///   4. Al presionar "Guardar", guarda todo en el JSON y cierra el panel
-/// 
-/// C�mo configurar en Unity:
-///   - endPanel:    el panel ra�z (desactivado al inicio)
-///   - congratsLabel:        texto de felicitaciones
-///   - totalTimeLabel: muestra el tiempo total
-///- failuresLabel:      muestra el total de fallos
-///   - avgTimeLabel:         muestra el tiempo promedio por nivel
-///   - levelDetailContainer: padre de las filas de detalle por nivel
-///   - levelDetailRowPrefab: prefab con al menos 3 TextMeshProUGUI (nivel / tiempo / fallos)
-///   - nicknameInput:        TMP_InputField donde el usuario escribe su apodo
-///   - saveButton:      bot�n de guardar
+///
+/// Como configurar en Unity:
+///   - endPanel:              el panel raiz (desactivado al inicio)
+///   - congratsLabel:         texto de felicitaciones
+///   - totalTimeLabel:        muestra el tiempo total
+///   - failuresLabel:         muestra el total de fallos
+///   - avgTimeLabel:          muestra el tiempo promedio por nivel
+///   - levelDetailContainer:  padre de las filas de detalle por nivel
+///   - levelDetailRowPrefab:  prefab con al menos 3 TextMeshProUGUI (nivel / tiempo / fallos)
+///   - nicknameInput:         InputField donde el jugador escribe su apodo
+///   - saveButton:            boton de guardar
 /// </summary>
 public class EndSessionController : MonoBehaviour
 {
     public static EndSessionController Instance { get; private set; }
 
-    [Header("Panel ra�z")]
+    [Header("Panel raiz")]
     [SerializeField] private GameObject endPanel;
 
     [Header("Posicionamiento en mundo")]
@@ -40,7 +40,7 @@ public class EndSessionController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI congratsLabel;
     [SerializeField] private TextMeshProUGUI totalTimeLabel;
     [SerializeField] private TextMeshProUGUI failuresLabel;
-  [SerializeField] private TextMeshProUGUI avgTimeLabel;
+    [SerializeField] private TextMeshProUGUI avgTimeLabel;
     [SerializeField] private TextMeshProUGUI totalLevelsLabel;
 
     [Header("Detalle por nivel (opcional)")]
@@ -51,86 +51,69 @@ public class EndSessionController : MonoBehaviour
     [Tooltip("Campo de texto Legacy (InputField) donde el jugador escribe su apodo al final")]
     [SerializeField] private InputField nicknameInput;
 
-    [Header("Bot�n guardar")]
+    [Header("Boton guardar")]
     [SerializeField] private Button saveButton;
     [SerializeField] private Text saveButtonLabel;
 
     [Header("Referencias post-guardado")]
-    [Tooltip("Panel del men� principal para volver a mostrarlo al terminar")]
+    [Tooltip("Panel del menu principal para volver a mostrarlo al terminar")]
     [SerializeField] private GameObject mainMenuPanel;
-    [Tooltip("LeaderboardController para refrescar la lista al volver al men�")]
+    [Tooltip("LeaderboardController para refrescar la lista al volver al menu")]
     [SerializeField] private LeaderboardController leaderboardController;
 
-    [Header("Animaci�n de aparici�n")]
+    [Header("Animacion")]
     [SerializeField] private float animDuration = 0.3f;
 
     private SessionMetricsTracker.SessionResult _pendingResult;
-    private Coroutine _animCoroutine;
-    private Vector3 _originalScale;
-    private Vector3 _menuOriginalScale;
 
-    // ?? Lifecycle ????????????????????????????????????????????????????????
+    // ── Lifecycle ────────────────────────────────────────────────────────────
     void Awake()
     {
-     if (Instance == null) Instance = this;
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
 
     void Start()
     {
-        // Guardar escalas originales antes de ocultar los paneles
-        if (endPanel != null)
-            _originalScale = endPanel.transform.localScale;
-        else
-            _originalScale = Vector3.one;
-
-        if (mainMenuPanel != null)
-            _menuOriginalScale = mainMenuPanel.transform.localScale;
-        else
-            _menuOriginalScale = Vector3.one;
-
         if (endPanel != null) endPanel.SetActive(false);
         if (saveButton != null) saveButton.onClick.AddListener(OnSaveClicked);
     }
 
-    // ?? API p�blica ???????????????????????????????????????????????????????
+    // ── API publica ──────────────────────────────────────────────────────────
 
     /// <summary>
     /// Llama esto desde SceneInteractionManager.OnAllLevelsCompleted().
-    /// Recoge m�tricas, muestra el panel y espera el apodo del usuario.
+    /// Recoge metricas, muestra el panel y espera el apodo del usuario.
     /// </summary>
     public void ShowEndPanel()
     {
         if (endPanel == null)
         {
-     Debug.LogWarning("[EndSession] endPanel no asignado.");
-     return;
+            Debug.LogWarning("[EndSession] endPanel no asignado.");
+            return;
         }
 
-        // Recoger resultado de la sesi�n (sin apodo todav�a)
         _pendingResult = SessionMetricsTracker.Instance != null
-  ? SessionMetricsTracker.Instance.EndSession("")
-    : null;
+            ? SessionMetricsTracker.Instance.EndSession("")
+            : null;
 
         FillUI(_pendingResult);
-
         endPanel.SetActive(true);
-        // La posici�n la aplica SceneInteractionManager llamando PlaceAt() justo despu�s
 
         if (nicknameInput != null) nicknameInput.text = "";
         if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
     }
 
     /// <summary>
-    /// Posiciona el endPanel sobre el plano elegido y lo orienta hacia la c�mara.
-    /// Llamar justo despu�s de ShowEndPanel() desde SceneInteractionManager.
+    /// Posiciona el endPanel sobre el plano elegido y lo orienta hacia la camara.
+    /// Llamar justo antes de ShowAnimated() desde SceneInteractionManager.
     /// </summary>
     public void PlaceAt(Vector3 planePosition, Vector3 planeNormal)
     {
         if (endPanel == null) return;
 
         Vector3 worldPos = planePosition
-            + Vector3.up  * positionOffset.y
+            + Vector3.up * positionOffset.y
             + planeNormal * positionOffset.z
             + new Vector3(positionOffset.x, 0f, 0f);
 
@@ -144,54 +127,31 @@ public class EndSessionController : MonoBehaviour
             endPanel.transform.rotation = Quaternion.LookRotation(-toCam);
     }
 
-    /// <summary>Muestra el panel de fin con animaci�n de escala (llamar desde SceneInteractionManager).</summary>
+    /// <summary>Muestra el panel de fin con animacion de escala.</summary>
     public void ShowAnimated()
     {
-        ShowEndPanel();   // llena la UI y activa el panel
+        ShowEndPanel();
         if (endPanel == null) return;
-        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
-        _animCoroutine = StartCoroutine(ScalePanel(Vector3.zero, _originalScale));
+
+        endPanel.transform.DOKill();
+        endPanel.transform.localScale = Vector3.zero;
+        endPanel.transform.DOScale(Vector3.one, animDuration).SetEase(Ease.OutBack);
     }
 
-    private IEnumerator ScalePanel(Vector3 from, Vector3 to)
-    {
-        endPanel.transform.localScale = from;
-        float elapsed = 0f;
-        while (elapsed < animDuration)
-        {
-            elapsed += Time.deltaTime;
-            float t = EaseOutCubic(Mathf.Clamp01(elapsed / animDuration));
-            endPanel.transform.localScale = Vector3.LerpUnclamped(from, to, t);
-            yield return null;
-        }
-        endPanel.transform.localScale = to;
-        _animCoroutine = null;
-    }
-
-    private float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
-
-    // ?? Privados ?????????????????????????????????????????????????????????
+    // ── Privados ─────────────────────────────────────────────────────────────
 
     private void FillUI(SessionMetricsTracker.SessionResult result)
     {
-    if (congratsLabel  != null)
-            congratsLabel.text = "�Felicitaciones!\n�Has completado todas las pruebas!";
+        if (congratsLabel != null)
+            congratsLabel.text = "¡Felicitaciones!\n¡Has completado todas las pruebas!";
 
         if (result == null) return;
 
- if (totalTimeLabel  != null)
-            totalTimeLabel.text  = $"{FormatTime(result.totalTimeSeconds)}";
+        if (totalTimeLabel != null) totalTimeLabel.text = FormatTime(result.totalTimeSeconds);
+        if (failuresLabel != null) failuresLabel.text = $"{result.totalFailures}";
+        if (avgTimeLabel != null) avgTimeLabel.text = FormatTime(result.averageTimePerLevel);
+        if (totalLevelsLabel != null) totalLevelsLabel.text = $"{result.totalLevels}";
 
-if (failuresLabel   != null)
-         failuresLabel.text   = $"{result.totalFailures}";
-
-        if (avgTimeLabel    != null)
-     avgTimeLabel.text    = $"{FormatTime(result.averageTimePerLevel)}";
-
-        if (totalLevelsLabel != null)
-      totalLevelsLabel.text = $"{result.totalLevels}";
-
-        // Llenar filas de detalle por nivel
         FillLevelDetails(result.levels);
     }
 
@@ -207,19 +167,18 @@ if (failuresLabel   != null)
         foreach (var lm in levels)
         {
             GameObject row = Instantiate(levelDetailRowPrefab, levelDetailContainer);
-            SetText(row, "LevelText",   $"Prueba {lm.levelIndex + 1}");
-            SetText(row, "TimeText",    FormatTime(lm.timeToComplete));
-            SetText(row, "FailsText",   $"{lm.failCount} fallo{(lm.failCount != 1 ? "s" : "")}");
+            SetText(row, "LevelText", $"Prueba {lm.levelIndex + 1}");
+            SetText(row, "TimeText", FormatTime(lm.timeToComplete));
+            SetText(row, "FailsText", $"{lm.failCount} fallo{(lm.failCount != 1 ? "s" : "")}");
         }
     }
 
-    /// <summary>Busca un hijo por nombre (recursivo) y asigna el texto TMP.</summary>
     private void SetText(GameObject root, string objectName, string value)
     {
         Transform found = FindDeep(root.transform, objectName);
         if (found == null)
         {
-            Debug.LogWarning($"[EndSession] No se encontr� '{objectName}' en el prefab de fila.");
+            Debug.LogWarning($"[EndSession] No se encontro '{objectName}' en el prefab de fila.");
             return;
         }
         TextMeshProUGUI tmp = found.GetComponent<TextMeshProUGUI>();
@@ -245,65 +204,65 @@ if (failuresLabel   != null)
             return;
         }
 
-        // Asignar apodo
         string nickname = nicknameInput != null ? nicknameInput.text.Trim() : "";
-        if (string.IsNullOrEmpty(nickname)) nickname = "An�nimo";
+        if (string.IsNullOrEmpty(nickname)) nickname = "Anonimo";
         _pendingResult.nickname = nickname;
 
-        // Guardar en JSON
         bool saved = SessionDataSaver.Instance != null && SessionDataSaver.Instance.SaveSession(_pendingResult);
 
         if (saved)
         {
             Debug.Log($"[EndSession] Datos guardados para: {nickname}");
-            if (saveButtonLabel != null) saveButtonLabel.text = "�Guardado!";
+            if (saveButtonLabel != null) saveButtonLabel.text = "¡Guardado!";
             saveButton.interactable = false;
-
-            // Ocultar el panel y volver al men�
-            StartCoroutine(ReturnToMenu());
+            ReturnToMenu();
         }
         else
         {
-            Debug.LogWarning("[EndSession] No se pudo guardar la sesi�n.");
+            Debug.LogWarning("[EndSession] No se pudo guardar la sesion.");
             if (saveButtonLabel != null) saveButtonLabel.text = "Error al guardar";
         }
     }
 
-    private IEnumerator ReturnToMenu()
+    private void ReturnToMenu()
     {
-        // Peque�a pausa para que el usuario vea "�Guardado!"
-        yield return new WaitForSeconds(1.2f);
-
-        // Ocultar EndPanel con animaci�n
-        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
-        _animCoroutine = StartCoroutine(ScalePanel(_originalScale, Vector3.zero));
-        yield return new WaitForSeconds(animDuration);
-        if (endPanel != null) endPanel.SetActive(false);
-
-        // Restaurar el bot�n para una posible reutilizaci�n
-        if (saveButton   != null) saveButton.interactable = true;
-        if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
-        _pendingResult = null;
-
-        // Volver a mostrar el men� principal
-        if (mainMenuPanel != null)
-        {
-            mainMenuPanel.transform.localScale = Vector3.zero;
-            mainMenuPanel.SetActive(true);
-            float elapsed = 0f;
-            while (elapsed < animDuration)
+        // Pequeña pausa, luego escala el endPanel a cero y lo desactiva
+        endPanel.transform.DOKill();
+        endPanel.transform
+            .DOScale(Vector3.zero, animDuration)
+            .SetEase(Ease.InBack)
+            .SetDelay(1.2f)
+            .OnComplete(() =>
             {
-                elapsed += Time.deltaTime;
-                float t = 1f - Mathf.Pow(1f - Mathf.Clamp01(elapsed / animDuration), 3f);
-                mainMenuPanel.transform.localScale = Vector3.LerpUnclamped(Vector3.zero, _menuOriginalScale, t);
-                yield return null;
-            }
-            mainMenuPanel.transform.localScale = _menuOriginalScale;
-        }
+                endPanel.SetActive(false);
 
-        // Refrescar el leaderboard con el nuevo dato
-        if (leaderboardController != null)
-            leaderboardController.Populate();
+                if (saveButton != null) saveButton.interactable = true;
+                if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
+                _pendingResult = null;
+
+                ShowMainMenu();
+            });
+    }
+
+    private void ShowMainMenu()
+    {
+        if (mainMenuPanel == null) return;
+
+        // Siempre hacer reset a escala 1 antes de animar.
+        // El bug original capturaba _menuOriginalScale en Start() cuando el panel
+        // podia tener una escala diferente, y ademas el while loop no tenia
+        // yield return null por lo que nunca animaba correctamente.
+        mainMenuPanel.transform.DOKill();
+        mainMenuPanel.transform.localScale = Vector3.zero;
+        mainMenuPanel.SetActive(true);
+        mainMenuPanel.transform
+            .DOScale(Vector3.one, animDuration)
+            .SetEase(Ease.OutBack)
+            .OnComplete(() =>
+            {
+                if (leaderboardController != null)
+                    leaderboardController.Populate();
+            });
     }
 
     private string FormatTime(float seconds)
@@ -316,5 +275,7 @@ if (failuresLabel   != null)
     void OnDestroy()
     {
         if (saveButton != null) saveButton.onClick.RemoveListener(OnSaveClicked);
-  }
+        endPanel?.transform.DOKill();
+        mainMenuPanel?.transform.DOKill();
+    }
 }
