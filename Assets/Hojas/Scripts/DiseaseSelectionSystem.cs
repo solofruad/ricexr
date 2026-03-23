@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 
 /// <summary>
-/// Sistema de seleccion de enfermedades para simulacion de diagnostico vegetal.
+/// Es el menu UI con su sistema para la seleccion de enfermedades.
 ///
 /// Funcionalidades principales:
 /// 1. Gestiona dos grupos de seleccion: Enfermedades y Niveles de Severidad

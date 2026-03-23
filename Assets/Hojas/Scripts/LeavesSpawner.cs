@@ -32,8 +32,8 @@ public class LeavesSpawner : MonoBehaviour
     [SerializeField] private GameObject[] grassPrefabs;
     [SerializeField] public int grassCount = -1;
     public bool isGrassAbleToShowMarker = true;
+    [SerializeField] public Vector2 SpawnAreaSize;
 
-    [SerializeField] public Vector2 SpawnAreaSize { get; set; }
 
     [Tooltip("Margen de seguridad para evitar que las hojas se salgan del borde (en metros).")]
     [SerializeField] private float safeMargin = 0.1f;

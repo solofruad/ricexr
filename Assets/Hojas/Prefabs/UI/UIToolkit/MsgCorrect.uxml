@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="msg-correct" style="
+        width: 560px;
+        background-color: rgba(12, 12, 16, 0.97);
+        border-radius: 16px;
+        flex-direction: row;
+        align-items: center;
+        padding: 20px 24px;
+        border-left-width: 4px;
+        border-left-color: rgb(80, 200, 110);
+        border-top-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-color: rgba(255,255,255,0.07);
+    ">
+        <ui:VisualElement style="
+            width: 44px; height: 44px;
+            background-color: rgba(80, 200, 110, 0.15);
+            border-radius: 22px;
+            align-items: center; justify-content: center;
+            flex-shrink: 0;
+            margin-right: 16px;
+        ">
+            <ui:Label text="✓" style="font-size: 20px; color: rgb(80,200,110); -unity-font-style: bold;"/>
+        </ui:VisualElement>
+
+        <ui:VisualElement style="flex-grow: 1; flex-direction: column;">
+            <ui:Label name="correct-title" text="¡Correcto!" style="
+                font-size: 18px;
+                color: rgb(80, 200, 110);
+                -unity-font-style: bold;
+                margin-bottom: 2px;
+            "/>
+            <ui:Label name="correct-sub" text="Esa es la planta enferma. Bien hecho." style="
+                font-size: 14px;
+                color: rgba(255,255,255,0.48);
+                white-space: normal;
+            "/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
