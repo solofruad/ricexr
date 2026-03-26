@@ -45,10 +45,6 @@ public class UIGameListener : MonoBehaviour
     [Tooltip("Índice base-0 del nivel de tutorial jugable (práctica sin panel de enfermedad).")]
     [SerializeField] private int tutorialLevelIndex = 0;
 
-    [Tooltip("Índice base-0 del nivel de evaluación. En ese nivel no se muestra " +
-             "el panel de enfermedad ni marcadores.")]
-    [SerializeField] private int levelFinalIndex = 2;
-
     [Header("Mensajes")]
     [SerializeField] private string tutorialLevelSubtitle = "Tutorial práctico: selecciona y clasifica las hojas requeridas.";
 
@@ -60,6 +56,7 @@ public class UIGameListener : MonoBehaviour
     private Tween _flowTween;
     private int _currentLevelIndex = -1;
     private int _currentPlantsRequired = 1;
+    private int _currentTotalLevels = 0;
 
     // ─────────────────────────────────────────────
     // Suscripción al bus
@@ -94,12 +91,14 @@ public class UIGameListener : MonoBehaviour
     {
         _flowTween?.Kill();
         _currentLevelIndex = levelIndex;
+        _currentTotalLevels = totalLevels;
         _currentPlantsRequired = plantsRequired < 1 ? 1 : plantsRequired;
 
         messages.HideAll();
         diseasePanel?.Hide();
 
-        bool isFinalLevel = levelIndex == levelFinalIndex;
+        int finalLevelIndex = GetFinalLevelIndex(totalLevels);
+        bool isFinalLevel = levelIndex == finalLevelIndex;
         bool isTutorialGameplayLevel = levelIndex == tutorialLevelIndex;
 
         if (isFinalLevel)
@@ -108,7 +107,8 @@ public class UIGameListener : MonoBehaviour
             _flowTween = DOVirtual.DelayedCall(finalLevelMessageDuration, () =>
             {
                 messages.HideAll();
-                messages.ShowProgress(0, _currentPlantsRequired);
+                // Libera el spawn del nivel final cuando termina el mensaje.
+                GameEventBus.PublishDiseaseAnalysisCompleted();
             });
         }
         else if (isTutorialGameplayLevel)
@@ -191,7 +191,12 @@ public class UIGameListener : MonoBehaviour
     private bool ShouldShowDiseasePanel(int levelIndex)
     {
         if (levelIndex < 0) return false;
-        return levelIndex != levelFinalIndex && levelIndex != tutorialLevelIndex;
+        return levelIndex != GetFinalLevelIndex(_currentTotalLevels) && levelIndex != tutorialLevelIndex;
+    }
+
+    private int GetFinalLevelIndex(int totalLevels)
+    {
+        return Mathf.Max(0, totalLevels - 1);
     }
 
     /// <summary>

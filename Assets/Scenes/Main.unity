@@ -7023,7 +7023,7 @@ MonoBehaviour:
   Colliders: 1
   CutHoles: 0
   castShadows: 0
-  hideMesh: 0
+  hideMesh: 1
   Layer: 0
   textureCoordinateModes:
   - WallU: 5
@@ -7126,13 +7126,13 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 11400000, guid: c9a9b0d6ec153ca4584b2e13623bd0b8, type: 2}
   - {fileID: 11400000, guid: 4d7f6f66f6f05ba4b9b852ea33637c6a, type: 2}
+  - {fileID: 0}
   tutorialLevelIndex: 0
-  levelFinalIndex: 3
   tutorialLevelSubtitle: "Tutorial pr\xE1ctico: selecciona y clasifica las hojas
     requeridas."
   congratsDuration: 3
   nextLevelMessageDuration: 4
-  finalLevelMessageDuration: 3
+  finalLevelMessageDuration: 10
 --- !u!4 &1025822507
 Transform:
   m_ObjectHideFlags: 0
