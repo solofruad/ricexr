@@ -6918,12 +6918,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutorialPanelController
   uiDocument: {fileID: 873954175}
   uiGameListener: {fileID: 1025822505}
-  tutorialDuration: 1
-  slideUpAmount: 1
+  tutorialDuration: 10
+  slideUpAmount: 0.8
   slideUpDuration: 0.6
   distanceFromCamera: 1.5
   cameraOffset: {x: 0, y: 0, z: 0}
-  surfaceHeightOffset: 1.2
+  surfaceHeightOffset: 1
 --- !u!114 &873954175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7377,8 +7377,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8048,7 +8048,7 @@ MonoBehaviour:
   levelConfigs:
   - levelPrefab: {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83,
       type: 3}
-    plantsRequired: 3
+    plantsRequired: 1
   - levelPrefab: {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83,
       type: 3}
     plantsRequired: 3
@@ -8689,12 +8689,12 @@ MonoBehaviour:
   carouselImages: []
   carouselInterval: 3
   carouselFadeDuration: 0.8
-  defaultProgressDuration: 6
+  defaultProgressDuration: 7
   slideUpAmount: 1
   slideUpDuration: 0.6
   distanceFromCamera: 1.5
   cameraOffset: {x: 0, y: -0.15, z: 0}
-  surfaceHeightOffset: 1.2
+  surfaceHeightOffset: 0.7
 --- !u!1 &2005322335
 GameObject:
   m_ObjectHideFlags: 0
