@@ -385,21 +385,33 @@ public class SceneInteractionManager : MonoBehaviour
     private void BuildRuntimeLevels()
     {
         _runtimeLevels.Clear();
-        foreach (var config in levelConfigs)
+        
+        Debug.Log($"[BuildRuntimeLevels] levelConfigs tiene {levelConfigs.Count} elementos");
+        for (int i = 0; i < levelConfigs.Count; i++)
         {
-            if (config?.levelPrefab == null) continue;
+            var config = levelConfigs[i];
+            if (config?.levelPrefab == null)
+            {
+                Debug.LogWarning($"[BuildRuntimeLevels] Índice {i}: levelPrefab es NULL - se ignora");
+                continue;
+            }
+            Debug.Log($"[BuildRuntimeLevels] Índice {i}: '{config.levelPrefab.name}' agregado (plants={config.plantsRequired})");
             _runtimeLevels.Add(new LevelConfig
             {
                 levelPrefab = config.levelPrefab,
                 plantsRequired = Mathf.Max(1, config.plantsRequired)
             });
         }
+        
         if (_runtimeLevels.Count > 0)
         {
             // Calcula el índice del último nivel dinámicamente
             levelFinalIndex = _runtimeLevels.Count - 1;
+            Debug.Log($"[BuildRuntimeLevels] Total niveles cargados: {_runtimeLevels.Count}. Level Final Index = {levelFinalIndex}");
             return;
         }
+        
+        Debug.LogWarning("[BuildRuntimeLevels] levelConfigs vacío o todos nulos. Usando fallback prefabsToSpawn");
         foreach (var prefab in prefabsToSpawn)
         {
             if (prefab == null) continue;

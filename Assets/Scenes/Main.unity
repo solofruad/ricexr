@@ -676,6 +676,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2902346523002081595, guid: 15667e6656432b641b5e5cbbc615ae0d,
+        type: 3}
+      propertyPath: m_AllowSwitchOff
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3027122828806642676, guid: 15667e6656432b641b5e5cbbc615ae0d,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -1025,6 +1030,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: DiseaseSeveritySelectorUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 5166333854667548730, guid: 15667e6656432b641b5e5cbbc615ae0d,
+        type: 3}
+      propertyPath: m_AllowSwitchOff
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5220175540180614624, guid: 15667e6656432b641b5e5cbbc615ae0d,
         type: 3}
@@ -8067,7 +8077,6 @@ MonoBehaviour:
   levelTransitionDelay: 1.1
   analysisFallbackTimeout: 6
   tutorialLevelIndex: 0
-  levelFinalIndex: 3
 --- !u!4 &1886615857
 Transform:
   m_ObjectHideFlags: 0
