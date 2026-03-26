@@ -1,0 +1,44 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="panel-tutorial" style="width: 700px; height: 460px; background-color: rgb(12, 12, 16); border-radius: 22px; flex-direction: column; overflow: hidden; padding: 28px 32px 24px 32px;">
+        <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 20px; border-bottom-width: 1px; border-bottom-color: rgba(255, 255, 255, 0.08); padding-bottom: 5px;">
+            <ui:VisualElement style="width: 40px; height: 40px; background-color: rgba(80, 160, 255, 0.15); border-radius: 20px; align-items: center; justify-content: center; margin-right: 14px; flex-shrink: 0;">
+                <ui:Label text="?" style="font-size: 20px; color: rgb(80, 160, 255); -unity-font-style: bold; -unity-text-align: middle-center; width: 36px;"/>
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: column;">
+                <ui:Label name="tutorial-title" text="Cómo usar la herramienta" style="font-size: 22px; color: rgba(255, 255, 255, 0.97); -unity-font-style: bold;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="steps-container" style="flex-direction: row; flex-grow: 1; flex-basis: auto; flex-shrink: 1; flex-wrap: nowrap;">
+            <ui:VisualElement class="tutorial-step" style="flex-direction: row; align-items: flex-start; margin-bottom: 0;">
+                <ui:VisualElement style="flex-direction: column; flex-grow: 1; height: auto;">
+                    <ui:Image style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Imagenes/HandHolding.png?fileID=2800000&amp;guid=be9fead753be7fc459d158eafb41a98c&amp;type=3#HandHolding&quot;); -unity-background-scale-mode: scale-and-crop; background-size: 126% auto; -unity-slice-left: 0; -unity-slice-top: 0; -unity-slice-right: 0; -unity-slice-bottom: 0; -unity-background-image-tint-color: rgb(255, 255, 255); margin-left: 25px;"/>
+                    <ui:Label text="Agarra una hoja con la mano" style="font-size: 14px; color: rgba(255, 255, 255, 0.92); -unity-font-style: bold; margin-bottom: 2px; white-space: normal; -unity-text-align: middle-center;"/>
+                    <ui:Label text="Extiende la mano y cierra el puño sobre una hoja para agarrarla y examinarla de cerca." style="font-size: 12px; color: rgba(255, 255, 255, 0.52); white-space: normal; -unity-text-align: middle-center;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="tutorial-step" style="flex-direction: row; align-items: flex-start; margin-bottom: 0; padding-left: 3px; margin-left: 3px; padding-right: 3px; margin-right: 3px; border-right-width: 1px; border-left-width: 1px;">
+                <ui:VisualElement style="flex-direction: column; flex-grow: 1;">
+                    <ui:Image style="flex-grow: 1; max-height: 176px; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Imagenes/HandHoldingEye.png?fileID=2800000&amp;guid=45c9c0d05c12d3143a7f2242a7113002&amp;type=3#HandHoldingEye&quot;); -unity-background-scale-mode: scale-and-crop; background-size: auto 243px;"/>
+                    <ui:Label text="Observa los síntomas en la hoja" style="font-size: 14px; color: rgba(255, 255, 255, 0.92); -unity-font-style: bold; margin-bottom: 2px; white-space: normal; -unity-text-align: middle-center;"/>
+                    <ui:Label text="Gira la hoja para inspeccionar las manchas, el color y el patrón de la lesión." style="font-size: 12px; color: rgba(255, 255, 255, 0.52); white-space: normal; -unity-text-align: middle-center;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="tutorial-step" style="flex-direction: row; align-items: flex-start;">
+                <ui:VisualElement style="flex-direction: column; flex-grow: 1;">
+                    <ui:Image style="flex-grow: 1; height: auto; max-height: 176px; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Imagenes/Menu.svg?fileID=7388822144124034973&amp;guid=a372fb3b2c251f0408f4c6648d2fdea8&amp;type=3#Menu&quot;); -unity-background-scale-mode: scale-to-fit; background-repeat: no-repeat no-repeat; -unity-slice-type: sliced; -unity-slice-scale: 0; background-position-y: center; background-position-x: center;"/>
+                    <ui:Label text="Usa el menú para registrar tu diagnóstico" style="font-size: 14px; color: rgba(255, 255, 255, 0.92); -unity-font-style: bold; margin-bottom: 2px; white-space: normal; -unity-text-align: middle-center;"/>
+                    <ui:Label text="Selecciona la enfermedad y severidad en el panel lateral, luego presiona Confirmar." style="font-size: 12px; color: rgba(255, 255, 255, 0.52); white-space: normal; -unity-text-align: middle-center;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement style="margin-top: 5px; padding-top: 5px; border-top-width: 1px; border-top-color: rgba(255, 255, 255, 0.07);">
+            <ui:VisualElement style="flex-direction: row; justify-content: space-between; margin-bottom: 6px;">
+                <ui:Label name="tutorial-progress-label" text="Leyendo instrucciones..." style="font-size: 12px; color: rgba(255, 255, 255, 0.35);"/>
+                <ui:Label name="tutorial-progress-percent" text="0%" style="font-size: 12px; color: rgba(80, 160, 255, 0.85);"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="tutorial-progress-track" style="height: 3px; background-color: rgba(255, 255, 255, 0.08); border-radius: 2px; overflow: hidden;">
+                <ui:VisualElement name="tutorial-progress-fill" style="height: 100%; width: 0%; background-color: rgb(80, 160, 255); border-radius: 2px;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

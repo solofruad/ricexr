@@ -7,6 +7,11 @@ using DG.Tweening;
 ///
 /// Controla la pantalla de inicio. El leaderboard siempre esta visible.
 /// Solo tiene un boton: "Iniciar Pruebas".
+/// Flujo al presionar iniciar:
+///   1. StartSession() en SessionMetricsTracker
+///   2. WaitForStartSignal() en SceneInteractionManager (spawnea planos MR)
+///   3. Oculta el panel del menu principal
+///   4. El tutorial visual inicia al seleccionar el plano
 /// </summary>
 public class MainMenuController : MonoBehaviour
 {
@@ -26,11 +31,10 @@ public class MainMenuController : MonoBehaviour
     void Start()
     {
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
-
         if (leaderboardController != null)
             leaderboardController.Populate();
-
-        if (startButton != null) startButton.onClick.AddListener(OnStartClicked);
+        if (startButton != null)
+            startButton.onClick.AddListener(OnStartClicked);
     }
 
     private void OnStartClicked()

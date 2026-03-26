@@ -58,6 +58,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -79,9 +84,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8911216152880149385
 GameObject:
@@ -134,17 +141,22 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 77b7668b8c1023943b1d854a3ee04c58, type: 2}
+  - {fileID: 2100000, guid: ea3935ea34944be41b5762ca708e6fe3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -162,9 +174,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1001 &7638661463880482840
 PrefabInstance:
@@ -191,9 +205,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
+      propertyPath: burnDuration
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: burnPropertyName
+      value: _BurnProgress
+      objectReference: {fileID: 0}
+    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
       propertyPath: pointableWrapper
       value: 
       objectReference: {fileID: 3376533365165179335}
+    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: burnMaterialOverride
+      value: 
+      objectReference: {fileID: 2100000, guid: ea3935ea34944be41b5762ca708e6fe3, type: 2}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.size

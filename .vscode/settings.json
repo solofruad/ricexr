@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "ricexr.sln"
+    "dotnet.defaultSolution": "ricexr.slnx"
 }

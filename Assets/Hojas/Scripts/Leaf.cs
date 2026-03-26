@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using Oculus.Interaction;
+using DG.Tweening;
 
 [System.Serializable]
 public class DiseaseSpot
@@ -11,9 +12,10 @@ public class DiseaseSpot
     [Tooltip("Nombre de la enfermedad (ej: Pyricularia, Rhynchosporium)")]
     public string diseaseName = "Pyricularia oryzae";
     [Range(1, 10)]
-    [Tooltip("Severidad de la infección (1-10)")]
+    [Tooltip("Severidad de la infeccion (1-10)")]
     public int severity = 5;
-    public GameObject customPrefab; // Prefab específico para esta mancha (opcional)
+    [Tooltip("Nombre cientifico mostrado en el panel de enfermedad")]
+    public string scientificName;
 
 }
 
@@ -21,46 +23,53 @@ public class DiseaseSpot
 /// Componente que representa una hoja con capacidad de mostrar manchas de enfermedad.
 /// 
 /// Funcionalidades principales:
-/// 1. Gestiona múltiples manchas de enfermedad con posición, tamaño y severidad individuales
-/// 2. Genera marcadores visuales para cada mancha (etiquetas con información)
+/// 1. Gestiona miltiples manchas de enfermedad con posicion, tamaÃ±o y severidad individuales
+/// 2. Genera marcadores visuales para cada mancha (etiquetas con informacion)
 /// 3. Implementa animaciones de pulso para destacar los marcadores
-/// 4. Integra con Oculus Interaction para detectar cuándo la hoja es agarrada/soltada
+/// 4. Integra con Oculus Interaction para detectar cuando la hoja es agarrada/soltada
 /// 5. Notifica al GrabbableObjectListener cuando es interactuada
 /// 
-/// Uso típico:
+/// Uso tipico:
 /// - Configurar diseaseSpots en el inspector para definir las manchas
-/// - Los marcadores se generan automáticamente al inicio
+/// - Los marcadores se generan automaticamente al inicio
 /// - Cuando el usuario agarra la hoja, se notifica al sistema global
-/// - Los sistemas de diagnóstico pueden acceder a la información de las manchas
+/// - Los sistemas de diagnastico pueden acceder a la informaciï¿½n de las manchas
 /// 
 /// Notas importantes:
-/// - Los marcadores usan TextMeshPro para mostrar información de enfermedad
+/// - Los marcadores usan TextMeshPro para mostrar informacion de enfermedad
 /// - Las posiciones de las manchas son locales al transform de la hoja
-/// - La animación de pulso se puede activar/desactivar según necesidad
-/// - Integra con el sistema de interacción de Meta para VR
+/// - La animacion de pulso se puede activar/desactivar segun necesidad
+/// - Integra con el sistema de interaccion de Meta para VR
 /// </summary>
 public class Leaf : MonoBehaviour
 {
     [Header("Manchas de Enfermedad")]
-    [Tooltip("Lista de posiciones locales donde están las manchas")]
+    [Tooltip("Lista de posiciones locales donde estan las manchas")]
     public List<DiseaseSpot> diseaseSpots = new List<DiseaseSpot>();
 
-    [Header("Configuración Visual")]
+    [Header("Configuracion Visual")]
     [Tooltip("Prefab por defecto para los marcadores (si no se especifica uno por mancha)")]
     public GameObject markerPrefab;
 
 
     public bool showMarkers = true;
 
-    [Header("Configuración de Animación")]
-    public bool animateMarkers = true;
-    public float pulseSpeed = 2f;
-    public float pulseScale = 1.2f;
+    [Header("Configuracion de Animacion")]
+
     public bool ableToShowMarkers = true;
+
+    [Header("Efecto de Desaparicion (Burn/Dissolve)")]
+    [Tooltip("Duracion del efecto en segundos")]
+    public float burnDuration = 1.5f;
+    [Tooltip("Tiempo de espera antes de empezar a quemarse")]
+    public float delayBeforeBurn = 1.0f;
 
     private List<GameObject> markerObjects = new List<GameObject>();
 
     [SerializeField] private PointableUnityEventWrapper pointableWrapper;
+
+    private bool _isBurning = false;
+    private static readonly int BurnProgressId = Shader.PropertyToID("_BurnProgress");
 
     void Start()
     {
@@ -76,25 +85,65 @@ public class Leaf : MonoBehaviour
 
     private void OnSelect(PointerEvent pointerEvent)
     {
-        //Debug.Log($"-----------------------------------------------------------");
+        if (GrabbableObjectListener.Instance == null)
+            return;
 
-        GrabbableObjectListener.Instance.ActualLeafGrabbed = this;
+        object data = pointerEvent.Data;
+        GrabbableObjectListener.SelectionHand hand = ResolveSelectionHand(data);
+        Transform anchor = ResolveSelectionAnchor(data);
+
+        GrabbableObjectListener.Instance.SetActiveSelection(this, hand, anchor);
     }
 
     private void OnUnselect(PointerEvent pointerEvent)
     {
-        //Debug.Log($"Objeto deseleccionado: {pointerEvent.Identifier}");
-        GrabbableObjectListener.Instance.ActualLeafGrabbed = null;
+        if (GrabbableObjectListener.Instance == null)
+            return;
+
+        GrabbableObjectListener.Instance.ClearActiveSelection(this);
     }
 
-   
-    void Update()
+    private static GrabbableObjectListener.SelectionHand ResolveSelectionHand(object data)
     {
-        if (animateMarkers && markerObjects.Count > 0)
-        {
-            AnimateMarkers();
-        }
+        if (data == null)
+            return GrabbableObjectListener.SelectionHand.Unknown;
+
+        var handednessProp = data.GetType().GetProperty("Handedness");
+        if (handednessProp == null)
+            return GrabbableObjectListener.SelectionHand.Unknown;
+
+        object handedness = handednessProp.GetValue(data);
+        if (handedness == null)
+            return GrabbableObjectListener.SelectionHand.Unknown;
+
+        string handednessText = handedness.ToString();
+        if (string.Equals(handednessText, "Left", System.StringComparison.OrdinalIgnoreCase))
+            return GrabbableObjectListener.SelectionHand.Left;
+        if (string.Equals(handednessText, "Right", System.StringComparison.OrdinalIgnoreCase))
+            return GrabbableObjectListener.SelectionHand.Right;
+
+        return GrabbableObjectListener.SelectionHand.Unknown;
     }
+
+    private static Transform ResolveSelectionAnchor(object data)
+    {
+        if (data == null)
+            return null;
+
+        if (data is Component component)
+            return component.transform;
+
+        var transformProp = data.GetType().GetProperty("Transform");
+        if (transformProp != null)
+        {
+            object transformValue = transformProp.GetValue(data);
+            if (transformValue is Transform t)
+                return t;
+        }
+
+        return null;
+    }
+
 
     public void GenerateMarkers()
     {
@@ -140,8 +189,8 @@ public class Leaf : MonoBehaviour
 
     GameObject CreateMarker(DiseaseSpot spot, int index)
     {
-        // Determinar qué prefab usar
-        GameObject prefabToUse = spot.customPrefab != null ? spot.customPrefab : markerPrefab;
+        // Determinar quï¿½ prefab usar
+        GameObject prefabToUse = markerPrefab;
 
         if (prefabToUse == null)
         {
@@ -161,69 +210,6 @@ public class Leaf : MonoBehaviour
         return marker;
     }
 
-    
-
-    void AnimateMarkers()
-    {
-        float scale = 1f + Mathf.Sin(Time.time * pulseSpeed) * (pulseScale - 1f) * 0.5f;
-
-        for (int i = 0; i < markerObjects.Count; i++)
-        {
-            if (markerObjects[i] != null && i < diseaseSpots.Count)
-            {
-                DiseaseSpot spot = diseaseSpots[i];
-                markerObjects[i].transform.localScale = Vector3.one * spot.size * scale;
-            }
-        }
-    }
-
-    public void ClearMarkers()
-    {
-        foreach (GameObject marker in markerObjects)
-        {
-            if (marker != null)
-            {
-                if (Application.isPlaying)
-                {
-                    Destroy(marker);
-                }
-                else
-                {
-                    DestroyImmediate(marker);
-                }
-            }
-        }
-        markerObjects.Clear();
-    }
-
-    public void AddDiseaseSpot(Vector3 localPosition, float size = 0.05f, GameObject customPrefab = null)
-    {
-        DiseaseSpot newSpot = new DiseaseSpot
-        {
-            localPosition = localPosition,
-            size = size,
-            customPrefab = customPrefab
-        };
-        diseaseSpots.Add(newSpot);
-
-        if (Application.isPlaying)
-        {
-            GenerateMarkers();
-        }
-    }
-
-    public void RemoveDiseaseSpot(int index)
-    {
-        if (index >= 0 && index < diseaseSpots.Count)
-        {
-            diseaseSpots.RemoveAt(index);
-
-            if (Application.isPlaying)
-            {
-                GenerateMarkers();
-            }
-        }
-    }
 
     public void ToggleMarkers()
     {
@@ -231,44 +217,67 @@ public class Leaf : MonoBehaviour
         GenerateMarkers();
     }
 
-    /*
-    public string GetDiseaseInfo()
-    {
-        return $"Enfermedad: {diseaseName}\n" +
-               $"Severidad: {severity}/10\n" +
-               $"Manchas detectadas: {diseaseSpots.Count}";
-    }
-    */
-    public void SetMarkerPrefab(GameObject newPrefab)
-    {
-        markerPrefab = newPrefab;
-        GenerateMarkers();
-    }
 
-    void OnValidate()
+    /// <summary>
+    /// Activa el efecto de quemado/desaparicion animando la propiedad del shader
+    /// y finalmente desactiva la hoja.
+    /// </summary>
+    public void BurnAndDisable()
     {
-        // Regenerar marcadores cuando se cambian valores en el inspector
-        if (Application.isPlaying && markerObjects.Count > 0)
-        {
-            GenerateMarkers();
-        }
-    }
+        if (_isBurning) return;
+        _isBurning = true;
 
-
-    // Método de ayuda para añadir manchas en posiciones del mundo
-    public void AddDiseaseSpotWorldPosition(Vector3 worldPosition, float size = 0.05f, GameObject customPrefab = null)
-    {
-        Vector3 localPos = transform.InverseTransformPoint(worldPosition);
-        AddDiseaseSpot(localPos, size, customPrefab);
-    }
-    void OnDestroy()
-    {
-        ClearMarkers();
         if (pointableWrapper != null)
         {
-            pointableWrapper.WhenSelect.RemoveListener(OnSelect);
-            pointableWrapper.WhenUnselect.RemoveListener(OnUnselect);
+            pointableWrapper.enabled = false;
         }
+
+        SetMarkersVisibility(false);
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0)
+        {
+            ReleaseAndDisable();
+            return;
+        }
+
+        foreach (var renderer in renderers)
+        {
+            renderer.material.SetFloat(BurnProgressId, 0f);
+        }
+
+        DG.Tweening.DOVirtual.DelayedCall(delayBeforeBurn, () =>
+        {
+            float val = 0f;
+            DG.Tweening.DOTween.To(() => val, x =>
+            {
+                val = x;
+                foreach (var renderer in renderers)
+                {
+                    renderer.material.SetFloat(BurnProgressId, x);
+                }
+            }, 1f, burnDuration)
+            .OnComplete(() =>
+            {
+                ReleaseAndDisable();
+            });
+        });
+    }
+
+    private void ReleaseAndDisable()
+    {
+        var grabbable = GetComponent<Grabbable>();
+        if (grabbable != null)
+        {
+            grabbable.enabled = false;
+        }
+
+        if (GrabbableObjectListener.Instance != null)
+        {
+            GrabbableObjectListener.Instance.ClearActiveSelection(this);
+        }
+
+        gameObject.SetActive(false);
     }
 
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Hace que el UI siempre mire a la cámara.
+/// Hace que el UI siempre mire a la cï¿½mara.
 /// </summary>
 public class BillboardUI : MonoBehaviour
 {
@@ -11,7 +11,7 @@ public class BillboardUI : MonoBehaviour
     [Tooltip("Velocidad de suavizado al girar.")]
     [SerializeField] private float smoothSpeed = 5f;
 
-    [Tooltip("Pivota solo sobre el eje Y global (ignora rotación arriba/abajo).")]
+    [Tooltip("Pivota solo sobre el eje Y global (ignora rotaciï¿½n arriba/abajo).")]
     [SerializeField] private bool lockYAxis = true;
 
     [Tooltip("Alinea la UI con el giro de la cabeza para que el texto no quede de cabeza al mirar hacia abajo.")]
@@ -29,7 +29,7 @@ public class BillboardUI : MonoBehaviour
     {
         if (cameraTransform == null) return;
 
-        // Dirección desde el UI hacia la cámara
+        // DirecciÃ³n desde el UI hacia la cÃ¡mara
         Vector3 targetDirection = cameraTransform.position - transform.position;
 
         if (lockYAxis)
@@ -54,12 +54,12 @@ public class BillboardUI : MonoBehaviour
                     upVector = cameraTransform.up;
 
                     // IMPORTANTE: Prevenir crasheos de Unity.
-                    // Si targetDirection y upVector son paralelos, LookRotation lanza excepción o falla.
+                    // Si targetDirection y upVector son paralelos, LookRotation lanza excepciÃ³n o falla.
                     // Verificamos el producto cruzado. Si es casi cero, son paralelos.
                     if (Vector3.Cross(targetDirection.normalized, upVector).sqrMagnitude < 0.001f)
                     {
                         // Son colineales (mirando totalmente hacia abajo o arriba).
-                        // Fallback más seguro: usar el 'up' que estaba usando antes o el 'forward' de la cámara.
+                        // Fallback mÃ¡s seguro: usar el 'up' que estaba usando antes o el 'forward' de la cÃ¡mara.
                         upVector = -cameraTransform.forward; 
                     }
                 }

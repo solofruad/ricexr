@@ -7,7 +7,7 @@ using DG.Tweening;
 /// <summary>
 /// PANEL DE FIN DE SESION
 ///
-/// Se activa automaticamente cuando SceneInteractionManager llama a OnAllLevelsCompleted().
+/// Se activa automaticamente cuando se publica OnAllLevelsCompleted en GameEventBus.
 /// Flujo del panel:
 ///   1. Muestra un mensaje de felicitaciones animado
 ///   2. Muestra las metricas obtenidas en la sesion (tiempo, fallos, promedio)
@@ -35,6 +35,7 @@ public class EndSessionController : MonoBehaviour
     [Header("Posicionamiento en mundo")]
     [Tooltip("Desplazamiento sobre el plano elegido. Y = altura sobre la superficie")]
     [SerializeField] private Vector3 positionOffset = new Vector3(0f, 0.3f, 0f);
+    [SerializeField] private float distanceFromCamera = 1.6f;
 
     [Header("Textos de resumen")]
     [SerializeField] private TextMeshProUGUI congratsLabel;
@@ -75,6 +76,16 @@ public class EndSessionController : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    void OnEnable()
+    {
+        GameEventBus.OnAllLevelsCompleted += HandleAllLevelsCompleted;
+    }
+
+    void OnDisable()
+    {
+        GameEventBus.OnAllLevelsCompleted -= HandleAllLevelsCompleted;
+    }
+
     void Start()
     {
         if (endPanel != null)
@@ -94,7 +105,6 @@ public class EndSessionController : MonoBehaviour
     // ── API publica ──────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Llama esto desde SceneInteractionManager.OnAllLevelsCompleted().
     /// Recoge metricas, muestra el panel y espera el apodo del usuario.
     /// </summary>
     public void ShowEndPanel()
@@ -118,7 +128,7 @@ public class EndSessionController : MonoBehaviour
 
     /// <summary>
     /// Posiciona el endPanel sobre el plano elegido y lo orienta hacia la camara.
-    /// Llamar justo antes de ShowAnimated() desde SceneInteractionManager.
+    /// Llamar justo antes de ShowAnimated().
     /// </summary>
     public void PlaceAt(Vector3 planePosition, Vector3 planeNormal)
     {
@@ -139,7 +149,7 @@ public class EndSessionController : MonoBehaviour
             endPanel.transform.rotation = Quaternion.LookRotation(-toCam);
     }
 
-    /// <summary>Muestra el panel de fin con animacion de escala (llamar desde SceneInteractionManager).</summary>
+    /// <summary>Muestra el panel de fin con animacion de escala.</summary>
     public void ShowAnimated()
     {
         ShowEndPanel();
@@ -151,6 +161,32 @@ public class EndSessionController : MonoBehaviour
     }
 
     // ── Privados ─────────────────────────────────────────────────────────────
+
+    private void HandleAllLevelsCompleted()
+    {
+        PlaceInFrontOfCamera();
+        ShowAnimated();
+    }
+
+    private void PlaceInFrontOfCamera()
+    {
+        if (endPanel == null || Camera.main == null) return;
+
+        Transform cam = Camera.main.transform;
+        Vector3 flatForward = cam.forward;
+        flatForward.y = 0f;
+        if (flatForward.sqrMagnitude < 0.0001f)
+            flatForward = cam.forward;
+        flatForward.Normalize();
+
+        Vector3 worldPos = cam.position + flatForward * distanceFromCamera + positionOffset;
+        endPanel.transform.position = worldPos;
+
+        Vector3 toCam = cam.position - worldPos;
+        toCam.y = 0f;
+        if (toCam.sqrMagnitude > 0.0001f)
+            endPanel.transform.rotation = Quaternion.LookRotation(-toCam, Vector3.up);
+    }
 
     private void FillUI(SessionMetricsTracker.SessionResult result)
     {
@@ -227,6 +263,7 @@ public class EndSessionController : MonoBehaviour
             Debug.Log($"[EndSession] Datos guardados para: {nickname}");
             if (saveButtonLabel != null) saveButtonLabel.text = "¡Guardado!";
             saveButton.interactable = false;
+            GameEventBus.PublishSessionEnded();
             ReturnToMenu();
         }
         else
@@ -252,6 +289,7 @@ public class EndSessionController : MonoBehaviour
                 if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
                 _pendingResult = null;
 
+                SceneInteractionManager.Instance?.PrepareForNextSession();
                 ShowMainMenu();
             });
     }

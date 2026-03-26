@@ -58,6 +58,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -80,9 +85,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6339672452838621546
 GameObject:
@@ -441,6 +448,16 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9052794661546394548, guid: 211c8a358d43f4e4eb4a8e87c7311d35,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
+      objectReference: {fileID: 0}
+    - target: {fileID: 9158392138924997628, guid: 211c8a358d43f4e4eb4a8e87c7311d35,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 440980775278550331, guid: 211c8a358d43f4e4eb4a8e87c7311d35, type: 3}
     m_RemovedGameObjects: []
@@ -477,6 +494,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothSpeed: 5
   lockYAxis: 1
+  matchCameraUpVector: 1
 --- !u!114 &5567669811039708390 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2886178659489595766, guid: 211c8a358d43f4e4eb4a8e87c7311d35,

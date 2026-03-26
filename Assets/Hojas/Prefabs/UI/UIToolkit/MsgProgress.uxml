@@ -1,4 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <!--
+        MsgProgress.uxml
+        IMPORTANTE: el VisualElement name="progress-dots" es requerido por UIMessagesController.
+        Los dots reales se generan dinámicamente en runtime según plantsRequired del nivel.
+        Este contenedor solo actúa como padre — no pongas dots hardcodeados aquí.
+    -->
     <ui:VisualElement name="msg-progress" style="
         width: 460px;
         background-color: rgba(12, 12, 16, 0.97);
@@ -8,13 +14,14 @@
     ">
         <ui:Label text="🌿" style="font-size: 44px; margin-bottom: 10px;"/>
 
-        <ui:Label name="progress-main" text="2 de 3 plantas" style="
+        <ui:Label name="progress-main" text="0 de 1 plantas" style="
             font-size: 26px;
             color: rgba(255,255,255,0.97);
             -unity-font-style: bold;
             -unity-text-align: middle-center;
             margin-bottom: 6px;
         "/>
+
         <ui:Label name="progress-sub" text="Te falta 1 planta por seleccionar." style="
             font-size: 15px;
             color: rgba(255,255,255,0.48);
@@ -23,43 +30,16 @@
             margin-bottom: 20px;
         "/>
 
-        <!-- Dots de progreso — marcar completados con color verde desde C# -->
-        <ui:VisualElement style="flex-direction: row; align-items: center; justify-content: center;">
-            <ui:VisualElement name="plant-dot-0" style="
-                width: 36px; height: 36px;
-                background-color: rgba(85, 200, 110, 0.2);
-                border-radius: 18px;
-                border-width: 2px;
-                border-color: rgb(85, 200, 110);
-                align-items: center; justify-content: center;
-                margin-left: 6px; margin-right: 6px;
-            ">
-                <ui:Label text="✓" style="font-size: 16px; color: rgb(85,200,110); -unity-font-style: bold;"/>
-            </ui:VisualElement>
+        <!--
+            progress-dots: contenedor de dots generados dinámicamente por UIMessagesController.
+            EnsureProgressDots() añade aquí los VisualElements de cada planta.
+        -->
+        <ui:VisualElement name="progress-dots" style="
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        "/>
 
-            <ui:VisualElement name="plant-dot-1" style="
-                width: 36px; height: 36px;
-                background-color: rgba(85, 200, 110, 0.2);
-                border-radius: 18px;
-                border-width: 2px;
-                border-color: rgb(85, 200, 110);
-                align-items: center; justify-content: center;
-                margin-left: 6px; margin-right: 6px;
-            ">
-                <ui:Label text="✓" style="font-size: 16px; color: rgb(85,200,110); -unity-font-style: bold;"/>
-            </ui:VisualElement>
-
-            <ui:VisualElement name="plant-dot-2" style="
-                width: 36px; height: 36px;
-                background-color: rgba(255,255,255,0.05);
-                border-radius: 18px;
-                border-width: 2px;
-                border-color: rgba(255,255,255,0.2);
-                align-items: center; justify-content: center;
-                margin-left: 6px; margin-right: 6px;
-            ">
-                <ui:Label text="?" style="font-size: 16px; color: rgba(255,255,255,0.3); -unity-font-style: bold;"/>
-            </ui:VisualElement>
-        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -8,13 +8,13 @@ using UnityEngine;
 /// Clase que detecta la proximidad del jugador y controla la visibilidad de elementos UI/visuales.
 /// 
 /// Funcionalidades principales:
-/// 1. Detecta cuando el jugador entra/sale de un área de activación de los planos azules con olas definida por un BoxCollider
-/// 2. Muestra/oculta elementos de UI cuando el jugador está cerca
-/// 3. Ajusta automáticamente la escala de elementos visuales para mantener proporciones correctas
-/// 4. Maneja múltiples métodos de identificación del jugador (LayerMask y Tag)
+/// 1. Detecta cuando el jugador entra/sale de un area de activacion de los planos azules con olas definida por un BoxCollider
+/// 2. Muestra/oculta elementos de UI cuando el jugador esta cerca
+/// 3. Ajusta automaticamente la escala de elementos visuales para mantener proporciones correctas
+/// 4. Maneja multiples metodos de identificacion del jugador (LayerMask y Tag)
 /// 5. Asegura que la UI se oculte cuando el objeto se deshabilita
 /// 
-/// Configuración requerida:
+/// Configuracion requerida:
 /// - El GameObject debe tener un BoxCollider con "Is Trigger" habilitado
 /// - Debe tener un GameObject hijo con elementos UI a mostrar/ocultar
 /// - Debe tener un GameObject hijo con elementos visuales a escalar
@@ -22,13 +22,13 @@ using UnityEngine;
 /// 
 /// Flujo de trabajo:
 /// - En Start(): Ajusta la escala de los elementos visuales y el BoxCollider
-/// - Cuando el jugador entra: Activa la UI y cualquier animación relacionada
+/// - Cuando el jugador entra: Activa la UI y cualquier animacion relacionada
 /// - Cuando el jugador sale: Desactiva la UI
-/// - Si el objeto se deshabilita: Desactiva la UI automáticamente
+/// - Si el objeto se deshabilita: Desactiva la UI automaticamente
 /// </summary>
 public class PlayerProximityDetector : MonoBehaviour
 {
-    [Header("Detección del Player")]
+    [Header("Detecciï¿½n del Player")]
     [Tooltip("Layer asignado al jugador")]
     [SerializeField] private LayerMask playerMask;
     [Tooltip("Tag del jugador (opcional)")]
@@ -66,7 +66,7 @@ public class PlayerProximityDetector : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("DetectarJugadorCerca: No se encontró BoxCollider o visuales como hijo.");
+            Debug.LogWarning("DetectarJugadorCerca: No se encontrï¿½ BoxCollider o visuales como hijo.");
         }
     }
 

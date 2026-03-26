@@ -4,23 +4,23 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Sistema de lógica para botones de interacción en el entorno de realidad mixta.
-/// Conecta botones UI con acciones específicas en el SceneInteractionManager.
+/// Sistema de logica para botones de interaccion en el entorno de realidad mixta.
+/// Conecta botones UI con acciones especificas en el SceneInteractionManager.
 /// 
 /// Funcionalidades principales:
-/// 1. Vincula botones UI con acciones específicas de interacción
-/// 2. Captura la posición, rotación y escala del visual asociado al botón
-/// 3. Notifica al SceneInteractionManager cuando se activa un botón
-/// 4. Gestiona la limpieza automática de listeners para evitar memory leaks
+/// 1. Vincula botones UI con acciones especificas de interaccion
+/// 2. Captura la posicion, rotacion y escala del visual asociado al boton
+/// 3. Notifica al SceneInteractionManager cuando se activa un boton
+/// 4. Gestiona la limpieza automatica de listeners para evitar memory leaks
 /// 
-/// Uso típico:
-/// - Colocar este componente en un GameObject que tenga un botón UI como hijo
-/// - Asignar el visualTransform que representa el área/interacción
-/// - Al hacer clic, se envía la posición/rotación/escala al SceneInteractionManager
+/// Uso tpico:
+/// - Colocar este componente en un GameObject que tenga un botn UI como hijo
+/// - Asignar el visualTransform que representa elrea/interaccin
+/// - Al hacer clic, se enva la posicin/rotacin/escala al SceneInteractionManager
 /// 
-/// Configuración:
-/// - El botón se puede asignar manualmente o se detecta automáticamente en los hijos
-/// - visualTransform debe referenciar el objeto que representa el área de interacción
+/// Configuracion:
+/// - El boton se puede asignar manualmente o se detecta automaticamente en los hijos
+/// - visualTransform debe referenciar el objeto que representa elrea de interaccin
 /// - Requiere que SceneInteractionManager.Instance exista en la escena
 /// </summary>
 public class ButtonLogic : MonoBehaviour
@@ -37,7 +37,7 @@ public class ButtonLogic : MonoBehaviour
 
         if (interactionButton != null)
         {
-            // Conecta el botón con el manager global
+            // Conecta el botï¿½n con el manager global
             interactionButton.onClick.AddListener(OnButtonClicked);
         }
         else

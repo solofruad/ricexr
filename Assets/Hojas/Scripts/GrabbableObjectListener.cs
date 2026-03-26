@@ -4,19 +4,26 @@ using UnityEngine;
 
 public class GrabbableObjectListener : MonoBehaviour
 {
+    public enum SelectionHand
+    {
+        Unknown = 0,
+        Left = 1,
+        Right = 2
+    }
+
     /// <summary>
     /// Sistema de monitoreo centralizado para objetos agarrables (grabbables) en la escena.
-    /// Implementa el patrón Singleton para proporcionar acceso global al estado de agarre actual.
+    /// Implementa el patron Singleton para proporcionar acceso global al estado de agarre actual.
     /// 
     /// Funcionalidades principales:
     /// 1. Proporciona un punto de acceso global al objeto Leaf actualmente agarrado
-    /// 2. Notifica cuando cambia el objeto agarrado mediante un setter con lógica adicional
-    /// 3. Mantiene una referencia persistente durante toda la sesión
+    /// 2. Notifica cuando cambia el objeto agarrado mediante un setter con logica adicional
+    /// 3. Mantiene una referencia persistente durante toda la sesion
     /// 
-    /// Uso típico:
+    /// Uso tipico:
     /// - Los objetos Leaf notifican a este listener cuando son agarrados/soltados
     /// - Otros sistemas (como DiseaseSelectionSystem) consultan ActualLeafGrabbed
-    /// - Permite la coordinación entre diferentes componentes que necesitan saber qué hoja está activa
+    /// - Permite la coordinacion entre diferentes componentes que necesitan saber que hoja este activa
     /// 
     /// Flujo de trabajo:
     /// 1. Cuando un usuario agarra una hoja, se asigna a ActualLeafGrabbed
@@ -25,37 +32,34 @@ public class GrabbableObjectListener : MonoBehaviour
     /// </summary>
     public static GrabbableObjectListener Instance { get; private set; }
 
-    private Leaf _previousLeafGrabbed = null;
     private Leaf _actualLeafGrabbed = null;
-    [HideInInspector]
-    public Leaf ActualLeafGrabbed {
-        get
-        {
-            return _actualLeafGrabbed;
-        }
-        set { 
-            if (value == null)
-            {
-                if (_previousLeafGrabbed != null)
-                {
-                    _actualLeafGrabbed = _previousLeafGrabbed;
-                    _previousLeafGrabbed = null;
-                }
-                else { 
-                    _actualLeafGrabbed = null;
-                }
-                return;
-            }
+    private SelectionHand _activeSelectionHand = SelectionHand.Unknown;
+    private Transform _activeSelectionAnchor = null;
 
-            if (_actualLeafGrabbed != value)
-            {
-                if (_actualLeafGrabbed != null)
-                {
-                    _previousLeafGrabbed = _actualLeafGrabbed;
-                }
-                _actualLeafGrabbed = value;
-            }
-        } 
+    [HideInInspector]
+    public Leaf ActualLeafGrabbed => _actualLeafGrabbed;
+
+    [HideInInspector]
+    public SelectionHand ActiveSelectionHand => _activeSelectionHand;
+
+    [HideInInspector]
+    public Transform ActiveSelectionAnchor => _activeSelectionAnchor;
+
+    public void SetActiveSelection(Leaf leaf, SelectionHand hand, Transform anchor)
+    {
+        _actualLeafGrabbed = leaf;
+        _activeSelectionHand = hand;
+        _activeSelectionAnchor = anchor != null ? anchor : leaf != null ? leaf.transform : null;
+    }
+
+    public void ClearActiveSelection(Leaf leaf)
+    {
+        if (_actualLeafGrabbed != leaf)
+            return;
+
+        _actualLeafGrabbed = null;
+        _activeSelectionHand = SelectionHand.Unknown;
+        _activeSelectionAnchor = null;
     }
 
 
