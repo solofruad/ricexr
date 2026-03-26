@@ -41,7 +41,7 @@ public class SceneInteractionManager : MonoBehaviour
 
     [Header("Índices especiales")]
     [SerializeField] private int tutorialLevelIndex = 0;
-    [SerializeField] private int levelFinalIndex = 3;
+    private int levelFinalIndex = -1; // Se calcula dinámicamente en BuildRuntimeLevels()
 
     private readonly List<LevelConfig> _runtimeLevels = new List<LevelConfig>();
 
@@ -394,12 +394,19 @@ public class SceneInteractionManager : MonoBehaviour
                 plantsRequired = Mathf.Max(1, config.plantsRequired)
             });
         }
-        if (_runtimeLevels.Count > 0) return;
+        if (_runtimeLevels.Count > 0)
+        {
+            // Calcula el índice del último nivel dinámicamente
+            levelFinalIndex = _runtimeLevels.Count - 1;
+            return;
+        }
         foreach (var prefab in prefabsToSpawn)
         {
             if (prefab == null) continue;
             _runtimeLevels.Add(new LevelConfig { levelPrefab = prefab, plantsRequired = 1 });
         }
+        // Calcula el índice del último nivel dinámicamente también para fallback
+        levelFinalIndex = _runtimeLevels.Count - 1;
     }
 
     public Vector3 SelectedPlanePosition => targetPosition;

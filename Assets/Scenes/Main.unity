@@ -6976,8 +6976,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BillboardUI
   smoothSpeed: 5
-  lockYAxis: 1
-  matchCameraUpVector: 0
+  lockYAxis: 0
+  matchCameraUpVector: 1
 --- !u!1 &888203834
 GameObject:
   m_ObjectHideFlags: 0
@@ -8060,11 +8060,7 @@ MonoBehaviour:
     plantsRequired: 3
   spawnParent: {fileID: 1193198298}
   currentLevelIndex: 0
-  prefabsToSpawn:
-  - {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83, type: 3}
-  - {fileID: 5779791484926515347, guid: f411a4a61e53e414887f533d571eb418, type: 3}
-  - {fileID: 5571560547924518282, guid: 8c318eeec7ed0be45adf0f1a8d0c4095, type: 3}
-  - {fileID: 5779791484926515347, guid: 97f430a1c92cbae46a54ced83a479dc8, type: 3}
+  prefabsToSpawn: []
   planeSpawner: {fileID: 693940578}
   tutorialPanelController: {fileID: 0}
   scaleDuration: 0.5
@@ -8671,7 +8667,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BillboardUI
   smoothSpeed: 3
-  lockYAxis: 1
+  lockYAxis: 0
   matchCameraUpVector: 1
 --- !u!114 &1945748630
 MonoBehaviour:
