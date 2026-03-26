@@ -48,6 +48,8 @@ MonoBehaviour:
   - {fileID: 1670554414867062916, guid: 02b5b5cb87957394abf6d9528f734262, type: 3}
   grassCount: 1
   isGrassAbleToShowMarker: 1
+  SpawnAreaSize: {x: 0, y: 0}
+  safeMargin: 0
   totalSpawnDuration: 4
   growDuration: 1.4
   growCurve:

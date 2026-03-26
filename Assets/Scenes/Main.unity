@@ -6919,11 +6919,11 @@ MonoBehaviour:
   uiDocument: {fileID: 873954175}
   uiGameListener: {fileID: 1025822505}
   tutorialDuration: 10
-  slideUpAmount: 0.8
-  slideUpDuration: 0.6
+  slideUpAmount: 0.6
+  slideUpDuration: 1
   distanceFromCamera: 1.5
   cameraOffset: {x: 0, y: 0, z: 0}
-  surfaceHeightOffset: 1
+  surfaceHeightOffset: 0.7
 --- !u!114 &873954175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6958,7 +6958,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 7.46, y: 0, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1025822507}
@@ -7096,7 +7096,7 @@ MonoBehaviour:
   nextLevelOffset: {x: 0, y: 0.1, z: 0}
   congratsOffset: {x: 0, y: 0.1, z: 0}
   finalLevelOffset: {x: 0, y: 0.1, z: 0}
-  surfaceHeightOffset: 1
+  surfaceHeightOffset: 0.6
 --- !u!114 &1025822505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8690,8 +8690,8 @@ MonoBehaviour:
   carouselInterval: 3
   carouselFadeDuration: 0.8
   defaultProgressDuration: 7
-  slideUpAmount: 1
-  slideUpDuration: 0.6
+  slideUpAmount: 0.6
+  slideUpDuration: 1
   distanceFromCamera: 1.5
   cameraOffset: {x: 0, y: -0.15, z: 0}
   surfaceHeightOffset: 0.7
