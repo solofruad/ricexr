@@ -89,8 +89,13 @@ public class Leaf : MonoBehaviour
             return;
 
         object data = pointerEvent.Data;
+        Debug.Log($"Leaf {gameObject.name} selected with data: {data}");
         GrabbableObjectListener.SelectionHand hand = ResolveSelectionHand(data);
         Transform anchor = ResolveSelectionAnchor(data);
+
+        Debug.Log($"Resolved hand: {hand}, anchor: {(anchor != null ? anchor.name : "null")}");
+        Debug.Log($"Transform {anchor?.position}, {anchor?.rotation}, {anchor?.localScale}");
+        Debug.Log($"Transform: {data.GetType().GetProperty("Transform")}, Handedness: {data.GetType().GetProperty("Handedness")}");
 
         GrabbableObjectListener.Instance.SetActiveSelection(this, hand, anchor);
     }
@@ -126,23 +131,37 @@ public class Leaf : MonoBehaviour
     }
 
     private static Transform ResolveSelectionAnchor(object data)
+{
+    if (data == null)
+        return null;
+
+    // Cuando agarras algo, Meta manda un Componente (HandRef o ControllerRef)
+    if (data is Component component)
     {
-        if (data == null)
-            return null;
-
-        if (data is Component component)
-            return component.transform;
-
-        var transformProp = data.GetType().GetProperty("Transform");
-        if (transformProp != null)
+        // Buscamos si este objeto tiene un hijo llamado exactamente "PinchArea"
+        Transform pinchArea = component.transform.Find("PinchArea");
+        
+        if (pinchArea != null)
         {
-            object transformValue = transformProp.GetValue(data);
-            if (transformValue is Transform t)
-                return t;
+            // Es la mano y encontramos los dedos. 
+            // Devolvemos el PinchArea como ancla.
+            return pinchArea;
         }
 
-        return null;
+        // Si no tiene "PinchArea" (porque es el control), simplemente devolvemos
+        // el transform normal, que ya sabemos que da coordenadas correctas.
+        return component.transform;
     }
+
+    // Por si la data llega directamente como Transform o GameObject
+    if (data is Transform t)
+        return t;
+
+    if (data is GameObject go)
+        return go.transform;
+
+    return null;
+}
 
 
     public void GenerateMarkers()
@@ -189,7 +208,7 @@ public class Leaf : MonoBehaviour
 
     GameObject CreateMarker(DiseaseSpot spot, int index)
     {
-        // Determinar qu� prefab usar
+        // Determinar que prefab usar
         GameObject prefabToUse = markerPrefab;
 
         if (prefabToUse == null)

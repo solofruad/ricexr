@@ -44,7 +44,6 @@ public class PlantDiseasePanelController : MonoBehaviour
     private VisualElement[] _dots;
     private Label _diseaseTitle;
     private Label _scientificName;
-    private Label _categoryLabel;
     private Label _diseaseDescription;
     private VisualElement _progressFill;
     private Label _progressPercent;
@@ -96,7 +95,6 @@ public class PlantDiseasePanelController : MonoBehaviour
 
         _diseaseTitle.text = data.title;
         _scientificName.text = data.scientificName;
-        _categoryLabel.text = data.category;
         _diseaseDescription.text = data.description;
 
         if (data.images != null && data.images.Length > 0)
@@ -259,7 +257,6 @@ public class PlantDiseasePanelController : MonoBehaviour
         _carouselImage = _root.Q<VisualElement>("carousel-image");
         _diseaseTitle = _root.Q<Label>("disease-title");
         _scientificName = _root.Q<Label>("scientific-name");
-        _categoryLabel = _root.Q<Label>("category-label");
         _diseaseDescription = _root.Q<Label>("disease-description");
         _progressFill = _root.Q<VisualElement>("progress-fill");
         _progressPercent = _root.Q<Label>("progress-percent");

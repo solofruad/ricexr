@@ -35,6 +35,10 @@ public class DiseaseSelectionSystem : MonoBehaviour
     [Tooltip("Desplazamiento relativo al ancla de la mano/hoja. X = lateral, Y = altura, Z = profundidad")]
     public Vector3 positionOffset = new Vector3(0.6f, 0.1f, 0f);
 
+    [Header("Sonidos de feedback")]
+    public AudioClip correctSelectionSound;
+    public AudioClip incorrectSelectionSound;
+
     [Header("Toggle Groups")]
     [Tooltip("ToggleGroup para las enfermedades")]
     public ToggleGroup diseaseToggleGroup;
@@ -170,29 +174,6 @@ public class DiseaseSelectionSystem : MonoBehaviour
         _panelVisible = false;
     }
 
-    /// <summary>
-    /// Posiciona el panel al lado del plano elegido y lo orienta hacia la camara.
-    /// planePosition: centro del plano en world space.
-    /// planeRight:    vector derecha del plano para desplazar lateralmente.
-    /// </summary>
-    public void PlaceNextTo(Vector3 planePosition, Vector3 planeRight, Vector3 planeNormal)
-    {
-        if (diseaseSelectionPanel == null) return;
-
-        Vector3 worldPos = planePosition
-            + planeRight * positionOffset.x
-            + Vector3.up * positionOffset.y
-            + planeNormal * positionOffset.z;
-
-        diseaseSelectionPanel.transform.position = worldPos;
-
-        Vector3 toCam = Camera.main != null
-            ? Camera.main.transform.position - worldPos
-            : Vector3.forward;
-        toCam.y = 0f;
-        if (toCam != Vector3.zero)
-            diseaseSelectionPanel.transform.rotation = Quaternion.LookRotation(-toCam);
-    }
 
     private void SyncPanelWithSelection()
     {
@@ -219,32 +200,34 @@ public class DiseaseSelectionSystem : MonoBehaviour
 
     private void UpdateFollowPosition()
     {
+        // Aseguramos que tenemos la hoja (nuestro plan de respaldo)
+        Leaf currentLeaf = GrabbableObjectListener.Instance.ActualLeafGrabbed;
+        if (currentLeaf == null) return;
+
+        // Obtenemos el ancla (mano o controlador)
         Transform anchor = GrabbableObjectListener.Instance.ActiveSelectionAnchor;
-        if (anchor == null)
-        {
-            Leaf leaf = GrabbableObjectListener.Instance.ActualLeafGrabbed;
-            if (leaf != null) anchor = leaf.transform;
-        }
-        if (anchor == null)
-            return;
 
-        Vector3 lateralAxis = anchor.right;
-        if (lateralAxis.sqrMagnitude < 0.0001f)
+        // FIX PARA HAND TRACKING:
+        // Si el ancla es nula o está atorada en el origen (0,0,0), usamos la hoja
+        if (anchor == null || anchor.position.sqrMagnitude < 0.001f)
         {
-            lateralAxis = Camera.main != null ? Camera.main.transform.right : Vector3.right;
+            anchor = currentLeaf.transform;
         }
 
+        // Si por alguna razón extrema sigue siendo nulo, salimos
+        if (anchor == null) return;
+
+        // Determinamos el signo lateral para ponerlo a la izquierda o derecha
         float lateralSign = 1f;
         GrabbableObjectListener.SelectionHand hand = GrabbableObjectListener.Instance.ActiveSelectionHand;
         if (hand == GrabbableObjectListener.SelectionHand.Right)
             lateralSign = -1f;
 
-        Vector3 worldPos = anchor.position
-            + lateralAxis.normalized * Mathf.Abs(positionOffset.x) * lateralSign
-            + Vector3.up * positionOffset.y
-            + anchor.forward * positionOffset.z;
+        // Movemos el objeto base (este script) exactamente a la posición de la mano/hoja
+        transform.position = anchor.position;
 
-        diseaseSelectionPanel.transform.position = worldPos;
+        // Como usas Billboard, solo nos importa el desplazamiento local
+        diseaseSelectionPanel.transform.localPosition = positionOffset * lateralSign;
     }
 
     // ── Logica de submit ─────────────────────────────────────────────────────
@@ -304,11 +287,22 @@ public class DiseaseSelectionSystem : MonoBehaviour
 
             ResetSelection();
 
+            // Reproducir sonido
+            if (correctSelectionSound != null)
+            {
+                AudioSource.PlayClipAtPoint(correctSelectionSound, currentLeaf.transform.position);
+            }
+
             // Quema y desactiva la hoja solo si la evaluación fue correcta
             currentLeaf.BurnAndDisable();
         }
         else
         {
+            // Reproducir sonido
+            if (incorrectSelectionSound != null)
+            {
+                AudioSource.PlayClipAtPoint(incorrectSelectionSound, currentLeaf.transform.position);
+            }
             GameEventBus.PublishPlantSelected(false, _correctSelectionsThisLevel, _plantsRequiredThisLevel);
         }
     }

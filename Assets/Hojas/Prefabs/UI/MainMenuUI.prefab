@@ -527,7 +527,7 @@ PrefabInstance:
     - target: {fileID: 6016055943993729256, guid: a9cf11e13b54579409527dfbfd718499,
         type: 3}
       propertyPath: m_Direction
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6016055943993729256, guid: a9cf11e13b54579409527dfbfd718499,
         type: 3}
@@ -632,7 +632,7 @@ PrefabInstance:
     - target: {fileID: 6016055943993729259, guid: a9cf11e13b54579409527dfbfd718499,
         type: 3}
       propertyPath: m_Pivot.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6016055943993729259, guid: a9cf11e13b54579409527dfbfd718499,
         type: 3}
@@ -757,6 +757,11 @@ PrefabInstance:
     - target: {fileID: 6016055944479870467, guid: a9cf11e13b54579409527dfbfd718499,
         type: 3}
       propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6016055944479870467, guid: a9cf11e13b54579409527dfbfd718499,
+        type: 3}
+      propertyPath: m_VerticalScrollbarVisibility
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6016055944479870477, guid: a9cf11e13b54579409527dfbfd718499,
@@ -1395,6 +1400,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_fontSizeBase
       value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 595206484569908514, guid: 708bb04189b8488418aa725e7f94bbe8,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
       objectReference: {fileID: 0}
     - target: {fileID: 832893625572680271, guid: 708bb04189b8488418aa725e7f94bbe8,
         type: 3}
