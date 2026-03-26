@@ -6986,7 +6986,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BillboardUI
   smoothSpeed: 5
-  lockYAxis: 0
+  lockYAxis: 1
   matchCameraUpVector: 1
 --- !u!1 &888203834
 GameObject:
@@ -8676,7 +8676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BillboardUI
   smoothSpeed: 3
-  lockYAxis: 0
+  lockYAxis: 1
   matchCameraUpVector: 1
 --- !u!114 &1945748630
 MonoBehaviour:
