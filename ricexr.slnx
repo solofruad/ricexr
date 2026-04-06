@@ -41,6 +41,7 @@
   <Project Path="Unity.XR.CoreUtils.csproj" />
   <Project Path="Meta.WitAi.Editor.csproj" />
   <Project Path="VoiceSDK.Telemetry.csproj" />
+  <Project Path="Meta.Voice.Samples.TTSVoices.csproj" />
   <Project Path="Unity.Searcher.Editor.csproj" />
   <Project Path="meta.xr.mrutilitykit.csproj" />
   <Project Path="Oculus.Interaction.Samples.csproj" />
@@ -58,9 +59,7 @@
   <Project Path="Unity.Burst.CodeGen.csproj" />
   <Project Path="Unity.VisualScripting.Flow.csproj" />
   <Project Path="Unity.PerformanceTesting.csproj" />
-  <Project Path="Unity.XR.Hands.Samples.VisualizerSample.csproj" />
   <Project Path="Unity.TextMeshPro.csproj" />
-  <Project Path="Unity.XR.Interaction.Toolkit.Samples.StarterAssets.csproj" />
   <Project Path="VoiceSDK.Runtime.csproj" />
   <Project Path="VoiceSDK.Telemetry.Runtime.csproj" />
   <Project Path="Unity.TextMeshPro.Editor.csproj" />
@@ -123,7 +122,6 @@
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Meta.XR.Editor.Settings.csproj" />
   <Project Path="Unity.PathTracing.Editor.csproj" />
-  <Project Path="Unity.XR.Interaction.Toolkit.Samples.Hands.csproj" />
   <Project Path="Meta.Voice.Hub.Editor.csproj" />
   <Project Path="Oculus.Haptics.Editor.csproj" />
   <Project Path="Meta.VoiceSDK.Mic.Common.csproj" />
@@ -154,14 +152,12 @@
   <Project Path="Meta.XR.Editor.Callbacks.csproj" />
   <Project Path="Meta.Wit.Dictation.Editor.csproj" />
   <Project Path="Unity.XR.OpenXR.Features.RuntimeDebugger.csproj" />
-  <Project Path="Unity.XR.Interaction.Toolkit.Samples.WorldSpaceUI.Editor.csproj" />
   <Project Path="UnityEngine.SpatialTracking.csproj" />
   <Project Path="Unity.XR.OpenXR.Features.OculusQuestSupport.Editor.csproj" />
   <Project Path="Oculus.Interaction.Editor.UnityXR.csproj" />
   <Project Path="UnityEngine.XR.LegacyInputHelpers.csproj" />
   <Project Path="Unity.XR.OpenXR.Features.RuntimeDebugger.Editor.csproj" />
   <Project Path="Unity.InternalAPIEngineBridge.004.csproj" />
-  <Project Path="Unity.XR.Interaction.Toolkit.Samples.WorldSpaceUI.csproj" />
   <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />
   <Project Path="Unity.RenderPipelines.Universal.Shaders.csproj" />
   <Project Path="Meta.XR.Editor.StatusMenu.csproj" />
@@ -177,12 +173,10 @@
   <Project Path="Oculus.Interaction.InterfaceSupport.csproj" />
   <Project Path="Unity.XR.OpenXR.Features.MockRuntime.csproj" />
   <Project Path="UnityEditor.SpatialTracking.csproj" />
-  <Project Path="Unity.XR.Interaction.Toolkit.Samples.Hands.Editor.csproj" />
   <Project Path="AssistantVoiceCommandCommon.Editor.csproj" />
   <Project Path="Unity.Rendering.LightTransport.Editor.csproj" />
   <Project Path="Unity.Collections.Editor.csproj" />
   <Project Path="VoiceSDK.Runtime.Composer.csproj" />
-  <Project Path="Unity.XR.Interaction.Toolkit.Samples.StarterAssets.Editor.csproj" />
   <Project Path="Unity.RenderPipelines.Universal.Config.Runtime.csproj" />
   <Project Path="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.csproj" />
   <Project Path="Unity.RenderPipelines.Core.ShaderLibrary.csproj" />

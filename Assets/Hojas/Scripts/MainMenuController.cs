@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using Meta.WitAi.TTS.Utilities;
 
 /// <summary>
 /// MENU PRINCIPAL
@@ -8,15 +9,16 @@ using DG.Tweening;
 /// Controla la pantalla de inicio. El leaderboard siempre esta visible.
 /// Solo tiene un boton: "Iniciar Pruebas".
 /// Flujo al presionar iniciar:
-///   1. StartSession() en SessionMetricsTracker
-///   2. WaitForStartSignal() en SceneInteractionManager (spawnea planos MR)
-///   3. Oculta el panel del menu principal
-///   4. El tutorial visual inicia al seleccionar el plano
+///   1. WaitForStartSignal() en SceneInteractionManager (spawnea planos MR)
+///   2. Oculta el panel del menu principal
+///   3. El tutorial visual inicia al seleccionar el plano y completar onboarding
 /// </summary>
 public class MainMenuController : MonoBehaviour
 {
     [Header("Paneles")]
     [SerializeField] private GameObject mainMenuPanel;
+
+    [SerializeField] private TTSSpeaker ttsSpeaker;
 
     [Header("Botones")]
     [SerializeField] private Button startButton;
@@ -28,6 +30,8 @@ public class MainMenuController : MonoBehaviour
     [Header("Animacion")]
     [SerializeField] private float animDuration = 0.3f;
 
+    private bool _startFlowTriggered;
+
     void Start()
     {
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
@@ -37,10 +41,19 @@ public class MainMenuController : MonoBehaviour
             startButton.onClick.AddListener(OnStartClicked);
     }
 
+    private void OnEnable()
+    {
+        _startFlowTriggered = false;
+        if (startButton != null) startButton.interactable = true;
+    }
+
     private void OnStartClicked()
     {
-        if (SessionMetricsTracker.Instance != null)
-            SessionMetricsTracker.Instance.StartSession();
+        if (_startFlowTriggered) return;
+        _startFlowTriggered = true;
+
+        if (startButton != null)
+            startButton.interactable = false;
 
         if (sceneInteractionManager != null)
             sceneInteractionManager.WaitForStartSignal();
@@ -55,6 +68,8 @@ public class MainMenuController : MonoBehaviour
                 .SetEase(Ease.InBack)
                 .OnComplete(() => mainMenuPanel.SetActive(false));
         }
+
+            ttsSpeaker?.Speak("¡Comencemos! Selecciona un plano para iniciar la introduccion y luego el tutorial visual.");
     }
 
     void OnDestroy()

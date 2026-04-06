@@ -32,6 +32,10 @@ public class SceneInteractionManager : MonoBehaviour
     [Header("Tutorial")]
     [SerializeField] private TutorialPanelController tutorialPanelController;
 
+    [Header("Onboarding inicial post-plano")]
+    [SerializeField] private bool runStartupOnboardingAfterPlaneSelection = true;
+    [SerializeField] private StartupOnboardingController startupOnboardingController;
+
     [Header("Animation Settings")]
     [SerializeField] private float scaleDuration = 0.5f;
 
@@ -53,6 +57,9 @@ public class SceneInteractionManager : MonoBehaviour
     private bool _firstLevelReady = false; // true cuando el tutorial terminó y está pendiente arrancar nivel 0
     private bool _firstLevelStarted = false;
     private bool _tutorialStarted = false;
+    private bool _startupOnboardingStarted = false;
+    private bool _startupOnboardingCompleted = false;
+    private bool _sessionMetricsStarted = false;
 
     private bool _waitingForAllPlants = false;
     private bool _waitingAnalysisToSpawnLevel = false;
@@ -73,6 +80,12 @@ public class SceneInteractionManager : MonoBehaviour
 
         if (tutorialPanelController == null)
             tutorialPanelController = FindObjectOfType<TutorialPanelController>(true);
+
+        if (startupOnboardingController == null && tutorialPanelController != null)
+            startupOnboardingController = tutorialPanelController.GetComponent<StartupOnboardingController>();
+
+        if (startupOnboardingController == null && tutorialPanelController != null)
+            startupOnboardingController = tutorialPanelController.gameObject.AddComponent<StartupOnboardingController>();
 
         BuildRuntimeLevels();
     }
@@ -102,11 +115,11 @@ public class SceneInteractionManager : MonoBehaviour
     public void WaitForStartSignal()
     {
         _isReady = true;
-        Debug.Log("[SceneManager] Listo — esperando tutorial y selección de plano.");
+        Debug.Log("[SceneManager] Listo — esperando selección de plano.");
 
         if (hasBeenActivated)
         {
-            StartTutorialAfterPlaneSelection();
+            TryBeginStartupOnboardingAfterPlaneSelection();
             return;
         }
 
@@ -124,14 +137,20 @@ public class SceneInteractionManager : MonoBehaviour
         DestroyCurrentLeaves();
 
         currentLevelIndex = 0;
+        _isReady = false;
+        hasBeenActivated = false;
         _waitingForAllPlants = false;
         _waitingAnalysisToSpawnLevel = false;
         _firstLevelReady = false;
         _firstLevelStarted = false;
         _tutorialStarted = false;
+        _startupOnboardingStarted = false;
+        _startupOnboardingCompleted = false;
+        _sessionMetricsStarted = false;
 
         _analysisFallbackTween?.Kill();
         DiseaseSelectionSystem.Instance?.HideAnimated();
+        startupOnboardingController?.ResetSequenceState();
     }
 
     /// <summary>
@@ -154,7 +173,6 @@ public class SceneInteractionManager : MonoBehaviour
         this.targetScale = targetScale;
 
         hasBeenActivated = true;
-        StartTutorialAfterPlaneSelection();
         DisableAllPlanePrefabsWithAnimation();
     }
 
@@ -176,7 +194,7 @@ public class SceneInteractionManager : MonoBehaviour
 
         if (planePrefabs.Count == 0)
         {
-            TryStartFirstLevelAfterPlaneSelection();
+            TryBeginStartupOnboardingAfterPlaneSelection();
             return;
         }
 
@@ -193,7 +211,7 @@ public class SceneInteractionManager : MonoBehaviour
                     prefab.SetActive(false);
                     remaining--;
                     if (remaining <= 0)
-                        TryStartFirstLevelAfterPlaneSelection();
+                        TryBeginStartupOnboardingAfterPlaneSelection();
                 });
         }
     }
@@ -329,6 +347,50 @@ public class SceneInteractionManager : MonoBehaviour
     {
         if (currentLevelIndex < 0 || currentLevelIndex >= _runtimeLevels.Count) return 1;
         return Mathf.Max(1, _runtimeLevels[currentLevelIndex].plantsRequired);
+    }
+
+    private void TryBeginStartupOnboardingAfterPlaneSelection()
+    {
+        if (!_isReady || !hasBeenActivated || _startupOnboardingStarted) return;
+
+        _startupOnboardingStarted = true;
+        _startupOnboardingCompleted = false;
+
+        if (!runStartupOnboardingAfterPlaneSelection)
+        {
+            CompleteStartupOnboarding();
+            return;
+        }
+
+        if (startupOnboardingController != null)
+        {
+            startupOnboardingController.ShowSequence(CompleteStartupOnboarding);
+            return;
+        }
+
+        Debug.LogWarning("[SceneManager] startupOnboardingController no asignado/encontrado. Se omite onboarding inicial.");
+        CompleteStartupOnboarding();
+    }
+
+    private void CompleteStartupOnboarding()
+    {
+        if (_startupOnboardingCompleted) return;
+
+        _startupOnboardingCompleted = true;
+        StartSessionMetricsIfNeeded();
+        StartTutorialAfterPlaneSelection();
+    }
+
+    private void StartSessionMetricsIfNeeded()
+    {
+        if (_sessionMetricsStarted) return;
+
+        if (SessionMetricsTracker.Instance != null)
+            SessionMetricsTracker.Instance.StartSession();
+        else
+            Debug.LogWarning("[SceneManager] SessionMetricsTracker no encontrado. La sesión no registrará métricas.");
+
+        _sessionMetricsStarted = true;
     }
 
     private void StartTutorialAfterPlaneSelection()
