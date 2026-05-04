@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -27,6 +28,10 @@ using DG.Tweening;
 /// </summary>
 public class EndSessionController : MonoBehaviour
 {
+    public static event Action EndPanelShown;
+    public static event Action<bool> SaveCompleted;
+    public static event Action ReturningToMenu;
+
     public static EndSessionController Instance { get; private set; }
 
     [Header("Panel raiz")]
@@ -121,6 +126,7 @@ public class EndSessionController : MonoBehaviour
 
         FillUI(_pendingResult);
         endPanel.SetActive(true);
+        EndPanelShown?.Invoke();
 
         if (nicknameInput != null) nicknameInput.text = "";
         if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
@@ -263,6 +269,7 @@ public class EndSessionController : MonoBehaviour
             Debug.Log($"[EndSession] Datos guardados para: {nickname}");
             if (saveButtonLabel != null) saveButtonLabel.text = "¡Guardado!";
             saveButton.interactable = false;
+            SaveCompleted?.Invoke(true);
             GameEventBus.PublishSessionEnded();
             ReturnToMenu();
         }
@@ -270,11 +277,14 @@ public class EndSessionController : MonoBehaviour
         {
             Debug.LogWarning("[EndSession] No se pudo guardar la sesion.");
             if (saveButtonLabel != null) saveButtonLabel.text = "Error al guardar";
+            SaveCompleted?.Invoke(false);
         }
     }
 
     private void ReturnToMenu()
     {
+        ReturningToMenu?.Invoke();
+
         // Pequeña pausa, luego escala el endPanel a cero y lo desactiva
         endPanel.transform.DOKill();
         endPanel.transform

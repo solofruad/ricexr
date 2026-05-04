@@ -2497,8 +2497,9 @@ GameObject:
   m_Component:
   - component: {fileID: 699673192}
   - component: {fileID: 699673191}
+  - component: {fileID: 699673193}
   m_Layer: 0
-  m_Name: '[BuildingBlock] Text-to-Speech'
+  m_Name: GameNarrationController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2539,6 +2540,26 @@ Transform:
   - {fileID: 1772573585}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &699673193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699673190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61977c0c591783f4cb1ce20fcd4931d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameNarrationController
+  ttsSpeaker: {fileID: 1772573586}
+  lineLibrary: {fileID: 11400000, guid: 2c535d37cfdff1141ac152e66e754c19, type: 2}
+  startupOnboardingController: {fileID: 2009511637}
+  tutorialPanelController: {fileID: 873954174}
+  autoFindDependencies: 1
+  stopCurrentBeforeSpeaking: 1
+  verboseLogs: 0
+  tutorialLevelIndex: 0
 --- !u!114 &754232922 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 903382945424364175, guid: 0a7d2469f24041c4284c66706f84c45e,
@@ -6991,7 +7012,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutorialPanelController
   uiDocument: {fileID: 873954175}
   uiGameListener: {fileID: 1025822505}
-  tutorialDuration: 10
+  observeToDiagnoseDelay: 6
   slideUpAmount: 0.6
   slideUpDuration: 1
   distanceFromCamera: 1.5
@@ -7213,6 +7234,7 @@ Transform:
   - {fileID: 608336918}
   - {fileID: 758161709}
   - {fileID: 2005322337}
+  - {fileID: 2009511634}
   - {fileID: 1945748628}
   - {fileID: 873954176}
   m_Father: {fileID: 0}
@@ -8453,7 +8475,7 @@ MonoBehaviour:
   levelConfigs:
   - levelPrefab: {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83,
       type: 3}
-    plantsRequired: 1
+    plantsRequired: 2
   - levelPrefab: {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83,
       type: 3}
     plantsRequired: 3
@@ -8467,9 +8489,9 @@ MonoBehaviour:
   currentLevelIndex: 0
   prefabsToSpawn: []
   planeSpawner: {fileID: 693940578}
-  tutorialPanelController: {fileID: 0}
+  tutorialPanelController: {fileID: 873954174}
   runStartupOnboardingAfterPlaneSelection: 1
-  startupOnboardingController: {fileID: 0}
+  startupOnboardingController: {fileID: 2009511637}
   scaleDuration: 0.5
   levelTransitionDelay: 1.1
   analysisFallbackTimeout: 6
@@ -9264,7 +9286,7 @@ MonoBehaviour:
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 462
-  m_WorldSpaceHeight: 130.7
+  m_WorldSpaceHeight: 284.8
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
@@ -9277,8 +9299,8 @@ Transform:
   m_GameObject: {fileID: 2005322335}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.000000077269, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.05, y: 0.04, z: 0}
+  m_LocalScale: {x: 0.92, y: 0.92, z: 0.92}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1025822507}
@@ -9298,6 +9320,128 @@ MonoBehaviour:
   smoothSpeed: 5
   lockYAxis: 1
   matchCameraUpVector: 0
+--- !u!1 &2009511633
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2009511634}
+  - component: {fileID: 2009511636}
+  - component: {fileID: 2009511635}
+  - component: {fileID: 2009511637}
+  m_Layer: 0
+  m_Name: MsgOnboarding
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2009511634
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009511633}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.36, y: 2.802, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1025822507}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2009511635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009511633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a80205dbd6b4e8742944665919bfce31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BillboardUI
+  smoothSpeed: 5
+  lockYAxis: 1
+  matchCameraUpVector: 0
+--- !u!114 &2009511636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009511633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: eeb11edc6412f8a49809d01942cac9bb, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 57abf96e56d64c1597f71dbb2714f5b7,
+    type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 462
+  m_WorldSpaceHeight: 212.5
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &2009511637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009511633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faacd120244f5b64dae1410eead3e966, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StartupOnboardingController
+  uiDocument: {fileID: 2009511636}
+  introPanelTemplate: {fileID: 9197481963319205126, guid: 0f6de8ecfddf4f869644d767efcc83c8,
+    type: 3}
+  tutorialStartPanelTemplate: {fileID: 9197481963319205126, guid: 57abf96e56d64c1597f71dbb2714f5b7,
+    type: 3}
+  introPanelResourcePath: UIToolkit/IntroPanel
+  tutorialStartPanelResourcePath: UIToolkit/MsgTutorialStart
+  introTitle: Bienvenido al entrenamiento
+  introBody: 'Esta aplicacion te ensena a reconocer Pyricularia oryzae y Rynchosporium
+    en hojas de arroz.
+
+
+    Flujo:
+
+    1) Nivel 1: tutorial de uso de la herramienta
+    VR.
+
+    2) Nivel 2: Pyricularia.
+
+    3) Nivel 3: Rynchosporium.
+
+    4) Nivel
+    4: evaluacion sin ayudas.
+
+
+    En niveles 2, 3 y 4 diagnosticaras 3 hojas por
+    nivel para medir tu avance.'
+  introContinueButtonText: Continuar
+  tutorialStartTitle: 'Inicia el Nivel 1: Tutorial'
+  tutorialStartSubtitle: Primero aprenderas a usar la herramienta VR.
+  introAutoAdvanceDelay: 14
+  tutorialStartMessageDuration: 2.6
+  fadeInDuration: 0.35
+  fadeOutDuration: 0.25
+  distanceFromCamera: 1.5
+  cameraOffset: {x: 0, y: 0, z: 0}
+  surfaceHeightOffset: 0.7
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

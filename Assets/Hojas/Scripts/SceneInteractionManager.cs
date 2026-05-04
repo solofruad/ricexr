@@ -81,11 +81,11 @@ public class SceneInteractionManager : MonoBehaviour
         if (tutorialPanelController == null)
             tutorialPanelController = FindObjectOfType<TutorialPanelController>(true);
 
-        if (startupOnboardingController == null && tutorialPanelController != null)
-            startupOnboardingController = tutorialPanelController.GetComponent<StartupOnboardingController>();
+        if (startupOnboardingController == null)
+            startupOnboardingController = FindObjectOfType<StartupOnboardingController>(true);
 
-        if (startupOnboardingController == null && tutorialPanelController != null)
-            startupOnboardingController = tutorialPanelController.gameObject.AddComponent<StartupOnboardingController>();
+        if (runStartupOnboardingAfterPlaneSelection && startupOnboardingController == null)
+            Debug.LogWarning("[SceneManager] No se encontro StartupOnboardingController en escena. Crea un GameObject con ese componente y asignalo en el inspector.");
 
         BuildRuntimeLevels();
     }

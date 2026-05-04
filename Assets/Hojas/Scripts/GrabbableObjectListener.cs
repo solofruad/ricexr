@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class GrabbableObjectListener : MonoBehaviour
 {
+    public static event Action<Leaf, SelectionHand, Transform> SelectionUpdated;
+    public static event Action<Leaf> SelectionCleared;
+
     public enum SelectionHand
     {
         Unknown = 0,
@@ -50,6 +54,8 @@ public class GrabbableObjectListener : MonoBehaviour
         _actualLeafGrabbed = leaf;
         _activeSelectionHand = hand;
         _activeSelectionAnchor = anchor != null ? anchor : leaf != null ? leaf.transform : null;
+
+        SelectionUpdated?.Invoke(_actualLeafGrabbed, _activeSelectionHand, _activeSelectionAnchor);
     }
 
     public void ClearActiveSelection(Leaf leaf)
@@ -57,9 +63,12 @@ public class GrabbableObjectListener : MonoBehaviour
         if (_actualLeafGrabbed != leaf)
             return;
 
+        Leaf releasedLeaf = _actualLeafGrabbed;
         _actualLeafGrabbed = null;
         _activeSelectionHand = SelectionHand.Unknown;
         _activeSelectionAnchor = null;
+
+        SelectionCleared?.Invoke(releasedLeaf);
     }
 
 

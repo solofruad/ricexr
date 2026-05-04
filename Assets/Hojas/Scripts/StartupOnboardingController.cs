@@ -14,10 +14,20 @@ using UnityEngine.UIElements;
 [DisallowMultipleComponent]
 public class StartupOnboardingController : MonoBehaviour
 {
+    public event Action IntroPanelShown;
+    public event Action IntroContinueRequested;
+    public event Action TutorialStartMessageShown;
+
     [Header("Referencias")]
     [SerializeField] private UIDocument uiDocument;
 
-    [Header("Resources (UI Toolkit)")]
+    [Header("Plantillas (UI Toolkit)")]
+    [Tooltip("Template del panel Intro. Si no se asigna, se intentara cargar desde Resources.")]
+    [SerializeField] private VisualTreeAsset introPanelTemplate;
+    [Tooltip("Template del panel de inicio de tutorial. Si no se asigna, se intentara cargar desde Resources.")]
+    [SerializeField] private VisualTreeAsset tutorialStartPanelTemplate;
+
+    [Header("Fallback Resources (UI Toolkit)")]
     [SerializeField] private string introPanelResourcePath = "UIToolkit/IntroPanel";
     [SerializeField] private string tutorialStartPanelResourcePath = "UIToolkit/MsgTutorialStart";
 
@@ -144,8 +154,8 @@ public class StartupOnboardingController : MonoBehaviour
 
         _tutorialPanelRoot = _documentRoot.Q<VisualElement>("panel-tutorial");
 
-        _introRoot = InstantiatePanelFromResources(introPanelResourcePath, "panel-intro");
-        _tutorialStartRoot = InstantiatePanelFromResources(tutorialStartPanelResourcePath, "msg-tutorial-start");
+        _introRoot = InstantiatePanel(introPanelTemplate, introPanelResourcePath, "panel-intro");
+        _tutorialStartRoot = InstantiatePanel(tutorialStartPanelTemplate, tutorialStartPanelResourcePath, "msg-tutorial-start");
 
         if (_introRoot != null)
         {
@@ -169,12 +179,15 @@ public class StartupOnboardingController : MonoBehaviour
         return _uiBuilt;
     }
 
-    private VisualElement InstantiatePanelFromResources(string resourcePath, string rootName)
+    private VisualElement InstantiatePanel(VisualTreeAsset templateFromInspector, string fallbackResourcePath, string rootName)
     {
-        VisualTreeAsset template = Resources.Load<VisualTreeAsset>(resourcePath);
+        VisualTreeAsset template = templateFromInspector;
+        if (template == null && !string.IsNullOrWhiteSpace(fallbackResourcePath))
+            template = Resources.Load<VisualTreeAsset>(fallbackResourcePath);
+
         if (template == null)
         {
-            Debug.LogWarning($"[StartupOnboarding] No se encontro Resource '{resourcePath}'.");
+            Debug.LogWarning($"[StartupOnboarding] No se encontro template para '{rootName}'. Asigna el VisualTreeAsset en inspector o revisa el fallback de Resources.");
             return null;
         }
 
@@ -183,7 +196,7 @@ public class StartupOnboardingController : MonoBehaviour
 
         VisualElement root = container.Q<VisualElement>(rootName);
         if (root == null)
-            Debug.LogWarning($"[StartupOnboarding] El panel '{resourcePath}' no contiene un elemento '{rootName}'.");
+            Debug.LogWarning($"[StartupOnboarding] El template para '{rootName}' no contiene el elemento esperado '{rootName}'.");
 
         return root;
     }
@@ -207,6 +220,7 @@ public class StartupOnboardingController : MonoBehaviour
         }
 
         SetVisible(_introRoot);
+        IntroPanelShown?.Invoke();
         _introFadeTween?.Kill();
         _introFadeTween = FadeElement(_introRoot, 0f, 1f, fadeInDuration, Ease.OutCubic, null);
 
@@ -216,6 +230,7 @@ public class StartupOnboardingController : MonoBehaviour
 
     private void HandleIntroContinueClicked()
     {
+        IntroContinueRequested?.Invoke();
         AdvanceFromIntro();
     }
 
@@ -250,6 +265,7 @@ public class StartupOnboardingController : MonoBehaviour
         }
 
         SetVisible(_tutorialStartRoot);
+        TutorialStartMessageShown?.Invoke();
 
         _tutorialStartFadeTween?.Kill();
         _tutorialStartFadeTween = FadeElement(_tutorialStartRoot, 0f, 1f, fadeInDuration, Ease.OutCubic, () =>

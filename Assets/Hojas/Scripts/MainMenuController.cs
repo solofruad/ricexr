@@ -1,7 +1,7 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using Meta.WitAi.TTS.Utilities;
 
 /// <summary>
 /// MENU PRINCIPAL
@@ -15,10 +15,10 @@ using Meta.WitAi.TTS.Utilities;
 /// </summary>
 public class MainMenuController : MonoBehaviour
 {
+    public static event Action StartFlowRequested;
+
     [Header("Paneles")]
     [SerializeField] private GameObject mainMenuPanel;
-
-    [SerializeField] private TTSSpeaker ttsSpeaker;
 
     [Header("Botones")]
     [SerializeField] private Button startButton;
@@ -69,7 +69,7 @@ public class MainMenuController : MonoBehaviour
                 .OnComplete(() => mainMenuPanel.SetActive(false));
         }
 
-            ttsSpeaker?.Speak("¡Comencemos! Selecciona un plano para iniciar la introduccion y luego el tutorial visual.");
+        StartFlowRequested?.Invoke();
     }
 
     void OnDestroy()
