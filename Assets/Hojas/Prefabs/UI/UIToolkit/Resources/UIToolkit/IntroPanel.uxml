@@ -1,184 +1,41 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:VisualElement name="panel-intro" style="
-        width: 760px;
-        background-color: rgba(10, 14, 22, 0.98);
-        border-radius: 24px;
-        padding: 24px 28px 22px 28px;
-        border-width: 1px;
-        border-color: rgba(113, 181, 255, 0.26);
-        flex-direction: column;
-    ">
-        <ui:VisualElement style="
-            flex-direction: row;
-            align-items: center;
-            margin-bottom: 12px;
-        ">
-            <ui:VisualElement style="
-                width: 42px;
-                height: 42px;
-                background-color: rgba(113, 181, 255, 0.18);
-                border-radius: 21px;
-                align-items: center;
-                justify-content: center;
-                margin-right: 12px;
-            ">
-                <ui:Label text="i" style="
-                    font-size: 22px;
-                    color: rgb(113, 181, 255);
-                    -unity-font-style: bold;
-                    -unity-text-align: middle-center;
-                    width: 36px;
-                "/>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="panel-intro" style="width: 760px; background-color: rgba(10, 14, 22, 0.98); border-radius: 24px; padding: 24px 28px 22px 28px; border-width: 1px; border-color: rgba(113, 181, 255, 0.26); flex-direction: column; height: 550px;">
+        <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 12px;">
+            <ui:VisualElement style="width: 42px; height: 42px; background-color: rgba(113, 181, 255, 0.18); border-radius: 21px; align-items: center; justify-content: center; margin-right: 12px;">
+                <ui:Label text="i" style="font-size: 22px; color: rgb(113, 181, 255); -unity-font-style: bold; -unity-text-align: middle-center; width: 36px;"/>
             </ui:VisualElement>
             <ui:VisualElement style="flex-direction: column; flex-grow: 1;">
-                <ui:Label name="intro-title" text="Entrenamiento de diagnostico en arroz" style="
-                    font-size: 24px;
-                    color: rgba(255, 255, 255, 0.98);
-                    -unity-font-style: bold;
-                "/>
-                <ui:Label text="Aprenderas a reconocer sintomas y registrar severidad con precision." style="
-                    font-size: 13px;
-                    color: rgba(220, 236, 255, 0.64);
-                "/>
+                <ui:Label name="intro-title" text="Entrenamiento de diagnostico en arroz" style="font-size: 24px; color: rgba(255, 255, 255, 0.98); -unity-font-style: bold;"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
         <ui:VisualElement style="height: 1px; background-color: rgba(255, 255, 255, 0.09);"/>
-
-        <ui:VisualElement style="
-            flex-direction: row;
-            margin-top: 15px;
-            margin-bottom: 16px;
-            align-items: stretch;
-        ">
-            <ui:VisualElement style="
-                width: 260px;
-                background-color: rgba(255, 255, 255, 0.04);
-                border-radius: 16px;
-                border-width: 1px;
-                border-color: rgba(255, 255, 255, 0.1);
-                padding: 10px;
-                margin-right: 14px;
-            ">
-                <ui:Image style="
-                    height: 144px;
-                    border-top-left-radius: 12px;
-                    border-top-right-radius: 12px;
-                    border-bottom-left-radius: 12px;
-                    border-bottom-right-radius: 12px;
-                    background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Imagenes/HandHoldingEye.png?fileID=2800000&amp;guid=45c9c0d05c12d3143a7f2242a7113002&amp;type=3#HandHoldingEye&quot;);
-                    -unity-background-scale-mode: scale-and-crop;
-                    margin-bottom: 10px;
-                "/>
-                <ui:Label text="Observa cada hoja de cerca" style="
-                    font-size: 14px;
-                    color: rgba(255, 255, 255, 0.95);
-                    -unity-font-style: bold;
-                    margin-bottom: 4px;
-                "/>
-                <ui:Label text="Enfocate en color, forma de lesion y distribucion del dano antes de confirmar." style="
-                    font-size: 12px;
-                    color: rgba(255, 255, 255, 0.65);
-                    white-space: normal;
-                "/>
+        <ui:VisualElement style="flex-direction: row; margin-top: 15px; margin-bottom: 16px; align-items: stretch;">
+            <ui:VisualElement style="width: 260px; background-color: rgba(255, 255, 255, 0.04); border-radius: 16px; border-width: 1px; border-color: rgba(255, 255, 255, 0.1); padding: 10px; margin-right: 14px;">
+                <ui:Image style="height: 185px; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Imagenes/HandHoldingEye.png?fileID=2800000&amp;guid=45c9c0d05c12d3143a7f2242a7113002&amp;type=3#HandHoldingEye&quot;); -unity-background-scale-mode: scale-and-crop; margin-bottom: 10px;"/>
+                <ui:Label text="Observa cada hoja de cerca" style="font-size: 14px; color: rgba(255, 255, 255, 0.95); -unity-font-style: bold; margin-bottom: 4px;"/>
+                <ui:Label text="Enfocate en color, forma de lesion y distribucion del dano antes de confirmar." style="font-size: 12px; color: rgba(255, 255, 255, 0.65); white-space: normal; height: 54px;"/>
             </ui:VisualElement>
-
             <ui:VisualElement style="flex-grow: 1;">
-                <ui:Label name="intro-body" text="Ruta de aprendizaje:" style="
-                    font-size: 16px;
-                    color: rgba(255, 255, 255, 0.9);
-                    -unity-font-style: bold;
-                    margin-bottom: 8px;
-                "/>
-
-                <ui:VisualElement style="
-                    background-color: rgba(73, 134, 197, 0.12);
-                    border-left-width: 3px;
-                    border-left-color: rgba(113, 181, 255, 0.85);
-                    border-top-left-radius: 10px;
-                    border-top-right-radius: 10px;
-                    border-bottom-left-radius: 10px;
-                    border-bottom-right-radius: 10px;
-                    padding: 10px 12px;
-                    margin-bottom: 8px;
-                ">
+                <ui:Label name="intro-body" text="Ruta de aprendizaje:" style="font-size: 16px; color: rgba(255, 255, 255, 0.9); -unity-font-style: bold; margin-bottom: 8px;"/>
+                <ui:VisualElement style="background-color: rgba(73, 197, 80, 0.12); border-left-width: 3px; border-left-color: rgba(119, 255, 113, 0.85); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 10px 12px; margin-bottom: 8px; border-bottom-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-color: rgb(119, 255, 113); border-top-color: rgb(119, 255, 113); border-right-color: rgb(119, 255, 113);">
                     <ui:Label text="1) Nivel 1: Tutorial de herramienta VR" style="font-size: 13px; color: rgba(255, 255, 255, 0.92); -unity-font-style: bold;"/>
                     <ui:Label text="Aprende agarre, observacion y diagnostico guiado." style="font-size: 12px; color: rgba(255, 255, 255, 0.62);"/>
                 </ui:VisualElement>
-
-                <ui:VisualElement style="
-                    background-color: rgba(255, 255, 255, 0.04);
-                    border-top-left-radius: 10px;
-                    border-top-right-radius: 10px;
-                    border-bottom-left-radius: 10px;
-                    border-bottom-right-radius: 10px;
-                    padding: 9px 12px;
-                    margin-bottom: 8px;
-                ">
+                <ui:VisualElement style="background-color: rgba(255, 255, 255, 0.04); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 9px 12px; margin-bottom: 8px;">
                     <ui:Label text="2) Nivel 2: Pyricularia" style="font-size: 13px; color: rgba(255, 255, 255, 0.86); -unity-font-style: bold;"/>
                 </ui:VisualElement>
-
-                <ui:VisualElement style="
-                    background-color: rgba(255, 255, 255, 0.04);
-                    border-top-left-radius: 10px;
-                    border-top-right-radius: 10px;
-                    border-bottom-left-radius: 10px;
-                    border-bottom-right-radius: 10px;
-                    padding: 9px 12px;
-                    margin-bottom: 8px;
-                ">
+                <ui:VisualElement style="background-color: rgba(255, 255, 255, 0.04); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 9px 12px; margin-bottom: 8px;">
                     <ui:Label text="3) Nivel 3: Rynchosporium" style="font-size: 13px; color: rgba(255, 255, 255, 0.86); -unity-font-style: bold;"/>
                 </ui:VisualElement>
-
-                <ui:VisualElement style="
-                    background-color: rgba(255, 255, 255, 0.04);
-                    border-top-left-radius: 10px;
-                    border-top-right-radius: 10px;
-                    border-bottom-left-radius: 10px;
-                    border-bottom-right-radius: 10px;
-                    padding: 9px 12px;
-                ">
+                <ui:VisualElement style="background-color: rgba(255, 255, 255, 0.04); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 9px 12px;">
                     <ui:Label text="4) Nivel final: evaluacion sin ayudas" style="font-size: 13px; color: rgba(255, 255, 255, 0.86); -unity-font-style: bold;"/>
                     <ui:Label text="Niveles 2, 3 y final: 3 hojas por nivel para medir avance." style="font-size: 12px; color: rgba(255, 255, 255, 0.62);"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <ui:VisualElement style="
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 12px;
-            border-top-width: 1px;
-            border-top-color: rgba(255, 255, 255, 0.08);
-        ">
-            <ui:Label text="Consejo: escucha la guia de voz y compara patrones antes de confirmar." style="
-                font-size: 12px;
-                color: rgba(211, 231, 255, 0.62);
-                max-width: 440px;
-                white-space: normal;
-            "/>
-            <ui:Button name="intro-continue-button" text="Comenzar tutorial" style="
-                width: 212px;
-                height: 42px;
-                background-color: rgba(113, 181, 255, 0.22);
-                border-top-color: rgba(113, 181, 255, 0.72);
-                border-right-color: rgba(113, 181, 255, 0.72);
-                border-bottom-color: rgba(113, 181, 255, 0.72);
-                border-left-color: rgba(113, 181, 255, 0.72);
-                border-top-width: 1px;
-                border-right-width: 1px;
-                border-bottom-width: 1px;
-                border-left-width: 1px;
-                border-top-left-radius: 12px;
-                border-top-right-radius: 12px;
-                border-bottom-left-radius: 12px;
-                border-bottom-right-radius: 12px;
-                color: rgba(255, 255, 255, 0.98);
-                font-size: 15px;
-                -unity-font-style: bold;
-                -unity-text-align: middle-center;
-            "/>
+        <ui:VisualElement style="flex-direction: row; justify-content: space-between; align-items: center; padding-top: 12px; border-top-width: 1px; border-top-color: rgba(255, 255, 255, 0.08); height: 92px; align-self: stretch;">
+            <ui:Label text="Consejo: escucha la guia de voz y compara patrones antes de confirmar." style="font-size: 12px; color: rgba(211, 231, 255, 0.62); max-width: 440px; white-space: normal; -unity-text-align: middle-left; align-self: center; justify-content: center;"/>
+            <ui:Button name="intro-continue-button" text="Comenzar tutorial" style="width: 227px; height: 60px; background-color: rgba(113, 181, 255, 0.22); border-top-color: rgba(113, 181, 255, 0.72); border-right-color: rgba(113, 181, 255, 0.72); border-bottom-color: rgba(113, 181, 255, 0.72); border-left-color: rgba(113, 181, 255, 0.72); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; color: rgba(255, 255, 255, 0.98); font-size: 15px; -unity-font-style: bold; -unity-text-align: middle-center; align-self: center;"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
