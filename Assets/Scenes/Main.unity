@@ -8550,7 +8550,8 @@ MonoBehaviour:
   - levelPrefab: {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83,
       type: 3}
     plantsRequired: 3
-  - levelPrefab: {fileID: 0}
+  - levelPrefab: {fileID: 5779791484926515347, guid: 97f430a1c92cbae46a54ced83a479dc8,
+      type: 3}
     plantsRequired: 3
   - levelPrefab: {fileID: 5571560547924518282, guid: 8c318eeec7ed0be45adf0f1a8d0c4095,
       type: 3}
