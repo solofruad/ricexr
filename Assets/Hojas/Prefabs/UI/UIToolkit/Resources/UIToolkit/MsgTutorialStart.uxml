@@ -1,36 +1,75 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:VisualElement name="msg-tutorial-start" style="
-        width: 460px;
-        background-color: rgba(12, 12, 16, 0.97);
+        width: 520px;
+        background-color: rgba(10, 14, 22, 0.98);
         border-radius: 22px;
-        padding: 34px 32px 30px 32px;
+        padding: 26px 30px 24px 30px;
         align-items: center;
         border-width: 1px;
-        border-color: rgba(80, 160, 255, 0.22);
+        border-color: rgba(113, 181, 255, 0.3);
     ">
-        <ui:Label text="^" style="font-size: 44px; margin-bottom: 10px;"/>
+        <ui:VisualElement style="
+            width: 64px;
+            height: 64px;
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            border-bottom-left-radius: 32px;
+            border-bottom-right-radius: 32px;
+            background-color: rgba(113, 181, 255, 0.2);
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        ">
+            <ui:Label text="1" style="
+                font-size: 32px;
+                color: rgba(113, 181, 255, 0.98);
+                -unity-font-style: bold;
+                -unity-text-align: middle-center;
+            "/>
+        </ui:VisualElement>
 
         <ui:Label name="tutorialstart-title" text="Inicia el Nivel 1: Tutorial" style="
-            font-size: 26px;
-            color: rgba(255, 255, 255, 0.97);
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.98);
             -unity-font-style: bold;
             -unity-text-align: middle-center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         "/>
 
         <ui:Label name="tutorialstart-sub" text="Primero aprenderas a usar la herramienta VR." style="
             font-size: 15px;
-            color: rgba(255, 255, 255, 0.48);
+            color: rgba(214, 232, 255, 0.72);
             -unity-text-align: middle-center;
             white-space: normal;
+            max-width: 420px;
+            margin-bottom: 10px;
         "/>
+
+        <ui:VisualElement style="
+            width: 420px;
+            background-color: rgba(255, 255, 255, 0.04);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            border-width: 1px;
+            border-color: rgba(255, 255, 255, 0.09);
+            padding: 8px 12px;
+            align-items: center;
+        ">
+            <ui:Label text="Objetivo inicial: completar 2 hojas guiadas en el tutorial." style="
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.66);
+                -unity-text-align: middle-center;
+            "/>
+        </ui:VisualElement>
 
         <ui:VisualElement style="
             width: 48px;
             height: 3px;
-            background-color: rgba(80, 160, 255, 0.7);
+            background-color: rgba(113, 181, 255, 0.85);
             border-radius: 2px;
-            margin-top: 22px;
+            margin-top: 14px;
         "/>
     </ui:VisualElement>
 </ui:UXML>

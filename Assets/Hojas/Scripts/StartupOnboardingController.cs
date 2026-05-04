@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Secuencia de onboarding inicial mostrada despues de seleccionar el plano:
+/// Secuencia de onboarding inicial mostrada despues de seleccionar el plano.
+/// Metodologia: paneles preinstanciados (UIDocument) + show/hide con animaciones.
+///
+/// Orden:
 /// 1) Intro con avance manual o automatico.
 /// 2) Mensaje breve de inicio de tutorial.
-///
-/// Este controlador solo gestiona UI Toolkit y callbacks de transicion.
-/// No conoce la logica de niveles.
 /// </summary>
 [DisallowMultipleComponent]
 public class StartupOnboardingController : MonoBehaviour
@@ -18,35 +18,14 @@ public class StartupOnboardingController : MonoBehaviour
     public event Action IntroContinueRequested;
     public event Action TutorialStartMessageShown;
 
-    [Header("Referencias")]
-    [SerializeField] private UIDocument uiDocument;
+    [Header("UI Documents - uno por panel")]
+    [SerializeField] private UIDocument introDocument;
+    [SerializeField] private UIDocument tutorialStartDocument;
+    [SerializeField] private bool autoFindDocuments = true;
 
-    [Header("Plantillas (UI Toolkit)")]
-    [Tooltip("Template del panel Intro. Si no se asigna, se intentara cargar desde Resources.")]
-    [SerializeField] private VisualTreeAsset introPanelTemplate;
-    [Tooltip("Template del panel de inicio de tutorial. Si no se asigna, se intentara cargar desde Resources.")]
-    [SerializeField] private VisualTreeAsset tutorialStartPanelTemplate;
-
-    [Header("Fallback Resources (UI Toolkit)")]
-    [SerializeField] private string introPanelResourcePath = "UIToolkit/IntroPanel";
-    [SerializeField] private string tutorialStartPanelResourcePath = "UIToolkit/MsgTutorialStart";
-
-    [Header("Contenido Intro")]
-    [SerializeField] private string introTitle = "Bienvenido al entrenamiento";
-    [TextArea(4, 8)]
-    [SerializeField] private string introBody =
-        "Esta aplicacion te ensena a reconocer Pyricularia oryzae y Rynchosporium en hojas de arroz.\n\n" +
-        "Flujo:\n" +
-        "1) Nivel 1: tutorial de uso de la herramienta VR.\n" +
-        "2) Nivel 2: Pyricularia.\n" +
-        "3) Nivel 3: Rynchosporium.\n" +
-        "4) Nivel 4: evaluacion sin ayudas.\n\n" +
-        "En niveles 2, 3 y 4 diagnosticaras 3 hojas por nivel para medir tu avance.";
-    [SerializeField] private string introContinueButtonText = "Continuar";
-
-    [Header("Contenido Aviso")]
-    [SerializeField] private string tutorialStartTitle = "Inicia el Nivel 1: Tutorial";
-    [SerializeField] private string tutorialStartSubtitle = "Primero aprenderas a usar la herramienta VR.";
+    [Header("Nombres de raiz")]
+    [SerializeField] private string introRootElementName = "panel-intro";
+    [SerializeField] private string tutorialStartRootElementName = "msg-tutorial-start";
 
     [Header("Tiempos")]
     [SerializeField] private float introAutoAdvanceDelay = 14f;
@@ -56,27 +35,21 @@ public class StartupOnboardingController : MonoBehaviour
 
     [Header("World Space")]
     [SerializeField] private float distanceFromCamera = 1.5f;
-    [SerializeField] private Vector3 cameraOffset = Vector3.zero;
-    [SerializeField] private float surfaceHeightOffset = 0.7f;
-
-    private VisualElement _documentRoot;
-    private VisualElement _tutorialPanelRoot;
+    [SerializeField] private Vector3 baseOffset = Vector3.zero;
+    [SerializeField] private Vector3 introPanelOffset = Vector3.zero;
+    [SerializeField] private Vector3 tutorialStartPanelOffset = Vector3.zero;
+    [SerializeField] private float surfaceHeightOffset = 0.28f;
 
     private VisualElement _introRoot;
-    private Label _introTitleLabel;
-    private Label _introBodyLabel;
     private Button _introContinueButton;
 
     private VisualElement _tutorialStartRoot;
-    private Label _tutorialStartTitleLabel;
-    private Label _tutorialStartSubtitleLabel;
 
     private Tween _introFadeTween;
     private Tween _introAutoAdvanceTween;
     private Tween _tutorialStartFadeTween;
     private Tween _tutorialStartHoldTween;
 
-    private bool _uiBuilt;
     private bool _sequenceRunning;
     private bool _introAdvanced;
     private bool _completionTriggered;
@@ -84,7 +57,8 @@ public class StartupOnboardingController : MonoBehaviour
 
     private void Awake()
     {
-        BuildUIIfNeeded();
+        ResolveDocuments();
+        CacheElements();
         ResetSequenceState();
     }
 
@@ -97,24 +71,23 @@ public class StartupOnboardingController : MonoBehaviour
 
     public void ShowSequence(Action onCompleted)
     {
-        if (!BuildUIIfNeeded())
+        ResolveDocuments();
+        CacheElements();
+
+        if (_introRoot == null && _tutorialStartRoot == null)
         {
+            Debug.LogWarning("[StartupOnboarding] No hay paneles de onboarding listos. Se omite secuencia.");
             onCompleted?.Invoke();
             return;
         }
 
         if (_sequenceRunning) return;
 
+        ResetSequenceState();
+
         _sequenceRunning = true;
-        _introAdvanced = false;
-        _completionTriggered = false;
         _onSequenceCompleted = onCompleted;
-
-        ApplyContent();
-        RepositionPanel();
-
-        if (_tutorialPanelRoot != null)
-            _tutorialPanelRoot.style.display = DisplayStyle.None;
+        RepositionPanels();
 
         ShowIntroPanel();
     }
@@ -132,83 +105,54 @@ public class StartupOnboardingController : MonoBehaviour
         SetHidden(_tutorialStartRoot);
     }
 
-    private bool BuildUIIfNeeded()
+    private void ResolveDocuments()
     {
-        if (_uiBuilt) return true;
+        if (!autoFindDocuments) return;
+        if (introDocument != null && tutorialStartDocument != null) return;
 
-        if (uiDocument == null)
-            uiDocument = GetComponent<UIDocument>();
-
-        if (uiDocument == null)
+        UIDocument[] docs = FindObjectsByType<UIDocument>(FindObjectsInactive.Include);
+        for (int i = 0; i < docs.Length; i++)
         {
-            Debug.LogWarning("[StartupOnboarding] UIDocument no asignado/encontrado.");
-            return false;
+            UIDocument doc = docs[i];
+            if (doc == null || doc.rootVisualElement == null) continue;
+
+            if (introDocument == null && doc.rootVisualElement.Q<VisualElement>(introRootElementName) != null)
+                introDocument = doc;
+
+            if (tutorialStartDocument == null && doc.rootVisualElement.Q<VisualElement>(tutorialStartRootElementName) != null)
+                tutorialStartDocument = doc;
+
+            if (introDocument != null && tutorialStartDocument != null)
+                break;
         }
 
-        _documentRoot = uiDocument.rootVisualElement;
-        if (_documentRoot == null)
-        {
-            Debug.LogWarning("[StartupOnboarding] rootVisualElement no disponible.");
-            return false;
-        }
-
-        _tutorialPanelRoot = _documentRoot.Q<VisualElement>("panel-tutorial");
-
-        _introRoot = InstantiatePanel(introPanelTemplate, introPanelResourcePath, "panel-intro");
-        _tutorialStartRoot = InstantiatePanel(tutorialStartPanelTemplate, tutorialStartPanelResourcePath, "msg-tutorial-start");
-
-        if (_introRoot != null)
-        {
-            _introTitleLabel = _introRoot.Q<Label>("intro-title");
-            _introBodyLabel = _introRoot.Q<Label>("intro-body");
-            _introContinueButton = _introRoot.Q<Button>("intro-continue-button");
-            if (_introContinueButton != null)
-                _introContinueButton.clicked += HandleIntroContinueClicked;
-        }
-
-        if (_tutorialStartRoot != null)
-        {
-            _tutorialStartTitleLabel = _tutorialStartRoot.Q<Label>("tutorialstart-title");
-            _tutorialStartSubtitleLabel = _tutorialStartRoot.Q<Label>("tutorialstart-sub");
-        }
-
-        _uiBuilt = _introRoot != null && _tutorialStartRoot != null;
-        if (!_uiBuilt)
-            Debug.LogWarning("[StartupOnboarding] No se pudieron cargar todos los paneles de onboarding desde Resources.");
-
-        return _uiBuilt;
+        if (introDocument != null && tutorialStartDocument != null && introDocument == tutorialStartDocument)
+            Debug.LogWarning("[StartupOnboarding] Intro y MsgTutorialStart comparten el mismo UIDocument. Para evitar solapamientos usa documentos separados.");
     }
 
-    private VisualElement InstantiatePanel(VisualTreeAsset templateFromInspector, string fallbackResourcePath, string rootName)
+    private void CacheElements()
     {
-        VisualTreeAsset template = templateFromInspector;
-        if (template == null && !string.IsNullOrWhiteSpace(fallbackResourcePath))
-            template = Resources.Load<VisualTreeAsset>(fallbackResourcePath);
+        if (_introContinueButton != null)
+            _introContinueButton.clicked -= HandleIntroContinueClicked;
 
-        if (template == null)
-        {
-            Debug.LogWarning($"[StartupOnboarding] No se encontro template para '{rootName}'. Asigna el VisualTreeAsset en inspector o revisa el fallback de Resources.");
-            return null;
-        }
+        _introRoot = introDocument?.rootVisualElement?.Q<VisualElement>(introRootElementName);
+        _tutorialStartRoot = tutorialStartDocument?.rootVisualElement?.Q<VisualElement>(tutorialStartRootElementName);
 
-        TemplateContainer container = template.CloneTree();
-        _documentRoot.Add(container);
+        _introContinueButton = _introRoot?.Q<Button>("intro-continue-button");
+        if (_introContinueButton != null)
+            _introContinueButton.clicked += HandleIntroContinueClicked;
 
-        VisualElement root = container.Q<VisualElement>(rootName);
-        if (root == null)
-            Debug.LogWarning($"[StartupOnboarding] El template para '{rootName}' no contiene el elemento esperado '{rootName}'.");
+        if (introDocument == null)
+            Debug.LogWarning("[StartupOnboarding] introDocument no asignado/encontrado.");
 
-        return root;
-    }
+        if (tutorialStartDocument == null)
+            Debug.LogWarning("[StartupOnboarding] tutorialStartDocument no asignado/encontrado.");
 
-    private void ApplyContent()
-    {
-        if (_introTitleLabel != null) _introTitleLabel.text = introTitle;
-        if (_introBodyLabel != null) _introBodyLabel.text = introBody;
-        if (_introContinueButton != null) _introContinueButton.text = introContinueButtonText;
+        if (introDocument != null && _introRoot == null)
+            Debug.LogWarning($"[StartupOnboarding] No se encontro el root '{introRootElementName}' en introDocument.");
 
-        if (_tutorialStartTitleLabel != null) _tutorialStartTitleLabel.text = tutorialStartTitle;
-        if (_tutorialStartSubtitleLabel != null) _tutorialStartSubtitleLabel.text = tutorialStartSubtitle;
+        if (tutorialStartDocument != null && _tutorialStartRoot == null)
+            Debug.LogWarning($"[StartupOnboarding] No se encontro el root '{tutorialStartRootElementName}' en tutorialStartDocument.");
     }
 
     private void ShowIntroPanel()
@@ -301,29 +245,41 @@ public class StartupOnboardingController : MonoBehaviour
         _completionTriggered = true;
         _sequenceRunning = false;
 
+        SetHidden(_introRoot);
+        SetHidden(_tutorialStartRoot);
+
         Action callback = _onSequenceCompleted;
         _onSequenceCompleted = null;
         callback?.Invoke();
     }
 
-    private void RepositionPanel()
+    private void RepositionPanels()
     {
+        Vector3 target;
+
         if (SceneInteractionManager.Instance != null && SceneInteractionManager.Instance.HasSelectedPlane)
         {
-            transform.position = SceneInteractionManager.Instance.SelectedPlanePosition
-                                 + (SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up) * surfaceHeightOffset
-                                 + cameraOffset;
-            return;
+            target = SceneInteractionManager.Instance.SelectedPlanePosition
+                     + (SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up) * surfaceHeightOffset
+                     + baseOffset;
+        }
+        else
+        {
+            if (Camera.main == null) return;
+
+            Transform cam = Camera.main.transform;
+            Vector3 fwd = cam.forward;
+            fwd.y = 0f;
+            if (fwd.sqrMagnitude < 0.0001f) fwd = cam.forward;
+
+            target = cam.position + fwd.normalized * distanceFromCamera + baseOffset;
         }
 
-        if (Camera.main == null) return;
+        if (introDocument != null)
+            introDocument.transform.position = target + introPanelOffset;
 
-        Transform cam = Camera.main.transform;
-        Vector3 fwd = cam.forward;
-        fwd.y = 0f;
-        if (fwd.sqrMagnitude < 0.0001f) fwd = cam.forward;
-
-        transform.position = cam.position + fwd.normalized * distanceFromCamera + cameraOffset;
+        if (tutorialStartDocument != null)
+            tutorialStartDocument.transform.position = target + tutorialStartPanelOffset;
     }
 
     private static void SetVisible(VisualElement element)

@@ -353,6 +353,9 @@ public class SceneInteractionManager : MonoBehaviour
     {
         if (!_isReady || !hasBeenActivated || _startupOnboardingStarted) return;
 
+        startupOnboardingController?.ResetSequenceState();
+        tutorialPanelController?.Hide();
+
         _startupOnboardingStarted = true;
         _startupOnboardingCompleted = false;
 

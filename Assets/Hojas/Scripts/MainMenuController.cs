@@ -56,7 +56,10 @@ public class MainMenuController : MonoBehaviour
             startButton.interactable = false;
 
         if (sceneInteractionManager != null)
+        {
+            sceneInteractionManager.PrepareForNextSession();
             sceneInteractionManager.WaitForStartSignal();
+        }
         else
             Debug.LogWarning("[MainMenu] No se encontro SceneInteractionManager.");
 

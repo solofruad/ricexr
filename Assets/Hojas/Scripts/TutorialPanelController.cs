@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -23,6 +24,15 @@ public class TutorialPanelController : MonoBehaviour
     [Header("Referencias")]
     [SerializeField] private UIDocument uiDocument;
     [SerializeField] private UIGameListener uiGameListener;
+
+    [Header("Actos UXML (opcional)")]
+    [SerializeField] private VisualTreeAsset tutorialAct1Template;
+    [SerializeField] private VisualTreeAsset tutorialAct2Template;
+    [SerializeField] private VisualTreeAsset tutorialAct3Template;
+    [SerializeField] private string tutorialAct1ResourcePath = "UIToolkit/TutorialAct1";
+    [SerializeField] private string tutorialAct2ResourcePath = "UIToolkit/TutorialAct2";
+    [SerializeField] private string tutorialAct3ResourcePath = "UIToolkit/TutorialAct3";
+    [SerializeField] private bool verboseSplitActsLogs = true;
 
     [Header("Actos guiados")]
     [Tooltip("Tiempo en segundos para pasar de observar a diagnosticar mientras la hoja sigue agarrada.")]
@@ -54,6 +64,11 @@ public class TutorialPanelController : MonoBehaviour
     private VisualElement _progressFill;
     private Label _progressLabel;
     private Label _progressPercent;
+    private VisualElement _tutorialAct1Root;
+    private VisualElement _tutorialAct2Root;
+    private VisualElement _tutorialAct3Root;
+    private bool _splitActsReady;
+    private readonly List<VisualElement> _legacyStepBlocks = new List<VisualElement>();
 
     private Tween _fadeTween;
     private Tween _slideTween;
@@ -279,23 +294,20 @@ public class TutorialPanelController : MonoBehaviour
         switch (act)
         {
             case TutorialGuidanceAct.GrabLeaf:
-                ShowGuidedPanel();
+                ShowGuidedActPanel(1);
                 SetTitle("Acto 1: Toma una hoja");
-                UpdateGuidedStepVisuals(0);
                 SetProgress(0.33f, "Acto 1 de 3", "33%");
                 break;
 
             case TutorialGuidanceAct.ObserveLeaf:
-                ShowGuidedPanel();
+                ShowGuidedActPanel(2);
                 SetTitle("Acto 2: Observa los sintomas");
-                UpdateGuidedStepVisuals(1);
                 SetProgress(0.66f, "Acto 2 de 3", "66%");
                 break;
 
             case TutorialGuidanceAct.DiagnoseFirstLeaf:
-                ShowGuidedPanel();
+                ShowGuidedActPanel(3);
                 SetTitle("Acto 3: Registra tu diagnostico");
-                UpdateGuidedStepVisuals(2);
                 SetProgress(1f, "Acto 3 de 3", "100%");
                 break;
 
@@ -308,10 +320,39 @@ public class TutorialPanelController : MonoBehaviour
                 break;
 
             default:
-                ShowGuidedPanel();
+                ShowGuidedActPanel(1);
                 SetTitle("Tutorial");
-                UpdateGuidedStepVisuals(0);
                 SetProgress(0f, "Preparando tutorial...", "0%");
+                break;
+        }
+    }
+
+    private void ShowGuidedActPanel(int actIndex)
+    {
+        ShowGuidedPanel();
+
+        if (!_splitActsReady)
+        {
+            UpdateGuidedStepVisuals(Mathf.Clamp(actIndex - 1, 0, 2));
+            return;
+        }
+
+        switch (actIndex)
+        {
+            case 1:
+                ShowSingleActPanel(_tutorialAct1Root);
+                break;
+
+            case 2:
+                ShowSingleActPanel(_tutorialAct2Root);
+                break;
+
+            case 3:
+                ShowSingleActPanel(_tutorialAct3Root);
+                break;
+
+            default:
+                ShowSingleActPanel(_tutorialAct1Root);
                 break;
         }
     }
@@ -327,6 +368,9 @@ public class TutorialPanelController : MonoBehaviour
 
     private void ShowLightPanelForFreePractice()
     {
+        if (_splitActsReady)
+            ShowSingleActPanel(null);
+
         if (_stepsContainer != null)
             _stepsContainer.style.display = DisplayStyle.None;
 
@@ -357,6 +401,9 @@ public class TutorialPanelController : MonoBehaviour
 
     private void ShowLightPanelForCompletion()
     {
+        if (_splitActsReady)
+            ShowSingleActPanel(null);
+
         if (_stepsContainer != null)
             _stepsContainer.style.display = DisplayStyle.None;
 
@@ -450,6 +497,107 @@ public class TutorialPanelController : MonoBehaviour
         _progressFill = _root?.Q<VisualElement>("tutorial-progress-fill");
         _progressLabel = _root?.Q<Label>("tutorial-progress-label");
         _progressPercent = _root?.Q<Label>("tutorial-progress-percent");
+
+        ConfigureSplitActPanelsIfAvailable();
+    }
+
+    private void ConfigureSplitActPanelsIfAvailable()
+    {
+        if (_stepsContainer == null || _splitActsReady)
+        {
+            if (_stepsContainer == null && verboseSplitActsLogs)
+                Debug.LogWarning("[TutorialPanel] No se encontro 'steps-container'. Se usara panel legacy.");
+            return;
+        }
+
+        VisualTreeAsset act1Template = ResolveActTemplate(tutorialAct1Template, tutorialAct1ResourcePath);
+        VisualTreeAsset act2Template = ResolveActTemplate(tutorialAct2Template, tutorialAct2ResourcePath);
+        VisualTreeAsset act3Template = ResolveActTemplate(tutorialAct3Template, tutorialAct3ResourcePath);
+
+        if (act1Template == null || act2Template == null || act3Template == null)
+        {
+            if (verboseSplitActsLogs)
+            {
+                Debug.LogWarning(
+                    $"[TutorialPanel] Split acts incompleto. A1:{(act1Template != null)} A2:{(act2Template != null)} A3:{(act3Template != null)}. " +
+                    "Se usara panel legacy.");
+            }
+            return;
+        }
+
+        _legacyStepBlocks.Clear();
+        for (int i = 0; i < _stepsContainer.childCount; i++)
+            _legacyStepBlocks.Add(_stepsContainer.ElementAt(i));
+
+        var host = new VisualElement { name = "tutorial-acts-host" };
+        host.style.flexGrow = 1f;
+        host.style.flexDirection = FlexDirection.Column;
+        _stepsContainer.Add(host);
+
+        _tutorialAct1Root = InstantiateActRoot(act1Template, host, "tutorial-act-1");
+        _tutorialAct2Root = InstantiateActRoot(act2Template, host, "tutorial-act-2");
+        _tutorialAct3Root = InstantiateActRoot(act3Template, host, "tutorial-act-3");
+
+        if (_tutorialAct1Root == null || _tutorialAct2Root == null || _tutorialAct3Root == null)
+        {
+            host.RemoveFromHierarchy();
+            _tutorialAct1Root = null;
+            _tutorialAct2Root = null;
+            _tutorialAct3Root = null;
+            if (verboseSplitActsLogs)
+                Debug.LogWarning("[TutorialPanel] Fallo al instanciar roots de split acts. Se usara panel legacy.");
+            return;
+        }
+
+        for (int i = 0; i < _legacyStepBlocks.Count; i++)
+            _legacyStepBlocks[i].style.display = DisplayStyle.None;
+
+        _splitActsReady = true;
+        if (verboseSplitActsLogs)
+            Debug.Log("[TutorialPanel] Split acts cargados correctamente (Act1/Act2/Act3).");
+        ShowSingleActPanel(_tutorialAct1Root);
+    }
+
+    private static VisualTreeAsset ResolveActTemplate(VisualTreeAsset inspectorTemplate, string resourcePath)
+    {
+        if (inspectorTemplate != null) return inspectorTemplate;
+        if (string.IsNullOrWhiteSpace(resourcePath)) return null;
+        return Resources.Load<VisualTreeAsset>(resourcePath);
+    }
+
+    private static VisualElement InstantiateActRoot(VisualTreeAsset template, VisualElement host, string rootName)
+    {
+        if (template == null || host == null) return null;
+
+        TemplateContainer container = template.CloneTree();
+        host.Add(container);
+
+        VisualElement root = container.Q<VisualElement>(rootName);
+        if (root == null && container.childCount > 0)
+            root = container[0] as VisualElement;
+
+        if (root == null)
+        {
+            Debug.LogWarning($"[TutorialPanel] El template no contiene root '{rootName}'.");
+            return null;
+        }
+
+        root.style.display = DisplayStyle.None;
+        root.style.flexGrow = 1f;
+        return root;
+    }
+
+    private void ShowSingleActPanel(VisualElement activePanel)
+    {
+        SetActDisplay(_tutorialAct1Root, _tutorialAct1Root == activePanel);
+        SetActDisplay(_tutorialAct2Root, _tutorialAct2Root == activePanel);
+        SetActDisplay(_tutorialAct3Root, _tutorialAct3Root == activePanel);
+    }
+
+    private static void SetActDisplay(VisualElement panel, bool visible)
+    {
+        if (panel == null) return;
+        panel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     private void HideImmediate()
