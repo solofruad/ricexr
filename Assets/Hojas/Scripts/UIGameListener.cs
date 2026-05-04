@@ -7,8 +7,8 @@ using DG.Tweening;
 /// FLUJO COMPLETO:
 ///
 /// [Tutorial]
-///   TutorialPanelController.ShowAndStart() → barra corre → OnTutorialCompleted()
-///   → SceneInteractionManager.StartFirstLevel()
+///   TutorialPanelController.ShowAndStart() → barra corre → TutorialCompleted (bus)
+///   → GameFlowController arranca primer nivel
 ///
 /// [Niveles de aprendizaje (índice menor que levelFinalIndex)]
 ///   OnLevelStarted → diseasePanel.Show(asset del índice) + StartProgressBar()
@@ -176,7 +176,7 @@ public class UIGameListener : MonoBehaviour
 
     /// <summary>
     /// La barra del panel terminó — el panel ya subió internamente (SlideUp en controller).
-    /// SceneInteractionManager escucha este mismo evento para spawnear el cultivo.
+    /// GameFlowController escucha este mismo evento para spawnear el cultivo.
     /// </summary>
     private void HandleDiseaseAnalysisCompleted()
     {
@@ -226,19 +226,5 @@ public class UIGameListener : MonoBehaviour
 
         diseasePanel.Show(data);
         diseasePanel.StartProgressBar();
-    }
-
-    // ─────────────────────────────────────────────
-    // API pública para el tutorial
-    // ─────────────────────────────────────────────
-
-    /// <summary>
-    /// Llamar desde TutorialPanelController cuando la barra del tutorial termina.
-    /// Inicia el primer nivel de aprendizaje.
-    /// </summary>
-    public void OnTutorialCompleted()
-    {
-        messages.HideAll();
-        SceneInteractionManager.Instance?.StartFirstLevel();
     }
 }

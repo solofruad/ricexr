@@ -1,0 +1,22 @@
+dsa
+{
+    "type": "FILE",
+    "action": "POST",
+    "id": "0", // aca lo que esto significa es que es 0 porque es el primer mensaje para abrir una conexion por asi decirlo
+}
+// El servidor al recibir este mensaje, le asigna un numero de sesion a esta conexion, y se lo devuelve al cliente para que el cliente lo use en los siguientes mensajes para que el servidor sepa a que conexion pertenece cada mensaje
+
+{
+    "type": "FILE",
+    "action": "POST",
+    "id": "1", // aca lo que esto significa es que es 1 porque es el primer paquete de datos de 64kb UDP que se manda
+    "data": "alkfjh43lkfj3hlk4jh3lk4hlkj",
+    "sesion": "1234567890" // aca lo que esto significa es que es el numero de sesion que se asigna a esta conexion, para que el servidor sepa a que conexion pertenece este paquete de datos
+}
+
+{
+    "type": "FILE",
+    "action": "POST",
+    "id": "-1", // aca lo que esto significa es que es -1 porque es un mensaje para cerrar la conexion por asi decirlo, osea que ya se mandaron todos los paquetes de datos mas. Este no contiene data
+    "sesion": "1234567890" // aca lo que esto significa es que es el numero de sesion que se asigna a esta conexion, para que el servidor sepa a que conexion pertenece este paquete de datos
+}

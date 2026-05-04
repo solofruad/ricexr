@@ -23,15 +23,11 @@ public class TutorialPanelController : MonoBehaviour
 
     [Header("Referencias")]
     [SerializeField] private UIDocument uiDocument;
-    [SerializeField] private UIGameListener uiGameListener;
 
     [Header("Actos UXML (opcional)")]
     [SerializeField] private VisualTreeAsset tutorialAct1Template;
     [SerializeField] private VisualTreeAsset tutorialAct2Template;
     [SerializeField] private VisualTreeAsset tutorialAct3Template;
-    [SerializeField] private string tutorialAct1ResourcePath = "UIToolkit/TutorialAct1";
-    [SerializeField] private string tutorialAct2ResourcePath = "UIToolkit/TutorialAct2";
-    [SerializeField] private string tutorialAct3ResourcePath = "UIToolkit/TutorialAct3";
     [SerializeField] private bool verboseSplitActsLogs = true;
 
     [Header("Actos guiados")]
@@ -116,7 +112,10 @@ public class TutorialPanelController : MonoBehaviour
     {
         KillTweens();
     }
-
+    /// <summary>
+    /// Muestra el panel y comienza el tutorial desde el primer acto. Si el panel ya esta visible,
+    /// simplemente reinicia el estado del tutorial y muestra el primer acto.
+    /// </summary>
     public void ShowAndStart()
     {
         if (_root == null) return;
@@ -140,6 +139,7 @@ public class TutorialPanelController : MonoBehaviour
         .OnComplete(() =>
         {
             TutorialStarted?.Invoke();
+            GameEventBus.PublishTutorialStarted();
             StartTutorialGameplayIfNeeded();
             EnterAct(TutorialGuidanceAct.GrabLeaf, true);
         });
@@ -171,9 +171,11 @@ public class TutorialPanelController : MonoBehaviour
     private void StartTutorialGameplayIfNeeded()
     {
         if (_levelStartRequested) return;
-
         _levelStartRequested = true;
-        uiGameListener?.OnTutorialCompleted();
+
+        // El flujo de iniciar el primer nivel es responsabilidad de GameFlowController,
+        // que escucha OnTutorialCompleted del bus. Aquí solo notificamos que el
+        // gameplay del tutorial está listo para comenzar.
     }
 
     private void HandleLeafSelected(Leaf leaf, GrabbableObjectListener.SelectionHand hand, Transform anchor)
@@ -468,6 +470,7 @@ public class TutorialPanelController : MonoBehaviour
 
         _tutorialFullyCompleted = true;
         TutorialCompleted?.Invoke();
+        GameEventBus.PublishTutorialCompleted();
         SlideUp();
     }
 
@@ -478,6 +481,7 @@ public class TutorialPanelController : MonoBehaviour
         _slideTween = transform.DOMove(target, slideUpDuration).SetEase(Ease.OutCubic);
     }
 
+    // Cachea referencias a elementos del UI para manipularlos luego. Tambien intenta configurar el sistema de split acts si los templates estan disponibles.
     private void CacheElements()
     {
         if (uiDocument == null) return;
@@ -510,9 +514,9 @@ public class TutorialPanelController : MonoBehaviour
             return;
         }
 
-        VisualTreeAsset act1Template = ResolveActTemplate(tutorialAct1Template, tutorialAct1ResourcePath);
-        VisualTreeAsset act2Template = ResolveActTemplate(tutorialAct2Template, tutorialAct2ResourcePath);
-        VisualTreeAsset act3Template = ResolveActTemplate(tutorialAct3Template, tutorialAct3ResourcePath);
+        VisualTreeAsset act1Template = tutorialAct1Template;
+        VisualTreeAsset act2Template = tutorialAct2Template;
+        VisualTreeAsset act3Template = tutorialAct3Template;
 
         if (act1Template == null || act2Template == null || act3Template == null)
         {
@@ -556,13 +560,6 @@ public class TutorialPanelController : MonoBehaviour
         if (verboseSplitActsLogs)
             Debug.Log("[TutorialPanel] Split acts cargados correctamente (Act1/Act2/Act3).");
         ShowSingleActPanel(_tutorialAct1Root);
-    }
-
-    private static VisualTreeAsset ResolveActTemplate(VisualTreeAsset inspectorTemplate, string resourcePath)
-    {
-        if (inspectorTemplate != null) return inspectorTemplate;
-        if (string.IsNullOrWhiteSpace(resourcePath)) return null;
-        return Resources.Load<VisualTreeAsset>(resourcePath);
     }
 
     private static VisualElement InstantiateActRoot(VisualTreeAsset template, VisualElement host, string rootName)
@@ -609,6 +606,10 @@ public class TutorialPanelController : MonoBehaviour
         _currentAct = TutorialGuidanceAct.None;
     }
 
+    /// <summary>
+    /// Reinicia el estado interno del tutorial para permitir reiniciar el 
+    /// tutorial desde el principio sin necesidad de recargar la escena o crear una nueva instancia del panel.
+    /// </summary>
     private void ResetSessionState()
     {
         _levelStartRequested = false;
@@ -618,7 +619,9 @@ public class TutorialPanelController : MonoBehaviour
         _plantsRequired = 2;
         _currentAct = TutorialGuidanceAct.None;
     }
-
+    /// <summary>
+    /// Mata cualquier tween activo para evitar que se sigan ejecutando callbacks o animaciones luego de que el panel se oculte o destruya.
+    /// </summary>
     private void KillTweens()
     {
         _fadeTween?.Kill();

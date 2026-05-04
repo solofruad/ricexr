@@ -105,6 +105,17 @@ public class StartupOnboardingController : MonoBehaviour
         SetHidden(_tutorialStartRoot);
     }
 
+    /// <summary>
+    /// 1. Busca y asigna los UIDocuments de los paneles de onboarding si no fueron asignados manualmente.
+    /// 2. Busca y asigna los elementos clave dentro de cada documento (root, botones) y conecta listeners.
+    /// 3. Muestra el panel de introducción con una animación de fade-in y programa su avance automático 
+    ///     después de un delay configurable.
+    /// 4. Al avanzar desde el panel de introducción (ya sea por avance automático o por click en el botón), 
+    ///     se muestra el mensaje de inicio de tutorial con otra animación de fade-in, se mantiene visible por 
+    ///     un tiempo configurable, y luego se oculta con un fade-out.
+    /// 5. Al completar la secuencia, se invoca el callback onCompleted para notificar al manager global que el 
+    ///     onboarding ha terminado y se puede iniciar el nivel.
+    /// </summary>
     private void ResolveDocuments()
     {
         if (!autoFindDocuments) return;
@@ -130,6 +141,11 @@ public class StartupOnboardingController : MonoBehaviour
             Debug.LogWarning("[StartupOnboarding] Intro y MsgTutorialStart comparten el mismo UIDocument. Para evitar solapamientos usa documentos separados.");
     }
 
+    /// <summary>
+    /// 1. Busca los elementos clave dentro de cada UIDocument (root, botones) y los asigna a variables locales.
+    /// 2. Conecta listeners a los botones para manejar interacciones del usuario (ej. avanzar desde el panel de introducción).
+    /// 
+    /// </summary>
     private void CacheElements()
     {
         if (_introContinueButton != null)

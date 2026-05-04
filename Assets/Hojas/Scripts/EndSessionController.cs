@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +15,9 @@ using DG.Tweening;
 ///   3. Pide al usuario que ingrese un apodo
 ///   4. Al presionar "Guardar", guarda todo en el JSON y cierra el panel
 ///
+/// Todos los eventos se publican al GameEventBus para que los listeners
+/// (narración, analytics, etc.) los escuchen sin acoplamiento directo.
+///
 /// Como configurar en Unity:
 ///   - endPanel:              el panel raiz (desactivado al inicio)
 ///   - congratsLabel:         texto de felicitaciones
@@ -28,10 +31,6 @@ using DG.Tweening;
 /// </summary>
 public class EndSessionController : MonoBehaviour
 {
-    public static event Action EndPanelShown;
-    public static event Action<bool> SaveCompleted;
-    public static event Action ReturningToMenu;
-
     public static EndSessionController Instance { get; private set; }
 
     [Header("Panel raiz")]
@@ -126,7 +125,7 @@ public class EndSessionController : MonoBehaviour
 
         FillUI(_pendingResult);
         endPanel.SetActive(true);
-        EndPanelShown?.Invoke();
+        GameEventBus.PublishEndPanelShown();
 
         if (nicknameInput != null) nicknameInput.text = "";
         if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
@@ -269,7 +268,7 @@ public class EndSessionController : MonoBehaviour
             Debug.Log($"[EndSession] Datos guardados para: {nickname}");
             if (saveButtonLabel != null) saveButtonLabel.text = "¡Guardado!";
             saveButton.interactable = false;
-            SaveCompleted?.Invoke(true);
+            GameEventBus.PublishSaveCompleted(true);
             GameEventBus.PublishSessionEnded();
             ReturnToMenu();
         }
@@ -277,13 +276,13 @@ public class EndSessionController : MonoBehaviour
         {
             Debug.LogWarning("[EndSession] No se pudo guardar la sesion.");
             if (saveButtonLabel != null) saveButtonLabel.text = "Error al guardar";
-            SaveCompleted?.Invoke(false);
+            GameEventBus.PublishSaveCompleted(false);
         }
     }
 
     private void ReturnToMenu()
     {
-        ReturningToMenu?.Invoke();
+        GameEventBus.PublishReturningToMenu();
 
         // Pequeña pausa, luego escala el endPanel a cero y lo desactiva
         endPanel.transform.DOKill();
@@ -299,7 +298,7 @@ public class EndSessionController : MonoBehaviour
                 if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
                 _pendingResult = null;
 
-                SceneInteractionManager.Instance?.PrepareForNextSession();
+                GameEventBus.PublishReturnToMenuRequested();
                 ShowMainMenu();
             });
     }

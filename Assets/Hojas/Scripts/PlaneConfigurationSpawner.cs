@@ -12,25 +12,27 @@ namespace Meta.XR.MRUtilityKit
     /// Sistema especializado para spawnear planos azules con olas sobre superficies detectadas por el MRUtilityKit.
     /// 
     /// Funcionalidades principales:
-    /// 1. Hereda de AnchorPrefabSpawner para integración con el sistema de MRUtilityKit
-    /// 2. Implementa lógica personalizada para escalado y alineación de prefabs de planos
+    /// 1. Hereda de AnchorPrefabSpawner para integracion con el sistema de MRUtilityKit
+    /// 2. Implementa logica personalizada para escalado y alineacion de prefabs de planos
     /// 3. Mantiene la altura original del plano mientras ajusta ancho y profundidad al volumen del anchor
-    /// 4. Posiciona los planos con una separación vertical configurable para evitar clipping
+    /// 4. Posiciona los planos con una separacion vertical configurable para evitar clipping
     /// 
-    /// Uso típico:
+    /// Uso tpico:
     /// - Detecta superficies planas en el entorno de realidad mixta
     /// - Spawnea planos sobre la CARA SUPERIOR de estas superficies
-    /// - Ajusta automáticamente el tamaño del plano al tamaño de la superficie detectada
-    /// - Mantiene una separación vertical para evitar problemas de z-fighting
+    /// - Ajusta automaticamente el tamao del plano al tamao de la superficie detectada
+    /// - Mantiene una separacion vertical para evitar problemas de z-fighting
     /// 
-    /// Configuración:
+    /// Configuracion:
     /// - El prefab debe ser un plano orientado horizontalmente
-    /// - SeparaciónVertical controla la distancia entre el plano y la superficie real
-    /// - Las escalas X y Z se ajustan automáticamente al volumen del anchor
+    /// - SeparacionVertical controla la distancia entre el plano y la superficie real
+    /// - Las escalas X y Z se ajustan automaticamente al volumen del anchor
     /// </summary>
     public class PlaneConfigurationSpawner : AnchorPrefabSpawner
     {
         public float SeparacionVertical = 0.1f;
+
+        
         /// <summary>
         /// Custom logic for scaling a prefab's volume. Scales the prefab to match the volume's width and depth,
         /// while maintaining the prefab's original height.
@@ -46,15 +48,15 @@ namespace Meta.XR.MRUtilityKit
         }
 
         /// <summary>
-        /// Custom logic for aligning a prefab within a volume. Positions the prefab on top of the volume,
-        /// aligned with its upper surface.
+        /// Logica personalizada para alinear el prefab sobre el volumen del anchor. Posiciona el prefab centrado en X y Y,
+        /// y con una separacion vertical configurable en Z para evitar clipping con la superficie real.
         /// </summary>
-        /// <param name="anchorVolumeBounds">The bounds of the anchor volume.</param>
-        /// <param name="prefabBounds">The optional bounds of the prefab.</param>
-        /// <returns>The position vector placing the prefab on top of the volume.</returns>
+        /// <param name="anchorVolumeBounds">El volumen del anchor.</param>
+        /// <param name="prefabBounds">Las limites del prefab.</param>
+        /// <returns>La posicion del prefab.</returns>
         public override Vector3 CustomPrefabAlignment(Bounds anchorVolumeBounds, Bounds? prefabBounds)
         {
-            // Posición base: centro del volumen en X y Y
+            // Posicion base: centro del volumen en X y Y
             return new Vector3(
                 anchorVolumeBounds.center.x,
                 anchorVolumeBounds.center.y,
@@ -64,9 +66,9 @@ namespace Meta.XR.MRUtilityKit
 
         /// <summary>
         /// Expone el spawn de prefabs para poder llamarlo desde SceneInteractionManager
-        /// cuando el usuario presiona "Iniciar" en el menú principal.
+        /// cuando el usuario presiona "Iniciar" en el menu principal.
         /// </summary>
-        /// <param name="room">La habitación para la cual se spawnearán los prefabs.</param>
+        /// <param name="room">La habitacion para la cual se spawnearon los prefabs.</param>
         public void SpawnForRoom(MRUKRoom room)
         {
             SpawnPrefabs(room);

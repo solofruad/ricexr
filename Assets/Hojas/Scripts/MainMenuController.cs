@@ -8,13 +8,18 @@ using DG.Tweening;
 ///
 /// Controla la pantalla de inicio. El leaderboard siempre esta visible.
 /// Solo tiene un boton: "Iniciar Pruebas".
+///
 /// Flujo al presionar iniciar:
-///   1. WaitForStartSignal() en SceneInteractionManager (spawnea planos MR)
-///   2. Oculta el panel del menu principal
-///   3. El tutorial visual inicia al seleccionar el plano y completar onboarding
+///   1. Publica SessionStartRequested al GameEventBus
+///   2. Oculta el panel del menu principal con animación
+///   3. GameFlowController escucha el evento y orquesta el flujo
 /// </summary>
 public class MainMenuController : MonoBehaviour
 {
+    /// <summary>
+    /// Evento legacy — mantenido para compatibilidad con GameNarrationController.
+    /// Se emite junto con GameEventBus.PublishSessionStartRequested().
+    /// </summary>
     public static event Action StartFlowRequested;
 
     [Header("Paneles")]
@@ -24,7 +29,6 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Button startButton;
 
     [Header("Referencias")]
-    [SerializeField] private SceneInteractionManager sceneInteractionManager;
     [SerializeField] private LeaderboardController leaderboardController;
 
     [Header("Animacion")]
@@ -55,13 +59,8 @@ public class MainMenuController : MonoBehaviour
         if (startButton != null)
             startButton.interactable = false;
 
-        if (sceneInteractionManager != null)
-        {
-            sceneInteractionManager.PrepareForNextSession();
-            sceneInteractionManager.WaitForStartSignal();
-        }
-        else
-            Debug.LogWarning("[MainMenu] No se encontro SceneInteractionManager.");
+        // Publicar al bus — GameFlowController escucha esto y orquesta todo
+        GameEventBus.PublishSessionStartRequested();
 
         if (mainMenuPanel != null)
         {
@@ -72,6 +71,7 @@ public class MainMenuController : MonoBehaviour
                 .OnComplete(() => mainMenuPanel.SetActive(false));
         }
 
+        // Legacy: mantener evento estático para GameNarrationController
         StartFlowRequested?.Invoke();
     }
 

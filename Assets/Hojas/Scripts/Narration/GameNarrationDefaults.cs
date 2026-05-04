@@ -100,7 +100,7 @@ public static class GameNarrationDefaults
             new NarrationLineEntry
             {
                 id = GameNarrationLineIds.TutorialSelectSeverity,
-                text = "Ahora selecciona la severidad segun el dano visible en la hoja.",
+                text = "Ahora selecciona la severidad segun el daño visible en la hoja.",
                 oncePerSession = true
             },
             new NarrationLineEntry

@@ -28,7 +28,7 @@ using UnityEngine;
 /// </summary>
 public class PlayerProximityDetector : MonoBehaviour
 {
-    [Header("Detecci�n del Player")]
+    [Header("Deteccion del Player")]
     [Tooltip("Layer asignado al jugador")]
     [SerializeField] private LayerMask playerMask;
     [Tooltip("Tag del jugador (opcional)")]

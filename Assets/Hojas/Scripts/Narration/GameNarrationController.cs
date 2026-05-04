@@ -9,6 +9,19 @@ using UnityEngine;
 /// - Un solo controlador (alta cohesion) escucha eventos de flujo.
 /// - TTSSpeaker se usa como detalle de infraestructura desacoplado de la logica.
 /// - Textos vienen de biblioteca configurable; si falta, usa defaults offline.
+///
+/// Post-refactor:
+/// - Escucha EXCLUSIVAMENTE el GameEventBus para todos los eventos de flujo.
+/// - Los eventos de onboarding y tutorial vienen del bus (OnOnboardingStarted,
+///   OnTutorialStarted, OnTutorialCompleted, etc.).
+/// - Los eventos de EndSession vienen del bus (OnEndPanelShown, OnSaveCompleted,
+///   OnReturningToMenu).
+/// - Ya NO se enlaza directamente a StartupOnboardingController ni
+///   TutorialPanelController.
+///
+/// Para narración granular del tutorial (actos, fases guiadas), se mantiene
+/// binding opcional a los instance events de TutorialPanelController, ya que
+/// esos detalles de granularidad fina no pasan por el bus global.
 /// </summary>
 [DisallowMultipleComponent]
 public class GameNarrationController : MonoBehaviour
@@ -16,7 +29,10 @@ public class GameNarrationController : MonoBehaviour
     [Header("Dependencias")]
     [SerializeField] private TTSSpeaker ttsSpeaker;
     [SerializeField] private NarrationLineLibrary lineLibrary;
-    [SerializeField] private StartupOnboardingController startupOnboardingController;
+
+    [Header("Binding opcional (granularidad fina del tutorial)")]
+    [Tooltip("Solo para eventos de actos del tutorial (GrabLeaf, ObserveLeaf, etc.). " +
+             "Los eventos de inicio/fin del tutorial vienen del bus.")]
     [SerializeField] private TutorialPanelController tutorialPanelController;
 
     [Header("Comportamiento")]
@@ -31,7 +47,6 @@ public class GameNarrationController : MonoBehaviour
     private readonly HashSet<int> _errorGuidedLevels = new HashSet<int>();
     private readonly Dictionary<string, NarrationLineEntry> _fallbackLines = new Dictionary<string, NarrationLineEntry>();
 
-    private StartupOnboardingController _boundStartupOnboardingController;
     private TutorialPanelController _boundTutorialPanelController;
 
     private int _currentLevelIndex = -1;
@@ -62,9 +77,6 @@ public class GameNarrationController : MonoBehaviour
         if (ttsSpeaker == null)
             ttsSpeaker = GetComponent<TTSSpeaker>() ?? FindObjectOfType<TTSSpeaker>(true);
 
-        if (startupOnboardingController == null)
-            startupOnboardingController = FindObjectOfType<StartupOnboardingController>(true);
-
         if (tutorialPanelController == null)
             tutorialPanelController = FindObjectOfType<TutorialPanelController>(true);
     }
@@ -85,112 +97,94 @@ public class GameNarrationController : MonoBehaviour
 
     private void SubscribeEvents()
     {
-        MainMenuController.StartFlowRequested += HandleStartFlowRequested;
-        BindOptionalControllerEvents();
+        // Sesión / Flujo — todo via bus
+        GameEventBus.OnSessionStartRequested += HandleStartFlowRequested;
+        GameEventBus.OnOnboardingStarted += HandleOnboardingStarted;
+        GameEventBus.OnTutorialStarted += HandleTutorialStarted;
+        GameEventBus.OnTutorialCompleted += HandleTutorialCompleted;
 
+        // Gameplay — via bus
         GameEventBus.OnLevelStarted += HandleLevelStarted;
         GameEventBus.OnPlantSelected += HandlePlantSelected;
         GameEventBus.OnLevelCompleted += HandleLevelCompleted;
         GameEventBus.OnAllLevelsCompleted += HandleAllLevelsCompleted;
 
-        EndSessionController.EndPanelShown += HandleEndPanelShown;
-        EndSessionController.SaveCompleted += HandleSaveCompleted;
-        EndSessionController.ReturningToMenu += HandleReturningToMenu;
+        // End session — via bus
+        GameEventBus.OnEndPanelShown += HandleEndPanelShown;
+        GameEventBus.OnSaveCompleted += HandleSaveCompleted;
+        GameEventBus.OnReturningToMenu += HandleReturningToMenu;
+
+        // Granularidad fina del tutorial — binding opcional
+        BindTutorialActEvents();
     }
 
     private void UnsubscribeEvents()
     {
-        MainMenuController.StartFlowRequested -= HandleStartFlowRequested;
-        UnbindOptionalControllerEvents();
+        GameEventBus.OnSessionStartRequested -= HandleStartFlowRequested;
+        GameEventBus.OnOnboardingStarted -= HandleOnboardingStarted;
+        GameEventBus.OnTutorialStarted -= HandleTutorialStarted;
+        GameEventBus.OnTutorialCompleted -= HandleTutorialCompleted;
 
         GameEventBus.OnLevelStarted -= HandleLevelStarted;
         GameEventBus.OnPlantSelected -= HandlePlantSelected;
         GameEventBus.OnLevelCompleted -= HandleLevelCompleted;
         GameEventBus.OnAllLevelsCompleted -= HandleAllLevelsCompleted;
 
-        EndSessionController.EndPanelShown -= HandleEndPanelShown;
-        EndSessionController.SaveCompleted -= HandleSaveCompleted;
-        EndSessionController.ReturningToMenu -= HandleReturningToMenu;
+        GameEventBus.OnEndPanelShown -= HandleEndPanelShown;
+        GameEventBus.OnSaveCompleted -= HandleSaveCompleted;
+        GameEventBus.OnReturningToMenu -= HandleReturningToMenu;
+
+        UnbindTutorialActEvents();
     }
 
-    private void BindOptionalControllerEvents()
+    private void BindTutorialActEvents()
     {
-        if (startupOnboardingController != null && _boundStartupOnboardingController != startupOnboardingController)
-        {
-            if (_boundStartupOnboardingController != null)
-            {
-                _boundStartupOnboardingController.IntroPanelShown -= HandleIntroPanelShown;
-                _boundStartupOnboardingController.IntroContinueRequested -= HandleIntroContinueRequested;
-            }
-
-            _boundStartupOnboardingController = startupOnboardingController;
-            _boundStartupOnboardingController.IntroPanelShown += HandleIntroPanelShown;
-            _boundStartupOnboardingController.IntroContinueRequested += HandleIntroContinueRequested;
-        }
-
         if (tutorialPanelController != null && _boundTutorialPanelController != tutorialPanelController)
         {
             if (_boundTutorialPanelController != null)
             {
-                _boundTutorialPanelController.TutorialStarted -= HandleTutorialStarted;
                 _boundTutorialPanelController.GuidedPhaseCompleted -= HandleTutorialGuidedPhaseCompleted;
                 _boundTutorialPanelController.TutorialActChanged -= HandleTutorialActChanged;
-                _boundTutorialPanelController.TutorialCompleted -= HandleTutorialCompleted;
             }
 
             _boundTutorialPanelController = tutorialPanelController;
-            _boundTutorialPanelController.TutorialStarted += HandleTutorialStarted;
             _boundTutorialPanelController.GuidedPhaseCompleted += HandleTutorialGuidedPhaseCompleted;
             _boundTutorialPanelController.TutorialActChanged += HandleTutorialActChanged;
-            _boundTutorialPanelController.TutorialCompleted += HandleTutorialCompleted;
         }
     }
 
-    private void UnbindOptionalControllerEvents()
+    private void UnbindTutorialActEvents()
     {
-        if (_boundStartupOnboardingController != null)
-        {
-            _boundStartupOnboardingController.IntroPanelShown -= HandleIntroPanelShown;
-            _boundStartupOnboardingController.IntroContinueRequested -= HandleIntroContinueRequested;
-            _boundStartupOnboardingController = null;
-        }
-
         if (_boundTutorialPanelController != null)
         {
-            _boundTutorialPanelController.TutorialStarted -= HandleTutorialStarted;
             _boundTutorialPanelController.GuidedPhaseCompleted -= HandleTutorialGuidedPhaseCompleted;
             _boundTutorialPanelController.TutorialActChanged -= HandleTutorialActChanged;
-            _boundTutorialPanelController.TutorialCompleted -= HandleTutorialCompleted;
             _boundTutorialPanelController = null;
         }
     }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // Handlers
+    // ═══════════════════════════════════════════════════════════════════════
+
     private void HandleStartFlowRequested()
     {
         ResolveDependencies();
-        BindOptionalControllerEvents();
-
-        if (_boundStartupOnboardingController == null)
-            Debug.LogWarning("[Narration] StartupOnboardingController no enlazado. La narracion del onboarding no se ejecutara.");
+        BindTutorialActEvents();
 
         if (_boundTutorialPanelController == null)
-            Debug.LogWarning("[Narration] TutorialPanelController no enlazado. La narracion del tutorial no se ejecutara.");
+            Debug.LogWarning("[Narration] TutorialPanelController no enlazado. La narracion de actos del tutorial no se ejecutara.");
 
         ResetSessionState();
         _sessionActive = true;
         SpeakLine(GameNarrationLineIds.StartSelectPlane, true);
     }
 
-    private void HandleIntroPanelShown()
+    private void HandleOnboardingStarted()
     {
         SpeakSequence(true,
             GameNarrationLineIds.OnboardingOverview,
             GameNarrationLineIds.OnboardingContinue);
-    }
-
-    private void HandleIntroContinueRequested()
-    {
-        StopNarration();
     }
 
     private void HandleTutorialStarted()
@@ -375,6 +369,10 @@ public class GameNarrationController : MonoBehaviour
         SpeakLine(GameNarrationLineIds.ReturnMenu, true);
         _sessionActive = false;
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TTS internals
+    // ═══════════════════════════════════════════════════════════════════════
 
     private void SpeakFirstErrorOnlyForCurrentLevel()
     {
