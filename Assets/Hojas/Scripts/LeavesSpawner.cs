@@ -4,27 +4,27 @@ using System.Collections.Generic;
 using DG.Tweening;
 
 /// <summary>
-/// Clase que gestiona la generación y animación de hojas en un área definida.
+/// Clase que gestiona la generacion y animacion de hojas en un area definida.
 /// 
 /// Funcionalidades principales:
-/// 1. Genera múltiples instancias de prefabs de hojas dentro de un área rectangular personalizable
+/// 1. Genera multiples instancias de prefabs de hojas dentro de un area rectangular personalizable
 /// 2. Implementa un sistema de spawn progresivo con animaciones de crecimiento 
-/// 3. Aplica variaciones aleatorias en posición, rotación, escala y tiempos de animación
-/// 4. Proporciona controles de optimización mediante el uso de un contenedor padre organizado
-/// 5. Incluye capacidad de respawn y regeneración de toda la vegetación
+/// 3. Aplica variaciones aleatorias en posicion, rotacion, escala y tiempos de animacion
+/// 4. Proporciona controles de optimizacion mediante el uso de un contenedor padre organizado
+/// 5. Incluye capacidad de respawn y regeneracion de toda la vegetacion
 /// 
 /// Flujo de trabajo:
-/// - Al activarse, genera posiciones aleatorias dentro del área de spawn definida por SpawnAreaSize
-/// - Crea instancias de los prefabs de vegetación pero las inicializa con escala cero (invisibles)
+/// - Al activarse, genera posiciones aleatorias dentro del area de spawn definida por SpawnAreaSize
+/// - Crea instancias de los prefabs de vegetacion pero las inicializa con escala cero (invisibles)
 /// - Programa un sistema de delay escalonado para el inicio de las animaciones
 /// - Ejecuta animaciones de crecimiento suaves usando DOTween con AnimationCurve como ease
-/// - Mantiene una lista interna de todas las instancias para permitir su gestión centralizada
+/// - Mantiene una lista interna de todas las instancias para permitir su gestion centralizada
 /// 
 /// Notas importantes:
-/// - El área de spawn se rota según la rotación del GameObject padre
+/// - El area de spawn se rota segun la rotacion del GameObject padre
 /// - Las animaciones usan variaciones aleatorias para evitar patrones repetitivos
 /// - El sistema es eficiente al crear todas las instancias al inicio y luego solo animarlas
-/// - Incluye visualización del área de spawn en el editor mediante Gizmos
+/// - Incluye visualizacion del area de spawn en el editor mediante Gizmos
 /// </summary>
 public class LeavesSpawner : MonoBehaviour
 {
@@ -112,7 +112,7 @@ public class LeavesSpawner : MonoBehaviour
                 .DOScale(finalScale, instanceGrowDuration)
                 .SetDelay(spawnDelay)
                 .SetEase(growCurve)
-                .OnComplete(() => Debug.Log("Hoja creció completamente."));
+                .OnComplete(() => Debug.Log("Hoja creciï¿½ completamente."));
         }
 
         yield return null;
@@ -129,7 +129,7 @@ public class LeavesSpawner : MonoBehaviour
         {
             attempts++;
 
-            // Se calcula el área efectiva restando el margen a cada lado
+            // Se calcula el ï¿½rea efectiva restando el margen a cada lado
             float effectiveWidthX = Mathf.Max(0, SpawnAreaSize.x - (safeMargin * 2));
             float effectiveWidthZ = Mathf.Max(0, SpawnAreaSize.y - (safeMargin * 2));
 

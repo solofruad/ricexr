@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -9,8 +8,8 @@ using TMPro;
 ///
 /// Lee todas las sesiones guardadas en el JSON y llena una lista UI.
 ///
-/// Cómo configurar el prefab de fila (entryPrefab):
-///   Pon TextMeshProUGUI con estos NOMBRES exactos en cualquier lugar de la jerarquía:
+/// Como configurar el prefab de fila (entryPrefab):
+///   Pon TextMeshProUGUI con estos NOMBRES exactos en cualquier lugar de la jerarquia:
 ///     "NicknameText"   ? apodo del usuario
 ///     "DateText"       ? fecha/hora
 ///     "TotalTimeText"  ? tiempo total
@@ -18,12 +17,12 @@ using TMPro;
 ///     "AvgTimeText"    ? tiempo promedio por nivel
 ///
 ///   El layout interno del prefab es libre (columnas, cards, etc.).
-///   El script busca los campos por nombre, no por índice.
+///   El script busca los campos por nombre, no por indice.
 /// </summary>
 public class LeaderboardController : MonoBehaviour
 {
     [Header("UI References")]
-    [Tooltip("Transform padre donde se instanciarán las filas (Content del ScrollView)")]
+    [Tooltip("Transform padre donde se instanciaran las filas (Content del ScrollView)")]
     [SerializeField] private Transform entryContainer;
 
     [Tooltip("Prefab de una fila del leaderboard")]
@@ -82,7 +81,7 @@ public class LeaderboardController : MonoBehaviour
         GameObject row = Instantiate(entryPrefab, entryContainer);
 
         SetText(row, NUMBER_OBJ,    $"{rank}");
-        SetText(row, NICKNAME_OBJ,  string.IsNullOrEmpty(session.nickname) ? "—" : session.nickname);
+        SetText(row, NICKNAME_OBJ,  string.IsNullOrEmpty(session.nickname) ? ": " : session.nickname);
         SetText(row, DATE_OBJ,      session.dateTime);
         SetText(row, TOTALTIME_OBJ, FormatTime(session.totalTimeSeconds));
         SetText(row, FAILURES_OBJ,  session.totalFailures.ToString());
@@ -91,14 +90,14 @@ public class LeaderboardController : MonoBehaviour
 
     /// <summary>
     /// Busca un hijo (a cualquier profundidad) con el nombre dado y le asigna el texto.
-    /// Muestra warning si no lo encuentra, para facilitar la configuración del prefab.
+    /// Muestra warning si no lo encuentra, para facilitar la configuracion del prefab.
     /// </summary>
     private void SetText(GameObject root, string objectName, string value)
     {
         Transform found = FindDeep(root.transform, objectName);
         if (found == null)
         {
-            Debug.LogWarning($"[Leaderboard] No se encontró '{objectName}' en el prefab de fila.");
+            Debug.LogWarning($"[Leaderboard] No se encontro '{objectName}' en el prefab de fila.");
             return;
         }
 
@@ -112,7 +111,7 @@ public class LeaderboardController : MonoBehaviour
         tmp.text = value;
     }
 
-    /// <summary>Búsqueda recursiva de un Transform por nombre.</summary>
+    /// <summary>Busqueda recursiva de un Transform por nombre.</summary>
     private Transform FindDeep(Transform parent, string name)
     {
         if (parent.name == name) return parent;

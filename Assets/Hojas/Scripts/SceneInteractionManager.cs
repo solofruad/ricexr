@@ -6,7 +6,7 @@ using DG.Tweening;
 /// <summary>
 /// SCENE INTERACTION MANAGER — SOLO SPAWN/DESPAWN DE NIVELES
 ///
-/// Después del refactor, este componente:
+/// Este componente:
 ///   - Construye y mantiene la lista de niveles (LevelConfig).
 ///   - Spawnea y destruye las instancias de nivel (prefabs + hojas).
 ///   - Expone helpers de consulta (índice actual, progreso, etc.).
@@ -34,12 +34,6 @@ public class SceneInteractionManager : MonoBehaviour
     [SerializeField] private Transform spawnParent;
     [SerializeField] private int currentLevelIndex = 0;
 
-    [Header("Compatibilidad Legacy")]
-    [Tooltip("Solo respaldo. Si levelConfigs está vacío se usan estos prefabs con 1 planta requerida.")]
-    [SerializeField] private List<GameObject> prefabsToSpawn = new List<GameObject>();
-
-    [Header("Animation Settings")]
-    [SerializeField] private float scaleDuration = 0.5f;
 
     private readonly List<LevelConfig> _runtimeLevels = new List<LevelConfig>();
 
@@ -244,12 +238,6 @@ public class SceneInteractionManager : MonoBehaviour
         {
             Debug.Log($"[BuildRuntimeLevels] Total niveles cargados: {_runtimeLevels.Count}");
             return;
-        }
-        
-        foreach (var prefab in prefabsToSpawn)
-        {
-            if (prefab == null) continue;
-            _runtimeLevels.Add(new LevelConfig { levelPrefab = prefab, plantsRequired = 1 });
         }
     }
 

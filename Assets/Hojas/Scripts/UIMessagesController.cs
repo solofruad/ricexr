@@ -21,13 +21,6 @@ public class UIMessagesController : MonoBehaviour
     [SerializeField] private float fadeOutDuration = 0.2f;
     [SerializeField] private float progressVisibleDuration = 2.5f;
 
-    [Header("World Space")]
-    [SerializeField] private float distanceFromCamera = 1.3f;
-    [SerializeField] private Vector3 baseOffset = Vector3.zero;
-    [SerializeField] private Vector3 progressOffset = new Vector3(0f, -0.08f, 0f);
-    [SerializeField] private Vector3 nextLevelOffset = new Vector3(0f, 0.12f, 0f);
-    [SerializeField] private Vector3 congratsOffset = new Vector3(0f, 0.10f, 0f);
-    [SerializeField] private Vector3 finalLevelOffset = new Vector3(0f, 0.12f, 0f);
 
     [Header("Anclaje sobre superficie")]
     [SerializeField] private float surfaceHeightOffset = 0.22f;
@@ -83,7 +76,7 @@ public class UIMessagesController : MonoBehaviour
         EnsureProgressDots(total);
         UpdateProgressDots(current);
 
-        PlaceDoc(docProgress, progressOffset);
+        PlaceDoc(docProgress, Vector3.zero);
         ShowPanel(_rootProgress);
 
         _progressAutoHideTween?.Kill();
@@ -96,21 +89,21 @@ public class UIMessagesController : MonoBehaviour
     public void ShowCongrats(string subtitle = null)
     {
         if (subtitle != null) _rootCongrats?.Q<Label>("congrats-subtitle").SetText(subtitle);
-        PlaceDoc(docCongrats, congratsOffset);
+        PlaceDoc(docCongrats, Vector3.zero);
         ShowPanel(_rootCongrats);
     }
 
     public void ShowNextLevel(string subtitle = null)
     {
         if (subtitle != null) _rootNextLevel?.Q<Label>("nextlevel-sub").SetText(subtitle);
-        PlaceDoc(docNextLevel, nextLevelOffset);
+        PlaceDoc(docNextLevel, Vector3.zero);
         ShowPanel(_rootNextLevel);
     }
 
     public void ShowFinalLevel(string description = null)
     {
         if (description != null) _rootFinalLevel?.Q<Label>("final-description").SetText(description);
-        PlaceDoc(docFinalLevel, finalLevelOffset);
+        PlaceDoc(docFinalLevel, Vector3.zero);
         ShowPanel(_rootFinalLevel);
     }
 
@@ -246,7 +239,7 @@ public class UIMessagesController : MonoBehaviour
         Vector3 fwd = cam.forward; fwd.y = 0f;
         if (fwd.sqrMagnitude < 0.0001f) fwd = cam.forward;
         doc.gameObject.transform.position =
-            cam.position + fwd.normalized * distanceFromCamera + baseOffset + offset;
+            cam.position + fwd.normalized;
     }
 }
 

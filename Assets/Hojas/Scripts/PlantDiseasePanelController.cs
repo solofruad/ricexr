@@ -67,10 +67,6 @@ public class PlantDiseasePanelController : MonoBehaviour
         HideImmediate();
     }
 
-    private void LateUpdate()
-    {
-    }
-
     private void OnDestroy()
     {
         _progressTween?.Kill();
@@ -79,9 +75,7 @@ public class PlantDiseasePanelController : MonoBehaviour
         StopCarousel();
     }
 
-    // ─────────────────────────────────────────────
-    // API pública
-    // ─────────────────────────────────────────────
+
 
     /// <summary>
     /// Muestra el panel con los datos de la enfermedad del nivel actual.
@@ -263,8 +257,10 @@ public class PlantDiseasePanelController : MonoBehaviour
         _progressLabel = _root.Q<Label>("progress-label");
         _dots = new[]
         {
-            _root.Q<VisualElement>("dot-0"), _root.Q<VisualElement>("dot-1"),
-            _root.Q<VisualElement>("dot-2"), _root.Q<VisualElement>("dot-3"),
+            _root.Q<VisualElement>("dot-0"), 
+            _root.Q<VisualElement>("dot-1"),
+            _root.Q<VisualElement>("dot-2"), 
+            _root.Q<VisualElement>("dot-3"),
         };
     }
 

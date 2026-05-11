@@ -34,10 +34,6 @@ public class StartupOnboardingController : MonoBehaviour
     [SerializeField] private float fadeOutDuration = 0.25f;
 
     [Header("World Space")]
-    [SerializeField] private float distanceFromCamera = 1.5f;
-    [SerializeField] private Vector3 baseOffset = Vector3.zero;
-    [SerializeField] private Vector3 introPanelOffset = Vector3.zero;
-    [SerializeField] private Vector3 tutorialStartPanelOffset = Vector3.zero;
     [SerializeField] private float surfaceHeightOffset = 0.28f;
 
     private VisualElement _introRoot;
@@ -276,8 +272,7 @@ public class StartupOnboardingController : MonoBehaviour
         if (SceneInteractionManager.Instance != null && SceneInteractionManager.Instance.HasSelectedPlane)
         {
             target = SceneInteractionManager.Instance.SelectedPlanePosition
-                     + (SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up) * surfaceHeightOffset
-                     + baseOffset;
+                     + (SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up) * surfaceHeightOffset;
         }
         else
         {
@@ -288,14 +283,14 @@ public class StartupOnboardingController : MonoBehaviour
             fwd.y = 0f;
             if (fwd.sqrMagnitude < 0.0001f) fwd = cam.forward;
 
-            target = cam.position + fwd.normalized * distanceFromCamera + baseOffset;
+            target = cam.position + fwd.normalized;
         }
 
         if (introDocument != null)
-            introDocument.transform.position = target + introPanelOffset;
+            introDocument.transform.position = target;
 
         if (tutorialStartDocument != null)
-            tutorialStartDocument.transform.position = target + tutorialStartPanelOffset;
+            tutorialStartDocument.transform.position = target;
     }
 
     private static void SetVisible(VisualElement element)
