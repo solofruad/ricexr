@@ -22,13 +22,27 @@ public class TutorialPanelController : MonoBehaviour
     public event Action TutorialCompleted;
 
     [Header("Referencias")]
-    [SerializeField] private UIDocument uiDocument;
+    [Tooltip("GameObject que contiene los 3 pasos juntos, visible en practica libre y completado.")]
+    [SerializeField] private GameObject allActsPanel;
 
-    [Header("Actos UXML (opcional)")]
-    [SerializeField] private VisualTreeAsset tutorialAct1Template;
-    [SerializeField] private VisualTreeAsset tutorialAct2Template;
-    [SerializeField] private VisualTreeAsset tutorialAct3Template;
-    [SerializeField] private bool verboseSplitActsLogs = true;
+    [Header("Paneles de acto guiado (GameObjects)")]
+    [Tooltip("Panel visual del acto 1: Tomar hoja.")]
+    [SerializeField] private GameObject actPanel1;
+    [Tooltip("Panel visual del acto 2: Observar síntomas.")]
+    [SerializeField] private GameObject actPanel2;
+    [Tooltip("Panel visual del acto 3: Diagnosticar.")]
+    [SerializeField] private GameObject actPanel3;
+
+    [Header("Resaltado de acto activo")]
+    [SerializeField] private Color activeBorderColor = new Color(0.27f, 0.85f, 0.55f, 1f);
+    [SerializeField] private Color inactiveBorderColor = new Color(1f, 1f, 1f, 0.12f);
+    [SerializeField] private float borderWidth = 3f;
+
+    [Header("Animacion de paneles")]
+    [Tooltip("Separacion local entre cada panel cuando hay mas de uno visible.")]
+    [SerializeField] private Vector3 panelOffset = new Vector3(0.32f, 0f, 0f);
+    [Tooltip("Duracion en segundos de la animacion de entrada/salida/reposicionamiento de paneles.")]
+    [SerializeField] private float panelAnimDuration = 0.35f;
 
     [Header("Actos guiados")]
     [Tooltip("Tiempo en segundos para pasar de observar a diagnosticar mientras la hoja sigue agarrada.")]
@@ -38,34 +52,15 @@ public class TutorialPanelController : MonoBehaviour
     [SerializeField] private float slideUpAmount = 0.25f;
     [SerializeField] private float slideUpDuration = 0.6f;
 
-
     [Header("Anclaje sobre superficie")]
     [SerializeField] private float surfaceHeightOffset = 0.28f;
-
-    private VisualElement _root;
-    private Label _titleLabel;
-    private VisualElement _stepsContainer;
-    private Label _step1Title;
-    private Label _step1Body;
-    private Label _step2Title;
-    private Label _step2Body;
-    private Label _step3Title;
-    private Label _step3Body;
-    private VisualElement _lightPanel;
-    private Label _lightTitle;
-    private Label _lightBody;
-    private VisualElement _progressFill;
-    private Label _progressLabel;
-    private Label _progressPercent;
-    private VisualElement _tutorialAct1Root;
-    private VisualElement _tutorialAct2Root;
-    private VisualElement _tutorialAct3Root;
-    private bool _splitActsReady;
-    private readonly List<VisualElement> _legacyStepBlocks = new List<VisualElement>();
 
     private Tween _fadeTween;
     private Tween _slideTween;
     private Tween _observeTween;
+
+    // Un tween de movimiento por panel para poder cancelarlos individualmente.
+    private readonly Tween[] _panelMoveTweens = new Tween[3];
 
     private bool _isVisible;
     private bool _levelStartRequested;
@@ -75,15 +70,14 @@ public class TutorialPanelController : MonoBehaviour
     private int _plantsRequired = 2;
     private TutorialGuidanceAct _currentAct = TutorialGuidanceAct.NONE;
 
-    private static readonly Color ActiveStepTitleColor = new Color(1f, 1f, 1f, 0.96f);
-    private static readonly Color CompletedStepTitleColor = new Color(0.67f, 0.9f, 0.73f, 0.96f);
-    private static readonly Color InactiveStepTitleColor = new Color(1f, 1f, 1f, 0.58f);
-    private static readonly Color ActiveStepBodyColor = new Color(1f, 1f, 1f, 0.62f);
-    private static readonly Color InactiveStepBodyColor = new Color(1f, 1f, 1f, 0.42f);
+    // Referencia ordenada a los paneles de acto para iterar facilmente.
+    private List<GameObject> _actPanels;
 
     private void Awake()
     {
-        CacheElements();
+        _actPanels = new List<GameObject> { actPanel1, actPanel2, actPanel3 };
+
+        // Ocultamos todo al inicio; ShowAndStart() se encarga de mostrar lo que corresponde.
         HideImmediate();
     }
 
@@ -101,113 +95,86 @@ public class TutorialPanelController : MonoBehaviour
         GrabbableLeafListener.SelectionCleared -= HandleLeafReleased;
         GameEventBus.OnPlantSelected -= HandlePlantSelected;
         GameEventBus.OnAllPlantsSelected -= HandleAllPlantsSelected;
-
         KillTweens();
     }
 
-    private void OnDestroy()
-    {
-        KillTweens();
-    }
+    private void OnDestroy() => KillTweens();
+
+    // ─── API pública ──────────────────────────────────────────────────────────
+
     /// <summary>
-    /// Muestra el panel y comienza el tutorial desde el primer acto. Si el panel ya esta visible,
-    /// simplemente reinicia el estado del tutorial y muestra el primer acto.
+    /// Muestra el panel y comienza el tutorial desde el primer acto.
     /// </summary>
     public void ShowAndStart()
     {
-        if (_root == null) return;
-
         KillTweens();
         ResetSessionState();
-
         RepositionPanel();
         _isVisible = true;
 
-        _fadeTween?.Kill();
-        _root.style.display = DisplayStyle.Flex;
-        _root.style.opacity = 0f;
-        float opacity = 0f;
-        _fadeTween = DOTween.To(
-            () => opacity,
-            v => { opacity = v; _root.style.opacity = v; },
-            1f, 0.4f
-        )
-        .SetEase(Ease.OutCubic)
-        .OnComplete(() =>
-        {
-            TutorialStarted?.Invoke();
-            GameEventBus.PublishTutorialStarted();
-            StartTutorialGameplayIfNeeded();
-            EnterAct(TutorialGuidanceAct.GRAB_LEAF, true);
-        });
+        if (allActsPanel != null) allActsPanel.SetActive(false);
+        HideAllActPanels();
+
+        TutorialStarted?.Invoke();
+        GameEventBus.PublishTutorialStarted();
+        StartTutorialGameplayIfNeeded();
+        EnterAct(TutorialGuidanceAct.GRAB_LEAF, true);
     }
 
+    /// <summary>
+    /// Oculta todo con fade y resetea el acto actual.
+    /// </summary>
     public void Hide()
     {
-        if (_root == null || !_isVisible) return;
+        if (!_isVisible) return;
 
         _observeTween?.Kill();
         _slideTween?.Kill();
 
-        float opacity = _root.resolvedStyle.opacity;
-        _fadeTween?.Kill();
-        _fadeTween = DOTween.To(
-            () => opacity,
-            v => { opacity = v; _root.style.opacity = v; },
-            0f, 0.25f
-        )
-        .SetEase(Ease.InQuad)
-        .OnComplete(() =>
+        // Fade out de todos los paneles activos y del allActsPanel si estuviera visible.
+        FadeOutAllActPanels(() =>
         {
-            _root.style.display = DisplayStyle.None;
+            HideAllActPanels();
+            if (allActsPanel != null) allActsPanel.SetActive(false);
             _isVisible = false;
             _currentAct = TutorialGuidanceAct.NONE;
         });
     }
 
-    private void StartTutorialGameplayIfNeeded()
-    {
-        if (_levelStartRequested) return;
-        _levelStartRequested = true;
+    // ─── Handlers de eventos ──────────────────────────────────────────────────
 
-        // El flujo de iniciar el primer nivel es responsabilidad de GameFlowController,
-        // que escucha OnTutorialCompleted del bus. Aquí solo notificamos que el
-        // gameplay del tutorial está listo para comenzar.
+    /// <summary>
+    /// Avanza el acto cuando el usuario agarra una hoja durante la fase guiada.
+    /// </summary>
+    private void HandleLeafSelected(Leaf leaf, GrabbableLeafListener.SelectionHand hand, Transform anchor)
+    {
+        if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted || leaf == null) return;
+
+        if (_currentAct == TutorialGuidanceAct.GRAB_LEAF)
+            EnterAct(TutorialGuidanceAct.OBSERVE_LEAF);
+        else if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF)
+            StartObserveTimer();
     }
 
     /// <summary>
-    /// 1. Maneja la logica de transicion entre actos del tutorial basada en las interacciones del usuario con las hojas y plantas.
+    /// Regresa al acto de agarrar hoja si el usuario la suelta antes de diagnosticar.
+    /// El panel 1 vuelve al centro y los paneles 2 y 3 se ocultan.
     /// </summary>
-    /// <param name="leaf"></param>
-    /// <param name="hand"></param>
-    /// <param name="anchor"></param>
-    private void HandleLeafSelected(Leaf leaf, GrabbableLeafListener.SelectionHand hand, Transform anchor)
-    {
-        if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
-        if (leaf == null) return;
-
-        if (_currentAct == TutorialGuidanceAct.GRAB_LEAF)
-        {
-            EnterAct(TutorialGuidanceAct.OBSERVE_LEAF);
-            return;
-        }
-
-        if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF)
-        {
-            StartObserveTimer();
-        }
-    }
-
     private void HandleLeafReleased(Leaf leaf)
     {
         if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
 
         if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF || _currentAct == TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
-        {
             EnterAct(TutorialGuidanceAct.GRAB_LEAF, true);
-        }
     }
 
+    /// <summary>
+    /// Avanza o completa el tutorial segun el resultado de la seleccion de planta.
+    /// Durante la fase guiada, cualquier seleccion correcta completa dicha fase y
+    /// lanza practica libre o completado segun las plantas restantes. Si la seleccion
+    /// es incorrecta, se vuelve al acto de diagnosticar. Una vez en practica libre,
+    /// solo las selecciones correctas hacen avanzar el tutorial.
+    /// </summary>
     private void HandlePlantSelected(bool isCorrect, int plantsSelected, int plantsRequired)
     {
         if (!_isVisible || _tutorialFullyCompleted) return;
@@ -224,46 +191,47 @@ public class TutorialPanelController : MonoBehaviour
                 GuidedPhaseCompleted?.Invoke();
 
                 int remaining = Mathf.Max(0, _plantsRequired - _plantsSelected);
-                if (remaining > 0)
-                {
-                    EnterAct(TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF, true);
-                }
-                else
-                {
-                    EnterAct(TutorialGuidanceAct.COMPLETED, true);
-                    CompleteTutorial();
-                }
+                EnterAct(remaining > 0
+                    ? TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF
+                    : TutorialGuidanceAct.COMPLETED, true);
 
-                return;
+                if (remaining == 0) CompleteTutorial();
             }
-
-            EnterAct(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF, true);
+            else
+            {
+                EnterAct(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF, true);
+            }
             return;
         }
 
         if (isCorrect)
         {
             int remaining = Mathf.Max(0, _plantsRequired - _plantsSelected);
-            if (remaining > 0)
-            {
-                EnterAct(TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF, true);
-            }
-            else
-            {
-                EnterAct(TutorialGuidanceAct.COMPLETED, true);
-                CompleteTutorial();
-            }
+            EnterAct(remaining > 0
+                ? TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF
+                : TutorialGuidanceAct.COMPLETED, true);
+
+            if (remaining == 0) CompleteTutorial();
         }
     }
 
+    /// <summary>
+    /// Completa el tutorial cuando el usuario ha seleccionado correctamente todas las plantas requeridas.
+    /// </summary>
     private void HandleAllPlantsSelected()
     {
         if (!_isVisible || _tutorialFullyCompleted) return;
-
         EnterAct(TutorialGuidanceAct.COMPLETED, true);
         CompleteTutorial();
     }
 
+    // ─── Maquina de actos ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Transiciona al acto indicado, re-renderiza la UI y dispara el timer de observacion si corresponde.
+    /// El parametro force permite re-entrar al mismo acto, util para reiniciar GRAB_LEAF cuando
+    /// el usuario suelta y vuelve a tomar la hoja.
+    /// </summary>
     private void EnterAct(TutorialGuidanceAct act, bool force = false)
     {
         if (!force && _currentAct == act) return;
@@ -277,200 +245,256 @@ public class TutorialPanelController : MonoBehaviour
             StartObserveTimer();
     }
 
+    /// <summary>
+    /// Determina que mostrar segun el acto: paneles individuales animados para la fase guiada,
+    /// o el allActsPanel completo para practica libre y completado.
+    /// </summary>
+    private void RenderAct(TutorialGuidanceAct act)
+    {
+        switch (act)
+        {
+            case TutorialGuidanceAct.GRAB_LEAF:
+                ShowGuidedActPanels(1);
+                break;
+            case TutorialGuidanceAct.OBSERVE_LEAF:
+                ShowGuidedActPanels(2);
+                break;
+            case TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF:
+                ShowGuidedActPanels(3);
+                break;
+            case TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF:
+            case TutorialGuidanceAct.COMPLETED:
+                ShowAllActsPanel();
+                break;
+        }
+    }
+
+    // ─── Logica de paneles de GameObjects ─────────────────────────────────────
+
+    /// <summary>
+    /// Muestra los paneles de acto desde el primero hasta activeIndex (inclusive), animando
+    /// sus posiciones locales para que queden centrados en torno al panel del medio.
+    /// El layout resultante es simetrico: con 1 panel queda en el centro, con 2 hay uno a cada
+    /// lado del eje, con 3 el central en origen y los extremos separados por panelOffset.
+    /// Solo el panel activo (el recien aparecido) recibe borde verde; los anteriores quedan atenuados.
+    /// </summary>
+    private void ShowGuidedActPanels(int activeIndex)
+    {
+        if (allActsPanel != null) allActsPanel.SetActive(false);
+
+        int count = activeIndex; // cuantos paneles deben estar visibles
+
+        // Calculamos las posiciones locales centradas.
+        // Con N paneles, el offset del panel i es: (i - (N-1)/2) * panelOffset
+        // Esto centra automaticamente el grupo sin importar cuantos haya.
+        for (int i = 0; i < _actPanels.Count; i++)
+        {
+            GameObject panel = _actPanels[i];
+            if (panel == null) continue;
+
+            bool shouldBeVisible = i < count;
+
+            if (shouldBeVisible)
+            {
+                float t = count > 1 ? i - (count - 1) / 2f : 0f;
+                Vector3 targetLocalPos = panelOffset * t;
+                bool isActive = i == activeIndex - 1; // solo el ultimo panel recien aparecido
+
+                if (!panel.activeSelf)
+                {
+                    // Panel nuevo: aparece desde el centro con fade in.
+                    panel.SetActive(true);
+                    panel.transform.localPosition = Vector3.zero;
+                    SetPanelAlpha(panel, 0f);
+                    AnimatePanelMove(i, targetLocalPos);
+                    FadeInPanel(panel);
+                }
+                else
+                {
+                    // Panel ya visible: solo se reposiciona suavemente.
+                    AnimatePanelMove(i, targetLocalPos);
+                }
+
+                ApplyBorderHighlight(panel, isActive);
+            }
+            else if (panel.activeSelf)
+            {
+                // Panel que debe desaparecer: fade out y luego desactivar.
+                int capturedIndex = i;
+                FadeOutPanel(panel, () => _actPanels[capturedIndex]?.SetActive(false));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Oculta los paneles individuales con fade y muestra el allActsPanel,
+    /// que agrupa los 3 pasos en una vista compacta para practica libre y completado.
+    /// </summary>
+    private void ShowAllActsPanel()
+    {
+        FadeOutAllActPanels(() => HideAllActPanels());
+
+        if (allActsPanel != null)
+            allActsPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// Desactiva todos los GameObjects de acto guiado sin animacion.
+    /// </summary>
+    private void HideAllActPanels()
+    {
+        foreach (var panel in _actPanels)
+            panel?.SetActive(false);
+    }
+
+    /// <summary>
+    /// Aplica borde verde brillante al panel activo o borde tenue a los anteriores visibles,
+    /// buscando el primer UIDocument dentro del GameObject.
+    /// </summary>
+    private void ApplyBorderHighlight(GameObject panel, bool isActive)
+    {
+        var doc = panel.GetComponentInChildren<UIDocument>();
+        if (doc == null) return;
+
+        VisualElement root = doc.rootVisualElement?.ElementAt(0);
+        if (root == null) return;
+
+        Color color = isActive ? activeBorderColor : inactiveBorderColor;
+        float width = isActive ? borderWidth : 1f;
+
+        root.style.borderTopColor = color;
+        root.style.borderBottomColor = color;
+        root.style.borderLeftColor = color;
+        root.style.borderRightColor = color;
+        root.style.borderTopWidth = width;
+        root.style.borderBottomWidth = width;
+        root.style.borderLeftWidth = width;
+        root.style.borderRightWidth = width;
+    }
+
+    // ─── Animaciones de paneles ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Anima la posicion local del panel hacia targetLocalPos, cancelando cualquier
+    /// tween de movimiento previo para ese indice.
+    /// </summary>
+    private void AnimatePanelMove(int index, Vector3 targetLocalPos)
+    {
+        _panelMoveTweens[index]?.Kill();
+        _panelMoveTweens[index] = _actPanels[index].transform
+            .DOLocalMove(targetLocalPos, panelAnimDuration)
+            .SetEase(Ease.OutCubic);
+    }
+
+    /// <summary>
+    /// Hace fade in del CanvasGroup o UIDocument del panel. Si no hay CanvasGroup,
+    /// usa el UIDocument para animar la opacidad del root visual.
+    /// </summary>
+    private void FadeInPanel(GameObject panel)
+    {
+        var cg = panel.GetComponentInChildren<CanvasGroup>();
+        if (cg != null)
+        {
+            cg.alpha = 0f;
+            cg.DOFade(1f, panelAnimDuration).SetEase(Ease.OutCubic);
+            return;
+        }
+
+        var doc = panel.GetComponentInChildren<UIDocument>();
+        if (doc == null) return;
+
+        VisualElement root = doc.rootVisualElement?.ElementAt(0);
+        if (root == null) return;
+
+        float opacity = 0f;
+        DOTween.To(() => opacity, v => { opacity = v; root.style.opacity = v; }, 1f, panelAnimDuration)
+            .SetEase(Ease.OutCubic);
+    }
+
+    /// <summary>
+    /// Hace fade out del panel y ejecuta onComplete al terminar.
+    /// </summary>
+    private void FadeOutPanel(GameObject panel, Action onComplete = null)
+    {
+        var cg = panel.GetComponentInChildren<CanvasGroup>();
+        if (cg != null)
+        {
+            cg.DOFade(0f, panelAnimDuration).SetEase(Ease.InQuad).OnComplete(() => onComplete?.Invoke());
+            return;
+        }
+
+        var doc = panel.GetComponentInChildren<UIDocument>();
+        if (doc == null) { onComplete?.Invoke(); return; }
+
+        VisualElement root = doc.rootVisualElement?.ElementAt(0);
+        if (root == null) { onComplete?.Invoke(); return; }
+
+        float opacity = root.resolvedStyle.opacity;
+        DOTween.To(() => opacity, v => { opacity = v; root.style.opacity = v; }, 0f, panelAnimDuration)
+            .SetEase(Ease.InQuad)
+            .OnComplete(() => onComplete?.Invoke());
+    }
+
+    /// <summary>
+    /// Hace fade out de todos los paneles de acto guiado que esten activos,
+    /// ejecutando onComplete una sola vez cuando todos terminen.
+    /// </summary>
+    private void FadeOutAllActPanels(Action onComplete = null)
+    {
+        int pending = 0;
+        foreach (var panel in _actPanels)
+            if (panel != null && panel.activeSelf) pending++;
+
+        if (pending == 0) { onComplete?.Invoke(); return; }
+
+        foreach (var panel in _actPanels)
+        {
+            if (panel == null || !panel.activeSelf) continue;
+            FadeOutPanel(panel, () =>
+            {
+                pending--;
+                if (pending == 0) onComplete?.Invoke();
+            });
+        }
+    }
+
+    /// <summary>
+    /// Fuerza la opacidad de un panel a un valor inmediato sin animacion,
+    /// util para preparar el estado inicial antes de un fade in.
+    /// </summary>
+    private void SetPanelAlpha(GameObject panel, float alpha)
+    {
+        var cg = panel.GetComponentInChildren<CanvasGroup>();
+        if (cg != null) { cg.alpha = alpha; return; }
+
+        var doc = panel.GetComponentInChildren<UIDocument>();
+        if (doc == null) return;
+        VisualElement root = doc.rootVisualElement?.ElementAt(0);
+        if (root != null) root.style.opacity = alpha;
+    }
+
+    // ─── Utilidades ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Inicia el timer que avanza automaticamente de OBSERVE_LEAF a DIAGNOSE_FIRST_LEAF
+    /// si el usuario no diagnostica dentro del tiempo configurado en observeToDiagnoseDelay.
+    /// </summary>
     private void StartObserveTimer()
     {
         _observeTween?.Kill();
-
         _observeTween = DOVirtual.DelayedCall(Mathf.Max(0.5f, observeToDiagnoseDelay), () =>
         {
             if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
             if (_currentAct != TutorialGuidanceAct.OBSERVE_LEAF) return;
-            if (GrabbableLeafListener.Instance == null) return;
-            if (GrabbableLeafListener.Instance.ActualLeafGrabbed == null) return;
+            if (GrabbableLeafListener.Instance?.ActualLeafGrabbed == null) return;
 
             EnterAct(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF);
         });
     }
 
-    private void RenderAct(TutorialGuidanceAct act)
-    {
-        if (_root == null) return;
-
-        switch (act)
-        {
-            case TutorialGuidanceAct.GRAB_LEAF:
-                ShowGuidedActPanel(1);
-                SetTitle("Acto 1: Toma una hoja");
-                SetProgress(0.33f, "Acto 1 de 3", "33%");
-                break;
-
-            case TutorialGuidanceAct.OBSERVE_LEAF:
-                ShowGuidedActPanel(2);
-                SetTitle("Acto 2: Observa los sintomas");
-                SetProgress(0.66f, "Acto 2 de 3", "66%");
-                break;
-
-            case TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF:
-                ShowGuidedActPanel(3);
-                SetTitle("Acto 3: Registra tu diagnostico");
-                SetProgress(1f, "Acto 3 de 3", "100%");
-                break;
-
-            case TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF:
-                ShowLightPanelForFreePractice();
-                break;
-
-            case TutorialGuidanceAct.COMPLETED:
-                ShowLightPanelForCompletion();
-                break;
-
-            default:
-                ShowGuidedActPanel(1);
-                SetTitle("Tutorial");
-                SetProgress(0f, "Preparando tutorial...", "0%");
-                break;
-        }
-    }
-
-    private void ShowGuidedActPanel(int actIndex)
-    {
-        ShowGuidedPanel();
-
-        if (!_splitActsReady)
-        {
-            UpdateGuidedStepVisuals(Mathf.Clamp(actIndex - 1, 0, 2));
-            return;
-        }
-
-        switch (actIndex)
-        {
-            case 1:
-                ShowSingleActPanel(_tutorialAct1Root);
-                break;
-
-            case 2:
-                ShowSingleActPanel(_tutorialAct2Root);
-                break;
-
-            case 3:
-                ShowSingleActPanel(_tutorialAct3Root);
-                break;
-
-            default:
-                ShowSingleActPanel(_tutorialAct1Root);
-                break;
-        }
-    }
-
-    private void ShowGuidedPanel()
-    {
-        if (_stepsContainer != null)
-            _stepsContainer.style.display = DisplayStyle.Flex;
-
-        if (_lightPanel != null)
-            _lightPanel.style.display = DisplayStyle.None;
-    }
-
-    private void ShowLightPanelForFreePractice()
-    {
-        if (_splitActsReady)
-            ShowSingleActPanel(null);
-
-        if (_stepsContainer != null)
-            _stepsContainer.style.display = DisplayStyle.None;
-
-        if (_lightPanel != null)
-            _lightPanel.style.display = DisplayStyle.Flex;
-
-        int remaining = Mathf.Max(0, _plantsRequired - _plantsSelected);
-        SetTitle("Practica libre");
-
-        if (_lightTitle != null)
-            _lightTitle.text = "Primer diagnostico correcto.";
-
-        if (_lightBody != null)
-        {
-            if (remaining == 1)
-                _lightBody.text = "Te falta una hoja. Diagnosticala por tu cuenta para completar el nivel tutorial.";
-            else
-                _lightBody.text = "Continua sin guia paso a paso y completa las hojas restantes del tutorial.";
-        }
-
-        float ratio = _plantsRequired > 0 ? (float)_plantsSelected / _plantsRequired : 0f;
-        ratio = Mathf.Clamp01(ratio);
-        string progressText = remaining == 1
-            ? "Te falta una hoja"
-            : $"Te faltan {remaining} hojas";
-        SetProgress(ratio, "Practica libre", progressText);
-    }
-
-    private void ShowLightPanelForCompletion()
-    {
-        if (_splitActsReady)
-            ShowSingleActPanel(null);
-
-        if (_stepsContainer != null)
-            _stepsContainer.style.display = DisplayStyle.None;
-
-        if (_lightPanel != null)
-            _lightPanel.style.display = DisplayStyle.Flex;
-
-        SetTitle("Tutorial completado");
-
-        if (_lightTitle != null)
-            _lightTitle.text = "Excelente trabajo.";
-
-        if (_lightBody != null)
-            _lightBody.text = "Completaste las 2 hojas del tutorial. Preparando el siguiente nivel.";
-
-        SetProgress(1f, "Tutorial practico completado", "100%");
-    }
-
-    private void UpdateGuidedStepVisuals(int activeIndex)
-    {
-        ApplyStepVisual(_step1Title, _step1Body, activeIndex == 0, activeIndex > 0);
-        ApplyStepVisual(_step2Title, _step2Body, activeIndex == 1, activeIndex > 1);
-        ApplyStepVisual(_step3Title, _step3Body, activeIndex == 2, activeIndex > 2);
-    }
-
-    private void ApplyStepVisual(Label title, Label body, bool active, bool completed)
-    {
-        if (title != null)
-        {
-            Color titleColor = completed ? CompletedStepTitleColor : active ? ActiveStepTitleColor : InactiveStepTitleColor;
-            title.style.color = titleColor;
-            title.style.opacity = active ? 1f : 0.85f;
-        }
-
-        if (body != null)
-        {
-            body.style.color = active ? ActiveStepBodyColor : InactiveStepBodyColor;
-            body.style.opacity = active ? 1f : 0.8f;
-        }
-    }
-
-    private void SetTitle(string title)
-    {
-        if (_titleLabel != null)
-            _titleLabel.text = title;
-    }
-
-    private void SetProgress(float normalized, string labelText, string percentText)
-    {
-        if (_progressFill != null)
-            _progressFill.style.width = Length.Percent(Mathf.Clamp01(normalized) * 100f);
-
-        if (_progressLabel != null)
-            _progressLabel.text = labelText;
-
-        if (_progressPercent != null)
-            _progressPercent.text = percentText;
-    }
-
     private void CompleteTutorial()
     {
         if (_tutorialFullyCompleted) return;
-
         _tutorialFullyCompleted = true;
         TutorialCompleted?.Invoke();
         GameEventBus.PublishTutorialCompleted();
@@ -484,134 +508,19 @@ public class TutorialPanelController : MonoBehaviour
         _slideTween = transform.DOMove(target, slideUpDuration).SetEase(Ease.OutCubic);
     }
 
-    // Cachea referencias a elementos del UI para manipularlos luego. Tambien intenta configurar el sistema de split acts si los templates estan disponibles.
-    private void CacheElements()
-    {
-        if (uiDocument == null) return;
-
-        _root = uiDocument.rootVisualElement.Q<VisualElement>("panel-tutorial");
-        _titleLabel = _root?.Q<Label>("tutorial-title");
-        _stepsContainer = _root?.Q<VisualElement>("steps-container");
-        _step1Title = _root?.Q<Label>("tutorial-step1-title");
-        _step1Body = _root?.Q<Label>("tutorial-step1-body");
-        _step2Title = _root?.Q<Label>("tutorial-step2-title");
-        _step2Body = _root?.Q<Label>("tutorial-step2-body");
-        _step3Title = _root?.Q<Label>("tutorial-step3-title");
-        _step3Body = _root?.Q<Label>("tutorial-step3-body");
-        _lightPanel = _root?.Q<VisualElement>("tutorial-light-panel");
-        _lightTitle = _root?.Q<Label>("tutorial-light-title");
-        _lightBody = _root?.Q<Label>("tutorial-light-body");
-        _progressFill = _root?.Q<VisualElement>("tutorial-progress-fill");
-        _progressLabel = _root?.Q<Label>("tutorial-progress-label");
-        _progressPercent = _root?.Q<Label>("tutorial-progress-percent");
-
-        ConfigureSplitActPanelsIfAvailable();
-    }
-
-    private void ConfigureSplitActPanelsIfAvailable()
-    {
-        if (_stepsContainer == null || _splitActsReady)
-        {
-            if (_stepsContainer == null && verboseSplitActsLogs)
-                Debug.LogWarning("[TutorialPanel] No se encontro 'steps-container'. Se usara panel legacy.");
-            return;
-        }
-
-        VisualTreeAsset act1Template = tutorialAct1Template;
-        VisualTreeAsset act2Template = tutorialAct2Template;
-        VisualTreeAsset act3Template = tutorialAct3Template;
-
-        if (act1Template == null || act2Template == null || act3Template == null)
-        {
-            if (verboseSplitActsLogs)
-            {
-                Debug.LogWarning(
-                    $"[TutorialPanel] Split acts incompleto. A1:{(act1Template != null)} A2:{(act2Template != null)} A3:{(act3Template != null)}. " +
-                    "Se usara panel legacy.");
-            }
-            return;
-        }
-
-        _legacyStepBlocks.Clear();
-        for (int i = 0; i < _stepsContainer.childCount; i++)
-            _legacyStepBlocks.Add(_stepsContainer.ElementAt(i));
-
-        var host = new VisualElement { name = "tutorial-acts-host" };
-        host.style.flexGrow = 1f;
-        host.style.flexDirection = FlexDirection.Column;
-        _stepsContainer.Add(host);
-
-        _tutorialAct1Root = InstantiateActRoot(act1Template, host, "tutorial-act-1");
-        _tutorialAct2Root = InstantiateActRoot(act2Template, host, "tutorial-act-2");
-        _tutorialAct3Root = InstantiateActRoot(act3Template, host, "tutorial-act-3");
-
-        if (_tutorialAct1Root == null || _tutorialAct2Root == null || _tutorialAct3Root == null)
-        {
-            host.RemoveFromHierarchy();
-            _tutorialAct1Root = null;
-            _tutorialAct2Root = null;
-            _tutorialAct3Root = null;
-            if (verboseSplitActsLogs)
-                Debug.LogWarning("[TutorialPanel] Fallo al instanciar roots de split acts. Se usara panel legacy.");
-            return;
-        }
-
-        for (int i = 0; i < _legacyStepBlocks.Count; i++)
-            _legacyStepBlocks[i].style.display = DisplayStyle.None;
-
-        _splitActsReady = true;
-        if (verboseSplitActsLogs)
-            Debug.Log("[TutorialPanel] Split acts cargados correctamente (Act1/Act2/Act3).");
-        ShowSingleActPanel(_tutorialAct1Root);
-    }
-
-    private static VisualElement InstantiateActRoot(VisualTreeAsset template, VisualElement host, string rootName)
-    {
-        if (template == null || host == null) return null;
-
-        TemplateContainer container = template.CloneTree();
-        host.Add(container);
-
-        VisualElement root = container.Q<VisualElement>(rootName);
-        if (root == null && container.childCount > 0)
-            root = container[0] as VisualElement;
-
-        if (root == null)
-        {
-            Debug.LogWarning($"[TutorialPanel] El template no contiene root '{rootName}'.");
-            return null;
-        }
-
-        root.style.display = DisplayStyle.None;
-        root.style.flexGrow = 1f;
-        return root;
-    }
-
-    private void ShowSingleActPanel(VisualElement activePanel)
-    {
-        SetActDisplay(_tutorialAct1Root, _tutorialAct1Root == activePanel);
-        SetActDisplay(_tutorialAct2Root, _tutorialAct2Root == activePanel);
-        SetActDisplay(_tutorialAct3Root, _tutorialAct3Root == activePanel);
-    }
-
-    private static void SetActDisplay(VisualElement panel, bool visible)
-    {
-        if (panel == null) return;
-        panel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
-    }
-
+    /// <summary>
+    /// Oculta todo de forma inmediata sin animaciones. Util al inicializar o reiniciar el tutorial.
+    /// </summary>
     private void HideImmediate()
     {
-        if (_root == null) return;
-        _root.style.display = DisplayStyle.None;
-        _root.style.opacity = 0f;
+        HideAllActPanels();
+        if (allActsPanel != null) allActsPanel.SetActive(false);
         _isVisible = false;
         _currentAct = TutorialGuidanceAct.NONE;
     }
 
     /// <summary>
-    /// Reinicia el estado interno del tutorial para permitir reiniciar el 
-    /// tutorial desde el principio sin necesidad de recargar la escena o crear una nueva instancia del panel.
+    /// Resetea el estado interno para permitir reiniciar el tutorial sin recargar la escena.
     /// </summary>
     private void ResetSessionState()
     {
@@ -622,22 +531,34 @@ public class TutorialPanelController : MonoBehaviour
         _plantsRequired = 2;
         _currentAct = TutorialGuidanceAct.NONE;
     }
-    /// <summary>
-    /// Mata cualquier tween activo para evitar que se sigan ejecutando callbacks o animaciones luego de que el panel se oculte o destruya.
-    /// </summary>
+
     private void KillTweens()
     {
         _fadeTween?.Kill();
         _slideTween?.Kill();
         _observeTween?.Kill();
+        foreach (var t in _panelMoveTweens) t?.Kill();
     }
 
+    /// <summary>
+    /// Notifica que el gameplay del tutorial esta listo. GameFlowController escucha esta señal
+    /// a traves del bus para iniciar el primer nivel.
+    /// </summary>
+    private void StartTutorialGameplayIfNeeded()
+    {
+        if (_levelStartRequested) return;
+        _levelStartRequested = true;
+    }
+
+    /// <summary>
+    /// Ancla el panel sobre la superficie seleccionada, o frente a la camara si no hay ninguna.
+    /// </summary>
     private void RepositionPanel()
     {
         if (SceneInteractionManager.Instance != null && SceneInteractionManager.Instance.HasSelectedPlane)
         {
             transform.position = SceneInteractionManager.Instance.SelectedPlanePosition
-                                 + (SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up) * surfaceHeightOffset;
+                                 + SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up * surfaceHeightOffset;
             return;
         }
 
