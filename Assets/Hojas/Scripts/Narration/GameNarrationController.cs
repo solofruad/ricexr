@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Meta.WitAi.TTS.Utilities;
 using UnityEngine;
 
 /// <summary>
@@ -7,32 +6,18 @@ using UnityEngine;
 ///
 /// Diseno:
 /// - Un solo controlador (alta cohesion) escucha eventos de flujo.
-/// - TTSSpeaker se usa como detalle de infraestructura desacoplado de la logica.
+/// - NarrationReproductor se usa como detalle de infraestructura desacoplado de la logica.
 /// - Textos vienen de biblioteca configurable; si falta, usa defaults offline.
-///
-/// Post-refactor:
-/// - Escucha EXCLUSIVAMENTE el GameEventBus para todos los eventos de flujo.
-/// - Los eventos de onboarding y tutorial vienen del bus (OnOnboardingStarted,
-///   OnTutorialStarted, OnTutorialCompleted, etc.).
-/// - Los eventos de EndSession vienen del bus (OnEndPanelShown, OnSaveCompleted,
-///   OnReturningToMenu).
-/// - Ya NO se enlaza directamente a StartupOnboardingController ni
-///   TutorialPanelController.
-///
-/// Para narración granular del tutorial (actos, fases guiadas), se mantiene
-/// binding opcional a los instance events de TutorialPanelController, ya que
-/// esos detalles de granularidad fina no pasan por el bus global.
 /// </summary>
 [DisallowMultipleComponent]
 public class GameNarrationController : MonoBehaviour
 {
     [Header("Dependencias")]
-    [SerializeField] private TTSSpeaker ttsSpeaker;
+    [SerializeField] private NarrationReproductor narrationReproductor; // Reemplazado TTSSpeaker
     [SerializeField] private NarrationLineLibrary lineLibrary;
 
     [Header("Binding opcional (granularidad fina del tutorial)")]
-    [Tooltip("Solo para eventos de actos del tutorial (GrabLeaf, ObserveLeaf, etc.). " +
-             "Los eventos de inicio/fin del tutorial vienen del bus.")]
+    [Tooltip("Solo para eventos de actos del tutorial. Los eventos de inicio/fin vienen del bus.")]
     [SerializeField] private TutorialPanelController tutorialPanelController;
 
     [Header("Comportamiento")]
@@ -74,8 +59,8 @@ public class GameNarrationController : MonoBehaviour
     {
         if (!autoFindDependencies) return;
 
-        if (ttsSpeaker == null)
-            ttsSpeaker = GetComponent<TTSSpeaker>() ?? FindObjectOfType<TTSSpeaker>(true);
+        if (narrationReproductor == null)
+            narrationReproductor = GetComponent<NarrationReproductor>() ?? FindObjectOfType<NarrationReproductor>(true);
 
         if (tutorialPanelController == null)
             tutorialPanelController = FindObjectOfType<TutorialPanelController>(true);
@@ -97,24 +82,20 @@ public class GameNarrationController : MonoBehaviour
 
     private void SubscribeEvents()
     {
-        // Sesión / Flujo — todo via bus
         GameEventBus.OnSessionStartRequested += HandleStartFlowRequested;
         GameEventBus.OnOnboardingStarted += HandleOnboardingStarted;
         GameEventBus.OnTutorialStarted += HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted += HandleTutorialCompleted;
 
-        // Gameplay — via bus
         GameEventBus.OnLevelStarted += HandleLevelStarted;
         GameEventBus.OnPlantSelected += HandlePlantSelected;
         GameEventBus.OnLevelCompleted += HandleLevelCompleted;
         GameEventBus.OnAllLevelsCompleted += HandleAllLevelsCompleted;
 
-        // End session — via bus
         GameEventBus.OnEndPanelShown += HandleEndPanelShown;
         GameEventBus.OnSaveCompleted += HandleSaveCompleted;
         GameEventBus.OnReturningToMenu += HandleReturningToMenu;
 
-        // Granularidad fina del tutorial — binding opcional
         BindTutorialActEvents();
     }
 
@@ -164,7 +145,7 @@ public class GameNarrationController : MonoBehaviour
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // Handlers
+    // Handlers (Se mantienen igual)
     // ═══════════════════════════════════════════════════════════════════════
 
     private void HandleStartFlowRequested()
@@ -206,11 +187,9 @@ public class GameNarrationController : MonoBehaviour
             case TutorialGuidanceAct.GRAB_LEAF:
                 SpeakLine(GameNarrationLineIds.TutorialGrab, true);
                 break;
-
             case TutorialGuidanceAct.OBSERVE_LEAF:
                 SpeakLine(GameNarrationLineIds.TutorialInspect, true);
                 break;
-
             case TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF:
                 SpeakSequence(true,
                     GameNarrationLineIds.TutorialMenuOpen,
@@ -237,9 +216,7 @@ public class GameNarrationController : MonoBehaviour
         {
             if (plantsRequired >= 3)
             {
-                SpeakSequence(true,
-                    GameNarrationLineIds.FinalWarning,
-                    GameNarrationLineIds.ProgressRemain3);
+                SpeakSequence(true, GameNarrationLineIds.FinalWarning, GameNarrationLineIds.ProgressRemain3);
             }
             else
             {
@@ -252,16 +229,11 @@ public class GameNarrationController : MonoBehaviour
         {
             if (plantsRequired >= 3)
             {
-                SpeakSequence(true,
-                    GameNarrationLineIds.Level2Intro,
-                    GameNarrationLineIds.Level2Explain,
-                    GameNarrationLineIds.ProgressRemain3);
+                SpeakSequence(true, GameNarrationLineIds.Level2Intro, GameNarrationLineIds.Level2Explain, GameNarrationLineIds.ProgressRemain3);
             }
             else
             {
-                SpeakSequence(true,
-                    GameNarrationLineIds.Level2Intro,
-                    GameNarrationLineIds.Level2Explain);
+                SpeakSequence(true, GameNarrationLineIds.Level2Intro, GameNarrationLineIds.Level2Explain);
             }
             return;
         }
@@ -270,16 +242,11 @@ public class GameNarrationController : MonoBehaviour
         {
             if (plantsRequired >= 3)
             {
-                SpeakSequence(true,
-                    GameNarrationLineIds.Level3Intro,
-                    GameNarrationLineIds.Level3Explain,
-                    GameNarrationLineIds.ProgressRemain3);
+                SpeakSequence(true, GameNarrationLineIds.Level3Intro, GameNarrationLineIds.Level3Explain, GameNarrationLineIds.ProgressRemain3);
             }
             else
             {
-                SpeakSequence(true,
-                    GameNarrationLineIds.Level3Intro,
-                    GameNarrationLineIds.Level3Explain);
+                SpeakSequence(true, GameNarrationLineIds.Level3Intro, GameNarrationLineIds.Level3Explain);
             }
         }
     }
@@ -292,8 +259,7 @@ public class GameNarrationController : MonoBehaviour
         {
             if (!_tutorialGuidedCompleted)
             {
-                if (!isCorrect)
-                    SpeakLine(GameNarrationLineIds.TutorialRetryGuided, true);
+                if (!isCorrect) SpeakLine(GameNarrationLineIds.TutorialRetryGuided, true);
                 return;
             }
 
@@ -324,23 +290,17 @@ public class GameNarrationController : MonoBehaviour
 
         if (remaining == 2)
         {
-            SpeakSequence(true,
-                GameNarrationLineIds.FirstCorrect,
-                GameNarrationLineIds.ProgressRemain2);
+            SpeakSequence(true, GameNarrationLineIds.FirstCorrect, GameNarrationLineIds.ProgressRemain2);
             return;
         }
 
         if (remaining == 1)
         {
-            SpeakSequence(true,
-                GameNarrationLineIds.SecondCorrect,
-                GameNarrationLineIds.ProgressRemain1);
+            SpeakSequence(true, GameNarrationLineIds.SecondCorrect, GameNarrationLineIds.ProgressRemain1);
             return;
         }
 
-        SpeakSequence(true,
-            GameNarrationLineIds.ThirdCorrect,
-            GameNarrationLineIds.ProgressDone);
+        SpeakSequence(true, GameNarrationLineIds.ThirdCorrect, GameNarrationLineIds.ProgressDone);
     }
 
     private void HandleLevelCompleted(int levelIndex)
@@ -371,7 +331,7 @@ public class GameNarrationController : MonoBehaviour
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // TTS internals
+    // Core Reproducción utilizando NarrationReproductor
     // ═══════════════════════════════════════════════════════════════════════
 
     private void SpeakFirstErrorOnlyForCurrentLevel()
@@ -385,14 +345,16 @@ public class GameNarrationController : MonoBehaviour
 
     private bool SpeakLine(string lineId, bool interruptCurrent)
     {
-        if (ttsSpeaker == null) return false;
+        if (narrationReproductor == null) return false;
         if (!TryResolveLine(lineId, out NarrationLineEntry line)) return false;
         if (!CanPlay(line)) return false;
 
         if (interruptCurrent && stopCurrentBeforeSpeaking)
-            ttsSpeaker.Stop();
+            narrationReproductor.Stop();
 
-        ttsSpeaker.Speak(line.text);
+        // Mandamos el ID al reproductor en lugar del texto
+        narrationReproductor.Speak(line.id); 
+        
         RegisterPlayed(line);
         Log($"Speak: {lineId}");
         return true;
@@ -400,7 +362,7 @@ public class GameNarrationController : MonoBehaviour
 
     private void SpeakSequence(bool interruptCurrent, params string[] lineIds)
     {
-        if (ttsSpeaker == null) return;
+        if (narrationReproductor == null) return;
         if (lineIds == null || lineIds.Length == 0) return;
 
         List<NarrationLineEntry> playableLines = new List<NarrationLineEntry>();
@@ -415,15 +377,15 @@ public class GameNarrationController : MonoBehaviour
         if (playableLines.Count == 0) return;
 
         if (interruptCurrent && stopCurrentBeforeSpeaking)
-            ttsSpeaker.Stop();
+            narrationReproductor.Stop();
 
         for (int i = 0; i < playableLines.Count; i++)
         {
             NarrationLineEntry line = playableLines[i];
             if (i == 0)
-                ttsSpeaker.Speak(line.text);
+                narrationReproductor.Speak(line.id); // El primero se reproduce normal
             else
-                ttsSpeaker.SpeakQueued(line.text);
+                narrationReproductor.SpeakQueued(line.id); // Los siguientes se encolan
 
             RegisterPlayed(line);
             Log($"Queue: {line.id}");
@@ -445,7 +407,7 @@ public class GameNarrationController : MonoBehaviour
     {
         if (line == null) return false;
         if (!line.enabled) return false;
-        if (string.IsNullOrWhiteSpace(line.text)) return false;
+        // Quité la validación de string.IsNullOrWhiteSpace(line.text) porque ahora reproducimos por ID.
 
         if (line.oncePerSession && _spokenSession.Contains(line.id))
             return false;
@@ -503,8 +465,8 @@ public class GameNarrationController : MonoBehaviour
 
     private void StopNarration()
     {
-        if (ttsSpeaker == null) return;
-        ttsSpeaker.Stop();
+        if (narrationReproductor == null) return;
+        narrationReproductor.Stop();
     }
 
     private void Log(string message)
