@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Meta.XR.MRUtilityKit;
@@ -46,7 +47,7 @@ public class GameFlowController : MonoBehaviour
     private bool _waitingForAllPlants;
     private bool _waitingAnalysisToSpawnLevel;
 
-    private Tween _analysisFallbackTween;
+    private Coroutine _levelTransitionCoroutine;
 
     // ─────────────────────────────────────────────
     // Lifecycle
@@ -93,7 +94,7 @@ public class GameFlowController : MonoBehaviour
 
         GameEventBus.OnReturnToMenuRequested -= HandleReturnToMenuRequested;
 
-        _analysisFallbackTween?.Kill();
+        CancelLevelTransition();
     }
 
     // ─────────────────────────────────────────────
@@ -217,7 +218,8 @@ public class GameFlowController : MonoBehaviour
             int idx = sceneInteractionManager?.GetCurrentLevelIndex() ?? 0;
             _waitingForAllPlants = false;
             TransitionTo(FlowState.LevelTransition, "LevelTransition");
-            DOVirtual.DelayedCall(levelTransitionDelay, () => CompleteLevelAndAdvance(idx));
+            CancelLevelTransition();
+            _levelTransitionCoroutine = StartCoroutine(DelayedCompleteLevelAndAdvance(idx));
         }
     }
 
@@ -371,7 +373,22 @@ public class GameFlowController : MonoBehaviour
         _sessionMetricsStarted = false;
         _waitingForAllPlants = false;
         _waitingAnalysisToSpawnLevel = false;
-        _analysisFallbackTween?.Kill();
+        CancelLevelTransition();
+    }
+
+    private IEnumerator DelayedCompleteLevelAndAdvance(int idx)
+    {
+        yield return new WaitForSeconds(levelTransitionDelay);
+        CompleteLevelAndAdvance(idx);
+    }
+
+    private void CancelLevelTransition()
+    {
+        if (_levelTransitionCoroutine != null)
+        {
+            StopCoroutine(_levelTransitionCoroutine);
+            _levelTransitionCoroutine = null;
+        }
     }
 
     private void TransitionTo(FlowState nextState, string reason = null)

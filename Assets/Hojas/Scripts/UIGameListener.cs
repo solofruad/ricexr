@@ -1,5 +1,5 @@
+using System.Collections;
 using UnityEngine;
-using DG.Tweening;
 
 /// <summary>
 /// Orquesta toda la UI del juego escuchando el GameEventBus.
@@ -21,6 +21,10 @@ using DG.Tweening;
 /// [Nivel final de evaluación (índice == levelFinalIndex)]
 ///   OnLevelStarted → MsgFinalLevel (sin panel de enfermedad)
 ///   Resto igual que niveles normales
+///
+/// NOTA: Se usan Coroutines en vez de DOVirtual.DelayedCall para las
+/// transiciones críticas de flujo. DOVirtual.DelayedCall puede fallar
+/// silenciosamente en builds Android IL2CPP (Meta Quest).
 ///
 /// CONFIGURACIÓN EN INSPECTOR:
 ///   - diseaseDataPerLevel: un PlantDiseaseDataAsset por nivel de aprendizaje,
@@ -45,15 +49,13 @@ public class UIGameListener : MonoBehaviour
     [Tooltip("Índice base-0 del nivel de tutorial jugable (práctica sin panel de enfermedad).")]
     [SerializeField] private int tutorialLevelIndex = 0;
 
-    [Header("Mensajes")]
-    [SerializeField] private string tutorialLevelSubtitle = "Tutorial práctico: selecciona y clasifica las hojas requeridas.";
 
     [Header("Timings (segundos)")]
     [SerializeField] private float congratsDuration = 2.0f;
     [SerializeField] private float nextLevelMessageDuration = 2.0f;
     [SerializeField] private float finalLevelMessageDuration = 3.0f;
 
-    private Tween _flowTween;
+    private Coroutine _flowCoroutine;
     private int _currentLevelIndex = -1;
     private int _currentPlantsRequired = 1;
     private int _currentTotalLevels = 0;
@@ -80,7 +82,7 @@ public class UIGameListener : MonoBehaviour
         GameEventBus.OnPlantSelected -= HandlePlantSelected;
         GameEventBus.OnAllPlantsSelected -= HandleAllPlantsSelected;
         GameEventBus.OnDiseaseAnalysisCompleted -= HandleDiseaseAnalysisCompleted;
-        _flowTween?.Kill();
+        CancelFlowCoroutine();
     }
 
     // ─────────────────────────────────────────────
@@ -89,7 +91,7 @@ public class UIGameListener : MonoBehaviour
 
     private void HandleLevelStarted(int levelIndex, int totalLevels, int plantsRequired)
     {
-        _flowTween?.Kill();
+        CancelFlowCoroutine();
         _currentLevelIndex = levelIndex;
         _currentTotalLevels = totalLevels;
         _currentPlantsRequired = plantsRequired < 1 ? 1 : plantsRequired;
@@ -104,12 +106,7 @@ public class UIGameListener : MonoBehaviour
         if (isFinalLevel)
         {
             messages.ShowFinalLevel();
-            _flowTween = DOVirtual.DelayedCall(finalLevelMessageDuration, () =>
-            {
-                messages.HideAll();
-                // Libera el spawn del nivel final cuando termina el mensaje.
-                GameEventBus.PublishDiseaseAnalysisCompleted();
-            });
+            _flowCoroutine = StartCoroutine(DelayedFinalLevelFlow());
         }
         else if (isTutorialGameplayLevel)
         {
@@ -122,11 +119,7 @@ public class UIGameListener : MonoBehaviour
             if (levelIndex > 0)
             {
                 messages.ShowNextLevel($"Nivel {levelIndex + 1} de {totalLevels}");
-                _flowTween = DOVirtual.DelayedCall(nextLevelMessageDuration, () =>
-                {
-                    messages.HideAll();
-                    ShowDiseasePanelForLevel(levelIndex, _currentPlantsRequired);
-                });
+                _flowCoroutine = StartCoroutine(DelayedNextLevelFlow(levelIndex));
             }
             else
             {
@@ -137,7 +130,7 @@ public class UIGameListener : MonoBehaviour
 
     private void HandleLevelCompleted(int levelIndex)
     {
-        _flowTween?.Kill();
+        CancelFlowCoroutine();
         messages.HideAll();
         diseasePanel?.Hide();
 
@@ -147,7 +140,7 @@ public class UIGameListener : MonoBehaviour
 
     private void HandleAllLevelsCompleted()
     {
-        _flowTween?.Kill();
+        CancelFlowCoroutine();
         messages.HideAll();
         diseasePanel?.Hide();
         messages.ShowCongrats("¡Completaste todas las pruebas!");
@@ -155,7 +148,7 @@ public class UIGameListener : MonoBehaviour
 
     private void HandlePlantSelected(bool isCorrect, int plantsSelected, int plantsRequired)
     {
-        _flowTween?.Kill();
+        CancelFlowCoroutine();
         messages.HideAll();
 
         if (plantsSelected < _currentPlantsRequired)
@@ -164,14 +157,10 @@ public class UIGameListener : MonoBehaviour
 
     private void HandleAllPlantsSelected()
     {
-        _flowTween?.Kill();
+        CancelFlowCoroutine();
         messages.HideAll();
         messages.ShowCongrats("¡Encontraste todas las plantas enfermas!");
-        _flowTween = DOVirtual.DelayedCall(congratsDuration, () =>
-        {
-            messages.HideAll();
-            GameEventBus.PublishDiseaseAnalysisCompleted();
-        });
+        _flowCoroutine = StartCoroutine(DelayedCongratsFlow());
     }
 
     /// <summary>
@@ -182,6 +171,40 @@ public class UIGameListener : MonoBehaviour
     {
         if (ShouldShowDiseasePanel(_currentLevelIndex))
             messages.ShowProgress(0, _currentPlantsRequired);
+    }
+
+    // ─────────────────────────────────────────────
+    // Coroutines (reemplazan DOVirtual.DelayedCall)
+    // ─────────────────────────────────────────────
+
+    private IEnumerator DelayedNextLevelFlow(int levelIndex)
+    {
+        yield return new WaitForSeconds(nextLevelMessageDuration);
+        messages.HideAll();
+        ShowDiseasePanelForLevel(levelIndex, _currentPlantsRequired);
+    }
+
+    private IEnumerator DelayedFinalLevelFlow()
+    {
+        yield return new WaitForSeconds(finalLevelMessageDuration);
+        messages.HideAll();
+        GameEventBus.PublishDiseaseAnalysisCompleted();
+    }
+
+    private IEnumerator DelayedCongratsFlow()
+    {
+        yield return new WaitForSeconds(congratsDuration);
+        messages.HideAll();
+        GameEventBus.PublishDiseaseAnalysisCompleted();
+    }
+
+    private void CancelFlowCoroutine()
+    {
+        if (_flowCoroutine != null)
+        {
+            StopCoroutine(_flowCoroutine);
+            _flowCoroutine = null;
+        }
     }
 
     // ─────────────────────────────────────────────
