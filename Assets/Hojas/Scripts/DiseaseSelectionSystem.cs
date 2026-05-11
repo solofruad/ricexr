@@ -180,13 +180,13 @@ public class DiseaseSelectionSystem : MonoBehaviour
         if (diseaseSelectionPanel == null)
             return;
 
-        if (GrabbableObjectListener.Instance == null)
+        if (GrabbableLeafListener.Instance == null)
         {
             if (_panelVisible) HideAnimated();
             return;
         }
 
-        Leaf selectedLeaf = GrabbableObjectListener.Instance.ActualLeafGrabbed;
+        Leaf selectedLeaf = GrabbableLeafListener.Instance.ActualLeafGrabbed;
         if (selectedLeaf == null)
         {
             if (_panelVisible) HideAnimated();
@@ -201,11 +201,11 @@ public class DiseaseSelectionSystem : MonoBehaviour
     private void UpdateFollowPosition()
     {
         // Aseguramos que tenemos la hoja (nuestro plan de respaldo)
-        Leaf currentLeaf = GrabbableObjectListener.Instance.ActualLeafGrabbed;
+        Leaf currentLeaf = GrabbableLeafListener.Instance.ActualLeafGrabbed;
         if (currentLeaf == null) return;
 
         // Obtenemos el ancla (mano o controlador)
-        Transform anchor = GrabbableObjectListener.Instance.ActiveSelectionAnchor;
+        Transform anchor = GrabbableLeafListener.Instance.ActiveSelectionAnchor;
 
         // FIX PARA HAND TRACKING:
         // Si el ancla es nula o está atorada en el origen (0,0,0), usamos la hoja
@@ -219,8 +219,8 @@ public class DiseaseSelectionSystem : MonoBehaviour
 
         // Determinamos el signo lateral para ponerlo a la izquierda o derecha
         float lateralSign = 1f;
-        GrabbableObjectListener.SelectionHand hand = GrabbableObjectListener.Instance.ActiveSelectionHand;
-        if (hand == GrabbableObjectListener.SelectionHand.Right)
+        GrabbableLeafListener.SelectionHand hand = GrabbableLeafListener.Instance.ActiveSelectionHand;
+        if (hand == GrabbableLeafListener.SelectionHand.Right)
             lateralSign = -1f;
 
         // Movemos el objeto base (este script) exactamente a la posición de la mano/hoja
@@ -233,8 +233,8 @@ public class DiseaseSelectionSystem : MonoBehaviour
     // ── Logica de submit ─────────────────────────────────────────────────────
     void OnSubmit()
     {
-        Leaf currentLeaf = GrabbableObjectListener.Instance != null
-            ? GrabbableObjectListener.Instance.ActualLeafGrabbed
+        Leaf currentLeaf = GrabbableLeafListener.Instance != null
+            ? GrabbableLeafListener.Instance.ActualLeafGrabbed
             : null;
 
         if (currentLeaf == null)

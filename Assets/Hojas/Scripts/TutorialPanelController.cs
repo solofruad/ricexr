@@ -6,12 +6,12 @@ using UnityEngine.UIElements;
 
 public enum TutorialGuidanceAct
 {
-    None = 0,
-    GrabLeaf = 1,
-    ObserveLeaf = 2,
-    DiagnoseFirstLeaf = 3,
-    FreePracticeSecondLeaf = 4,
-    Completed = 5
+    NONE = 0,
+    GRAB_LEAF = 1,
+    OBSERVE_LEAF = 2,
+    DIAGNOSE_FIRST_LEAF = 3,
+    FREE_PRACTICE_SECOND_LEAF = 4,
+    COMPLETED = 5
 }
 
 public class TutorialPanelController : MonoBehaviour
@@ -76,7 +76,7 @@ public class TutorialPanelController : MonoBehaviour
     private bool _tutorialFullyCompleted;
     private int _plantsSelected;
     private int _plantsRequired = 2;
-    private TutorialGuidanceAct _currentAct = TutorialGuidanceAct.None;
+    private TutorialGuidanceAct _currentAct = TutorialGuidanceAct.NONE;
 
     private static readonly Color ActiveStepTitleColor = new Color(1f, 1f, 1f, 0.96f);
     private static readonly Color CompletedStepTitleColor = new Color(0.67f, 0.9f, 0.73f, 0.96f);
@@ -92,16 +92,16 @@ public class TutorialPanelController : MonoBehaviour
 
     private void OnEnable()
     {
-        GrabbableObjectListener.SelectionUpdated += HandleLeafSelected;
-        GrabbableObjectListener.SelectionCleared += HandleLeafReleased;
+        GrabbableLeafListener.SelectionUpdated += HandleLeafSelected;
+        GrabbableLeafListener.SelectionCleared += HandleLeafReleased;
         GameEventBus.OnPlantSelected += HandlePlantSelected;
         GameEventBus.OnAllPlantsSelected += HandleAllPlantsSelected;
     }
 
     private void OnDisable()
     {
-        GrabbableObjectListener.SelectionUpdated -= HandleLeafSelected;
-        GrabbableObjectListener.SelectionCleared -= HandleLeafReleased;
+        GrabbableLeafListener.SelectionUpdated -= HandleLeafSelected;
+        GrabbableLeafListener.SelectionCleared -= HandleLeafReleased;
         GameEventBus.OnPlantSelected -= HandlePlantSelected;
         GameEventBus.OnAllPlantsSelected -= HandleAllPlantsSelected;
 
@@ -141,7 +141,7 @@ public class TutorialPanelController : MonoBehaviour
             TutorialStarted?.Invoke();
             GameEventBus.PublishTutorialStarted();
             StartTutorialGameplayIfNeeded();
-            EnterAct(TutorialGuidanceAct.GrabLeaf, true);
+            EnterAct(TutorialGuidanceAct.GRAB_LEAF, true);
         });
     }
 
@@ -164,7 +164,7 @@ public class TutorialPanelController : MonoBehaviour
         {
             _root.style.display = DisplayStyle.None;
             _isVisible = false;
-            _currentAct = TutorialGuidanceAct.None;
+            _currentAct = TutorialGuidanceAct.NONE;
         });
     }
 
@@ -178,18 +178,24 @@ public class TutorialPanelController : MonoBehaviour
         // gameplay del tutorial está listo para comenzar.
     }
 
-    private void HandleLeafSelected(Leaf leaf, GrabbableObjectListener.SelectionHand hand, Transform anchor)
+    /// <summary>
+    /// 1. Maneja la logica de transicion entre actos del tutorial basada en las interacciones del usuario con las hojas y plantas.
+    /// </summary>
+    /// <param name="leaf"></param>
+    /// <param name="hand"></param>
+    /// <param name="anchor"></param>
+    private void HandleLeafSelected(Leaf leaf, GrabbableLeafListener.SelectionHand hand, Transform anchor)
     {
         if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
         if (leaf == null) return;
 
-        if (_currentAct == TutorialGuidanceAct.GrabLeaf)
+        if (_currentAct == TutorialGuidanceAct.GRAB_LEAF)
         {
-            EnterAct(TutorialGuidanceAct.ObserveLeaf);
+            EnterAct(TutorialGuidanceAct.OBSERVE_LEAF);
             return;
         }
 
-        if (_currentAct == TutorialGuidanceAct.ObserveLeaf)
+        if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF)
         {
             StartObserveTimer();
         }
@@ -199,9 +205,9 @@ public class TutorialPanelController : MonoBehaviour
     {
         if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
 
-        if (_currentAct == TutorialGuidanceAct.ObserveLeaf || _currentAct == TutorialGuidanceAct.DiagnoseFirstLeaf)
+        if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF || _currentAct == TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
         {
-            EnterAct(TutorialGuidanceAct.GrabLeaf, true);
+            EnterAct(TutorialGuidanceAct.GRAB_LEAF, true);
         }
     }
 
@@ -223,18 +229,18 @@ public class TutorialPanelController : MonoBehaviour
                 int remaining = Mathf.Max(0, _plantsRequired - _plantsSelected);
                 if (remaining > 0)
                 {
-                    EnterAct(TutorialGuidanceAct.FreePracticeSecondLeaf, true);
+                    EnterAct(TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF, true);
                 }
                 else
                 {
-                    EnterAct(TutorialGuidanceAct.Completed, true);
+                    EnterAct(TutorialGuidanceAct.COMPLETED, true);
                     CompleteTutorial();
                 }
 
                 return;
             }
 
-            EnterAct(TutorialGuidanceAct.DiagnoseFirstLeaf, true);
+            EnterAct(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF, true);
             return;
         }
 
@@ -243,11 +249,11 @@ public class TutorialPanelController : MonoBehaviour
             int remaining = Mathf.Max(0, _plantsRequired - _plantsSelected);
             if (remaining > 0)
             {
-                EnterAct(TutorialGuidanceAct.FreePracticeSecondLeaf, true);
+                EnterAct(TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF, true);
             }
             else
             {
-                EnterAct(TutorialGuidanceAct.Completed, true);
+                EnterAct(TutorialGuidanceAct.COMPLETED, true);
                 CompleteTutorial();
             }
         }
@@ -257,7 +263,7 @@ public class TutorialPanelController : MonoBehaviour
     {
         if (!_isVisible || _tutorialFullyCompleted) return;
 
-        EnterAct(TutorialGuidanceAct.Completed, true);
+        EnterAct(TutorialGuidanceAct.COMPLETED, true);
         CompleteTutorial();
     }
 
@@ -270,7 +276,7 @@ public class TutorialPanelController : MonoBehaviour
         RenderAct(act);
         TutorialActChanged?.Invoke(act);
 
-        if (act == TutorialGuidanceAct.ObserveLeaf)
+        if (act == TutorialGuidanceAct.OBSERVE_LEAF)
             StartObserveTimer();
     }
 
@@ -281,11 +287,11 @@ public class TutorialPanelController : MonoBehaviour
         _observeTween = DOVirtual.DelayedCall(Mathf.Max(0.5f, observeToDiagnoseDelay), () =>
         {
             if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
-            if (_currentAct != TutorialGuidanceAct.ObserveLeaf) return;
-            if (GrabbableObjectListener.Instance == null) return;
-            if (GrabbableObjectListener.Instance.ActualLeafGrabbed == null) return;
+            if (_currentAct != TutorialGuidanceAct.OBSERVE_LEAF) return;
+            if (GrabbableLeafListener.Instance == null) return;
+            if (GrabbableLeafListener.Instance.ActualLeafGrabbed == null) return;
 
-            EnterAct(TutorialGuidanceAct.DiagnoseFirstLeaf);
+            EnterAct(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF);
         });
     }
 
@@ -295,29 +301,29 @@ public class TutorialPanelController : MonoBehaviour
 
         switch (act)
         {
-            case TutorialGuidanceAct.GrabLeaf:
+            case TutorialGuidanceAct.GRAB_LEAF:
                 ShowGuidedActPanel(1);
                 SetTitle("Acto 1: Toma una hoja");
                 SetProgress(0.33f, "Acto 1 de 3", "33%");
                 break;
 
-            case TutorialGuidanceAct.ObserveLeaf:
+            case TutorialGuidanceAct.OBSERVE_LEAF:
                 ShowGuidedActPanel(2);
                 SetTitle("Acto 2: Observa los sintomas");
                 SetProgress(0.66f, "Acto 2 de 3", "66%");
                 break;
 
-            case TutorialGuidanceAct.DiagnoseFirstLeaf:
+            case TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF:
                 ShowGuidedActPanel(3);
                 SetTitle("Acto 3: Registra tu diagnostico");
                 SetProgress(1f, "Acto 3 de 3", "100%");
                 break;
 
-            case TutorialGuidanceAct.FreePracticeSecondLeaf:
+            case TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF:
                 ShowLightPanelForFreePractice();
                 break;
 
-            case TutorialGuidanceAct.Completed:
+            case TutorialGuidanceAct.COMPLETED:
                 ShowLightPanelForCompletion();
                 break;
 
@@ -603,7 +609,7 @@ public class TutorialPanelController : MonoBehaviour
         _root.style.display = DisplayStyle.None;
         _root.style.opacity = 0f;
         _isVisible = false;
-        _currentAct = TutorialGuidanceAct.None;
+        _currentAct = TutorialGuidanceAct.NONE;
     }
 
     /// <summary>
@@ -617,7 +623,7 @@ public class TutorialPanelController : MonoBehaviour
         _tutorialFullyCompleted = false;
         _plantsSelected = 0;
         _plantsRequired = 2;
-        _currentAct = TutorialGuidanceAct.None;
+        _currentAct = TutorialGuidanceAct.NONE;
     }
     /// <summary>
     /// Mata cualquier tween activo para evitar que se sigan ejecutando callbacks o animaciones luego de que el panel se oculte o destruya.

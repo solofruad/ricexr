@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class GrabbableObjectListener : MonoBehaviour
+/// <summary>
+/// Sistema de monitoreo centralizado para objetos agarrables (grabbables) en la escena
+/// </summary>
+public class GrabbableLeafListener : MonoBehaviour
 {
     public static event Action<Leaf, SelectionHand, Transform> SelectionUpdated;
     public static event Action<Leaf> SelectionCleared;
@@ -26,7 +29,7 @@ public class GrabbableObjectListener : MonoBehaviour
     /// 
     /// Uso tipico:
     /// - Los objetos Leaf notifican a este listener cuando son agarrados/soltados
-    /// - Otros sistemas (como DiseaseSelectionSystem) consultan ActualLeafGrabbed
+    /// - Otros sistemas (como DiseaseSelectionSystem [El menu de seleccion de enfermedades]) consultan ActualLeafGrabbed
     /// - Permite la coordinacion entre diferentes componentes que necesitan saber que hoja este activa
     /// 
     /// Flujo de trabajo:
@@ -34,7 +37,9 @@ public class GrabbableObjectListener : MonoBehaviour
     /// 2. Cuando se suelta o se agarra otra hoja, se actualiza la referencia
     /// 3. Sistemas externos pueden suscribirse o consultar el estado actual
     /// </summary>
-    public static GrabbableObjectListener Instance { get; private set; }
+    
+    // Implementacion del patron Singleton para acceso global
+    public static GrabbableLeafListener Instance { get; private set; }
 
     private Leaf _actualLeafGrabbed = null;
     private SelectionHand _activeSelectionHand = SelectionHand.Unknown;

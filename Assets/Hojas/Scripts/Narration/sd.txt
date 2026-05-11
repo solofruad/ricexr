@@ -1,0 +1,57 @@
+
+Bienvenido a la experiencia de diagnostico de enfermedades en arroz. Acercate a un plano azul y seleccionalo para comenzar.
+Recorreras cuatro niveles: tutoriál, Pyricularia, Rhynchosporium y evaluacion final sin ayudas visuales.
+Cuando estes listo, pulsa Continuar para iniciar la practica guiada.
+Inicia el tutoriál. Te guiaremos en cada paso del diagnostico.
+Paso uno. Agarra una hoja con tu mano para poder inspeccionarla de cerca.
+Paso dos. Observa la lesion: forma, borde, centro y distribucion sobre la hoja.
+Paso tres. Abre el menu lateral de diagnostico.
+Selecciona la enfermedad que mejor coincide con los sintomas observados.
+Ahora selecciona la severidad segun el daño visible en la hoja.
+Presiona Confirmar para registrar tu diagnostico.
+No coincide aun. Vuelve a observar lesion y severidad, y prueba de nuevo.
+Excelente. Primer acierto logrado. Te falta una hoja y ahora vas por tu cuenta.
+Excelente. Completaste el tutoriál practico y estas listo para el siguiente nivel.
+Nivel dos de cuatro. En este nivel trabajas con Anublo del arroz.
+Pyricularia oryzae suele mostrar manchas necroticas en forma de ojo, con centro gris y borde marron definido.
+Nivel tres de cuatro. Ahora trabajas con Escaldado del arroz.
+Rhynchosporium oryzae suele iniciar en la punta y avanzar en bandas concentricas hacia la base.
+Ultimo nivel. No tendras ayudas visuales. Confia en lo aprendido y diagnostica por tu cuenta.
+Te faltan tres hojas para completar este nivel.
+Te faltan dos hojas para completar este nivel.
+Te falta una hoja para completar este nivel.
+Completaste las hojas requeridas de este nivel.
+Bien hecho. Ese diagnostico es correcto.
+Excelente. Vas por muy buen camino.
+Muy bien. Objetivo del nivel cumplido.
+Ese diagnostico no coincide. Revisa nuevamente la lesion y la severidad antes de confirmar.
+Nivel completado. Preparate para la siguiente fase.
+Excelente trabajo. Has completado toda la experiencia.
+Ingresa tu apodo para guardar el resultado en el marcador.
+Guardado exitoso. Tu resultado fue registrado correctamente.
+No se pudo guardar el resultado. Intenta nuevamente.
+Sesion finalizada. Regresando al menu principal.
+
+
+
+
+Bienvenido a la experiencia de diagnóstico de enfermedades en arroz. Acércate a un plano azul y selecciónalo para comenzar.
+Recorrerás cuatro niveles: tutoriál, Pyricularia, Rhynchosporium y una evaluación final sin ayudas visuales. Cuando estés listo, pulsa "Continuar" para iniciar la práctica guiada.
+Iniciamos el tutoriál. Te guiaremos en cada paso del diagnóstico.
+    Paso uno: Toma una hoja con tu mano para poder inspeccionarla de cerca.
+    Paso dos: Observa la lesión: su forma, el borde, el centro y cómo se distribuye sobre la hoja.
+    Paso tres: Abre el menú lateral de diagnóstico.
+Selecciona la enfermedad que mejor coincida con los síntomas observados. Ahora, selecciona la severidad según el daño visible en la hoja. Presiona "Confirmar" para registrar tu diagnóstico.
+No coincide aún. Vuelve a observar la lesión y la severidad, y prueba de nuevo.
+¡Excelente! Primer acierto logrado. Te falta una hoja y ahora vas por tu cuenta.
+Excelente. Completaste el tutoriál práctico y estás listo para el siguiente nivel.
+Nivel dos de cuatro. En este nivel trabajarás con el "Anublo del arroz". La Pyricularia oryzae suele mostrar manchas necróticas en forma de ojo, con centro gris y un borde marrón definido.
+Nivel tres de cuatro. Ahora trabajarás con el "Escaldado del arroz". El Rhynchosporium oryzae suele iniciar en la punta y avanzar en bandas concéntricas hacia la base.
+Último nivel. No tendrás ayudas visuales. Confía en lo aprendido y diagnostica por tu cuenta.
+    Te faltan tres hojas para completar este nivel.
+    Te faltan dos hojas para completar este nivel.
+    Te falta una hoja para completar este nivel.
+Completaste las hojas requeridas de este nivel. Bien hecho, ese diagnóstico es correcto. ¡Excelente! Vas por muy buen camino. Muy bien, objetivo del nivel cumplido.
+Ese diagnóstico no coincide. Revisa nuevamente la lesión y la severidad antes de confirmar.
+Nivel completado. Prepárate para la siguiente fase.
+Excelente trabajo. Has completado toda la experiencia. Ingresa tu apodo para guardar el resultado en el marcador.

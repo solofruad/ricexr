@@ -85,49 +85,49 @@ public class Leaf : MonoBehaviour
 
     private void OnSelect(PointerEvent pointerEvent)
     {
-        if (GrabbableObjectListener.Instance == null)
+        if (GrabbableLeafListener.Instance == null)
             return;
 
         object data = pointerEvent.Data;
         Debug.Log($"Leaf {gameObject.name} selected with data: {data}");
-        GrabbableObjectListener.SelectionHand hand = ResolveSelectionHand(data);
+        GrabbableLeafListener.SelectionHand hand = ResolveSelectionHand(data);
         Transform anchor = ResolveSelectionAnchor(data);
 
         Debug.Log($"Resolved hand: {hand}, anchor: {(anchor != null ? anchor.name : "null")}");
         Debug.Log($"Transform {anchor?.position}, {anchor?.rotation}, {anchor?.localScale}");
         Debug.Log($"Transform: {data.GetType().GetProperty("Transform")}, Handedness: {data.GetType().GetProperty("Handedness")}");
 
-        GrabbableObjectListener.Instance.SetActiveSelection(this, hand, anchor);
+        GrabbableLeafListener.Instance.SetActiveSelection(this, hand, anchor);
     }
 
     private void OnUnselect(PointerEvent pointerEvent)
     {
-        if (GrabbableObjectListener.Instance == null)
+        if (GrabbableLeafListener.Instance == null)
             return;
 
-        GrabbableObjectListener.Instance.ClearActiveSelection(this);
+        GrabbableLeafListener.Instance.ClearActiveSelection(this);
     }
 
-    private static GrabbableObjectListener.SelectionHand ResolveSelectionHand(object data)
+    private static GrabbableLeafListener.SelectionHand ResolveSelectionHand(object data)
     {
         if (data == null)
-            return GrabbableObjectListener.SelectionHand.Unknown;
+            return GrabbableLeafListener.SelectionHand.Unknown;
 
         var handednessProp = data.GetType().GetProperty("Handedness");
         if (handednessProp == null)
-            return GrabbableObjectListener.SelectionHand.Unknown;
+            return GrabbableLeafListener.SelectionHand.Unknown;
 
         object handedness = handednessProp.GetValue(data);
         if (handedness == null)
-            return GrabbableObjectListener.SelectionHand.Unknown;
+            return GrabbableLeafListener.SelectionHand.Unknown;
 
         string handednessText = handedness.ToString();
         if (string.Equals(handednessText, "Left", System.StringComparison.OrdinalIgnoreCase))
-            return GrabbableObjectListener.SelectionHand.Left;
+            return GrabbableLeafListener.SelectionHand.Left;
         if (string.Equals(handednessText, "Right", System.StringComparison.OrdinalIgnoreCase))
-            return GrabbableObjectListener.SelectionHand.Right;
+            return GrabbableLeafListener.SelectionHand.Right;
 
-        return GrabbableObjectListener.SelectionHand.Unknown;
+        return GrabbableLeafListener.SelectionHand.Unknown;
     }
 
     private static Transform ResolveSelectionAnchor(object data)
@@ -291,9 +291,9 @@ public class Leaf : MonoBehaviour
             grabbable.enabled = false;
         }
 
-        if (GrabbableObjectListener.Instance != null)
+        if (GrabbableLeafListener.Instance != null)
         {
-            GrabbableObjectListener.Instance.ClearActiveSelection(this);
+            GrabbableLeafListener.Instance.ClearActiveSelection(this);
         }
 
         gameObject.SetActive(false);

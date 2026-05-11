@@ -203,15 +203,15 @@ public class GameNarrationController : MonoBehaviour
     {
         switch (act)
         {
-            case TutorialGuidanceAct.GrabLeaf:
+            case TutorialGuidanceAct.GRAB_LEAF:
                 SpeakLine(GameNarrationLineIds.TutorialGrab, true);
                 break;
 
-            case TutorialGuidanceAct.ObserveLeaf:
+            case TutorialGuidanceAct.OBSERVE_LEAF:
                 SpeakLine(GameNarrationLineIds.TutorialInspect, true);
                 break;
 
-            case TutorialGuidanceAct.DiagnoseFirstLeaf:
+            case TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF:
                 SpeakSequence(true,
                     GameNarrationLineIds.TutorialMenuOpen,
                     GameNarrationLineIds.TutorialSelectDisease,
