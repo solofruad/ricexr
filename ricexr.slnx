@@ -41,7 +41,6 @@
   <Project Path="Unity.XR.CoreUtils.csproj" />
   <Project Path="Meta.WitAi.Editor.csproj" />
   <Project Path="VoiceSDK.Telemetry.csproj" />
-  <Project Path="Meta.Voice.Samples.TTSVoices.csproj" />
   <Project Path="Unity.Searcher.Editor.csproj" />
   <Project Path="meta.xr.mrutilitykit.csproj" />
   <Project Path="Oculus.Interaction.Samples.csproj" />
