@@ -24,28 +24,33 @@ using UnityEngine.UI;
 /// </summary>
 public class ButtonPlaneLogic : MonoBehaviour
 {
-    [SerializeField] private Button interactionButton;
+    // [SerializeField] private Button interactionButton;
     [SerializeField] private Transform visualTransform;
 
-    void Start()
-    {
-        if (interactionButton == null)
-        {
-            interactionButton = GetComponentInChildren<Button>();
-        }
+    // void Start()
+    // {
+    //     if (interactionButton == null)
+    //     {
+    //         interactionButton = GetComponentInChildren<Button>();
+    //     }
 
-        if (interactionButton != null)
-        {
-            // Conecta el boton con el bus de eventos
-            interactionButton.onClick.AddListener(OnButtonClicked);
-        }
-        else
-        {
-            Debug.LogError("No se encontró un Button en los hijos de " + gameObject.name);
-        }
-    }
+    //     if (interactionButton != null)
+    //     {
+    //         // Conecta el boton con el bus de eventos
+    //         interactionButton.onClick.AddListener(OnButtonClicked);
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError("No se encontró un Button en los hijos de " + gameObject.name);
+    //     }
+    // }
 
-    private void OnButtonClicked()
+    /// <summary>
+    /// Esta es llamada por dos event wrappers:
+    /// - El boton de UI (via onClick)
+    /// - El del plano azul via Poke Interactable (que tambien llama a este metodo para mantener la logica centralizada)
+    /// </summary>
+    public void OnButtonClicked()
     {
         if (visualTransform == null)
         {
@@ -61,12 +66,12 @@ public class ButtonPlaneLogic : MonoBehaviour
         );
     }
 
-    void OnDestroy()
-    {
-        // Limpia el listener
-        if (interactionButton != null)
-        {
-            interactionButton.onClick.RemoveListener(OnButtonClicked);
-        }
-    }
+    // void OnDestroy()
+    // {
+    //     // Limpia el listener
+    //     if (interactionButton != null)
+    //     {
+    //         interactionButton.onClick.RemoveListener(OnButtonClicked);
+    //     }
+    // }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 /// <summary>
@@ -33,40 +34,53 @@ public class PlayerProximityDetector : MonoBehaviour
     [SerializeField] private LayerMask playerMask;
     [Tooltip("Tag del jugador (opcional)")]
     [SerializeField] private string playerTag = "Player";
+    
     [Header("UI hijo a mostrar/ocultar")]
-    [SerializeField] private GameObject uiRoot;
-    [Header("Maya hija a escalar")]
-    [SerializeField] private GameObject visual;
+    [SerializeField] private GameObject infoMessage;
+    
+    [Header("Objeto hija a escalar")]
+    [SerializeField] private GameObject visualTransform;
+    // Referencias para controlar el tamaño del UI Toolkit sin escalar el GameObject (que puede causar problemas de renderizado)
+    [SerializeField] private GameObject surface;
+    [SerializeField] private UIDocument uiDocument;
+
+    // Tamaño base en píxeles que pusiste en tu UXML/USS
+    private const float BASE_WIDTH = 100f;
+    private const float BASE_HEIGHT = 100f;
 
     private void Awake()
     {
-        if (uiRoot == null)
+        if (infoMessage == null)
         {
-            Debug.LogWarning("MostrarUI: No se ha asignado uiRoot en el inspector.");
+            Debug.LogWarning("MostrarUI: No se ha asignado infoMessage en el inspector.");
         }
 
         SetUIVisible(false);
     }
 
-
     private void Start()
     {
-        // Lo que estoy haciendo aca es simplemente escalar las visuales, el plano de las visuales,
-        // haciendo que los demas componentes no se vean afectados por la escala
-
+        // Guardamos la escala que pusiste en el editor antes de resetear el root
         Vector3 size = transform.localScale;
         transform.localScale = Vector3.one;
 
         BoxCollider box = GetComponent<BoxCollider>();
-        Transform visuals = visual.transform;
+        Transform visuals = visualTransform.transform;
+
         if (box != null && visuals != null)
         {
-            visuals.localScale = new Vector3(size.x, size.z, 1);
-            box.size = new Vector3(size.x+1, 0.2f, size.z+1);
+            // El plano 3D (Mesh) sí se puede escalar no-uniformemente sin problemas
+            visuals.localScale = new Vector3(size.x, size.z, 1f);
+            surface.transform.localScale = new Vector3(size.x, size.z, 1f);
+            box.size = new Vector3(size.x + 1f, 0.2f, size.z + 1f);
+
+            // En lugar de escalar el GameObject uiRoot, cambiamos el tamaño del Layout en píxeles.
+            // Multiplicamos el tamaño base por la escala para que crezca perfectamente de forma limpia.
+            uiDocument.worldSpaceSize = new Vector2(BASE_WIDTH * size.x, BASE_HEIGHT * size.z);
         }
         else
         {
-            Debug.LogWarning("DetectarJugadorCerca: No se encontr� BoxCollider o visuales como hijo.");
+            Debug.LogWarning("DetectarJugadorCerca: No se encontro BoxCollider o visuales como hijo.");
         }
     }
 
@@ -92,8 +106,8 @@ public class PlayerProximityDetector : MonoBehaviour
 
     private void SetUIVisible(bool visible)
     {
-        if (uiRoot != null)
-            uiRoot.SetActive(visible);
+        if (infoMessage != null)
+            infoMessage.SetActive(visible);
     }
 
     private void OnDisable()
