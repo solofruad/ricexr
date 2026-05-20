@@ -7,7 +7,7 @@ public enum FlowState
     Idle = 1,
     WaitingForPlaneSelection = 2,
     DisablingPlanes = 3,
-    StartupOnboarding = 4,
+    LevelIntro = 4,
     Tutorial = 5,
     LevelStarting = 6,
     WaitingForDiseaseAnalysis = 7,
@@ -46,11 +46,11 @@ public static class GameEventBus
     /// <summary>Emitido cuando los planos de MR terminan de ocultarse.</summary>
     public static event Action OnPlanesHidden;
 
-    /// <summary>Emitido cuando inicia el onboarding post-plano.</summary>
-    public static event Action OnOnboardingStarted;
+    /// <summary>Emitido cuando inicia la intro del nivel actual.</summary>
+    public static event Action OnLevelIntroStarted;
 
-    /// <summary>Emitido cuando el onboarding post-plano se completa.</summary>
-    public static event Action OnOnboardingCompleted;
+    /// <summary>Emitido cuando la intro del nivel actual se completa.</summary>
+    public static event Action OnLevelIntroCompleted;
 
     /// <summary>Emitido cuando el tutorial inicia (panel visible y gameplay listo).</summary>
     public static event Action OnTutorialStarted;
@@ -151,16 +151,16 @@ public static class GameEventBus
         OnPlanesHidden?.Invoke();
     }
 
-    public static void PublishOnboardingStarted()
+    public static void PublishLevelIntroStarted()
     {
-        Debug.Log("[GameEventBus] OnboardingStarted");
-        OnOnboardingStarted?.Invoke();
+        Debug.Log("[GameEventBus] LevelIntroStarted");
+        OnLevelIntroStarted?.Invoke();
     }
 
-    public static void PublishOnboardingCompleted()
+    public static void PublishLevelIntroCompleted()
     {
-        Debug.Log("[GameEventBus] OnboardingCompleted");
-        OnOnboardingCompleted?.Invoke();
+        Debug.Log("[GameEventBus] LevelIntroCompleted");
+        OnLevelIntroCompleted?.Invoke();
     }
 
     public static void PublishTutorialStarted()
@@ -298,8 +298,8 @@ public static class GameEventBus
         OnSessionStartRequested = null;
         OnPlaneSelected = null;
         OnPlanesHidden = null;
-        OnOnboardingStarted = null;
-        OnOnboardingCompleted = null;
+        OnLevelIntroStarted = null;
+        OnLevelIntroCompleted = null;
         OnTutorialStarted = null;
         OnTutorialCompleted = null;
         OnLevelSpawnRequested = null;

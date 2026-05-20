@@ -8,7 +8,7 @@ using DG.Tweening;
 /// CONTROLADOR CENTRAL DEL FLUJO DE JUEGO
 ///
 /// Única fuente de verdad para la máquina de estados del juego.
-/// Orquesta las transiciones: Menu → PlaneSelection → Onboarding → Tutorial → Niveles → Fin.
+/// Orquesta las transiciones: Menu → PlaneSelection → LevelIntro → Tutorial → Niveles → Fin.
 ///
 /// No contiene lógica de presentación (eso es responsabilidad de UIGameListener,
 /// UIMessagesController, paneles, etc.).
@@ -23,13 +23,13 @@ public class GameFlowController : MonoBehaviour
 
     [Header("Referencias de escena")]
     [SerializeField] private SceneInteractionManager sceneInteractionManager;
-    [SerializeField] private StartupOnboardingController startupOnboardingController;
+    [SerializeField] private LevelIntroController levelIntroController;
     [SerializeField] private TutorialPanelController tutorialPanelController;
     [SerializeField] private PlaneConfigurationSpawner planeSpawner;
     [SerializeField] private MainMenuController mainMenuController;
 
     [Header("Configuración de flujo")]
-    [SerializeField] private bool runStartupOnboarding = true;
+    [SerializeField] private bool runLevelIntro = true;
     [SerializeField] private int tutorialLevelIndex = 0;
 
     [Header("Tiempos")]
@@ -68,7 +68,7 @@ public class GameFlowController : MonoBehaviour
         GameEventBus.OnSessionStartRequested += HandleSessionStartRequested;
         GameEventBus.OnPlaneSelected += HandlePlaneSelected;
         GameEventBus.OnPlanesHidden += HandlePlanesHidden;
-        GameEventBus.OnOnboardingCompleted += HandleOnboardingCompleted;
+        GameEventBus.OnLevelIntroCompleted += HandleLevelIntroCompleted;
         GameEventBus.OnTutorialStarted += HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted += HandleTutorialCompleted;
 
@@ -85,7 +85,7 @@ public class GameFlowController : MonoBehaviour
         GameEventBus.OnSessionStartRequested -= HandleSessionStartRequested;
         GameEventBus.OnPlaneSelected -= HandlePlaneSelected;
         GameEventBus.OnPlanesHidden -= HandlePlanesHidden;
-        GameEventBus.OnOnboardingCompleted -= HandleOnboardingCompleted;
+        GameEventBus.OnLevelIntroCompleted -= HandleLevelIntroCompleted;
         GameEventBus.OnTutorialStarted -= HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted -= HandleTutorialCompleted;
 
@@ -157,26 +157,25 @@ public class GameFlowController : MonoBehaviour
     }
 
     /// <summary>
-    /// El onboarding post-plano se completó.
-    /// Avanza al tutorial.
+    /// La intro del nivel se completó.
+    /// Para el nivel tutorial: arranca el panel de tutorial.
+    /// Para el resto: ya lo maneja AfterLevelIntroCompleted internamente.
     /// </summary>
-    private void HandleOnboardingCompleted()
+    private void HandleLevelIntroCompleted()
     {
-        if (CurrentState != FlowState.StartupOnboarding) return;
-
-        StartSessionMetricsIfNeeded();
-        BeginTutorial();
+        // El flujo post-intro se maneja directamente en el callback de ShowIntro.
+        // Este handler existe para que otros sistemas puedan escuchar el evento.
     }
 
     /// <summary>
     /// El tutorial comenzó (panel visible y animado).
-    /// Arranca el nivel tutorial (índice 0) para que las hojas aparezcan
+    /// Arranca el nivel tutorial para que las hojas aparezcan
     /// mientras el jugador lee las instrucciones del panel.
     /// </summary>
     private void HandleTutorialStarted()
     {
         if (CurrentState != FlowState.Tutorial) return;
-        StartCurrentLevelFlow();
+        StartCurrentLevelGameplay();
     }
 
     /// <summary>
@@ -263,50 +262,57 @@ public class GameFlowController : MonoBehaviour
 
     private void BeginPostPlaneFlow()
     {
-        startupOnboardingController?.ResetSequenceState();
+        levelIntroController?.ResetState();
         tutorialPanelController?.Hide();
 
-        if (!runStartupOnboarding || startupOnboardingController == null)
+        StartCurrentLevelFlow();
+    }
+
+    /// <summary>
+    /// Muestra la intro del nivel actual y, al completarse, continúa con el gameplay.
+    /// Si no hay LevelIntroController configurado, avanza directamente.
+    /// </summary>
+    private void StartCurrentLevelFlow()
+    {
+        int levelIndex  = sceneInteractionManager?.GetCurrentLevelIndex() ?? 0;
+        int totalLevels = sceneInteractionManager?.GetTotalLevels() ?? 0;
+
+        if (!runLevelIntro || levelIntroController == null)
         {
-            // Saltar onboarding
             StartSessionMetricsIfNeeded();
-            BeginTutorial();
+            AfterLevelIntroCompleted(levelIndex, totalLevels);
             return;
         }
 
-        TransitionTo(FlowState.StartupOnboarding, "ShowStartupOnboarding");
-        GameEventBus.PublishOnboardingStarted();
-        startupOnboardingController.ShowSequence(() =>
+        TransitionTo(FlowState.LevelIntro, "ShowLevelIntro");
+        GameEventBus.PublishLevelIntroStarted();
+
+        levelIntroController.ShowIntro(levelIndex, totalLevels, () =>
         {
-            GameEventBus.PublishOnboardingCompleted();
+            GameEventBus.PublishLevelIntroCompleted();
+            StartSessionMetricsIfNeeded();
+            AfterLevelIntroCompleted(levelIndex, totalLevels);
         });
     }
 
-    private void BeginTutorial()
+    /// <summary>
+    /// Lógica de arranque del nivel una vez que la intro terminó.
+    /// Separa tutorial de niveles normales.
+    /// </summary>
+    private void AfterLevelIntroCompleted(int levelIndex, int totalLevels)
     {
-        if (tutorialPanelController != null)
+        int plantsRequired = sceneInteractionManager?.GetCurrentPlantsRequired() ?? 1;
+
+        // Nivel tutorial: mostrar panel de tutorial (el gameplay lo arranca HandleTutorialStarted)
+        if (levelIndex == tutorialLevelIndex && tutorialPanelController != null)
         {
             TransitionTo(FlowState.Tutorial, "StartTutorial");
             tutorialPanelController.ShowAndStart();
             return;
         }
 
-        Debug.LogWarning("[GameFlow] tutorialPanelController no asignado. Se inicia nivel 0 directamente.");
-        StartFirstLevel();
-    }
-
-    private void StartFirstLevel()
-    {
-        StartCurrentLevelFlow();
-    }
-
-    private void StartCurrentLevelFlow()
-    {
-        int levelIndex = sceneInteractionManager?.GetCurrentLevelIndex() ?? 0;
-        int totalLevels = sceneInteractionManager?.GetTotalLevels() ?? 0;
-        int plantsRequired = sceneInteractionManager?.GetCurrentPlantsRequired() ?? 1;
-
-        TransitionTo(FlowState.LevelStarting, "StartCurrentLevelFlow");
+        // Nivel normal: publicar LevelStarted y continuar
+        TransitionTo(FlowState.LevelStarting, "StartCurrentLevelGameplay");
         GameEventBus.PublishLevelStarted(levelIndex, totalLevels, plantsRequired);
 
         if (RequiresDiseaseAnalysisBeforeSpawn(levelIndex))
@@ -316,6 +322,23 @@ public class GameFlowController : MonoBehaviour
             TransitionTo(FlowState.WaitingForDiseaseAnalysis, "AwaitDiseaseAnalysis");
             return;
         }
+
+        sceneInteractionManager?.SpawnCurrentLevel();
+        TransitionTo(FlowState.LevelPlaying, "SpawnedLevel");
+        GameEventBus.PublishLevelSpawned(levelIndex);
+    }
+
+    /// <summary>
+    /// Spawnea el nivel actual (llamado desde HandleTutorialStarted para el nivel tutorial).
+    /// </summary>
+    private void StartCurrentLevelGameplay()
+    {
+        int levelIndex  = sceneInteractionManager?.GetCurrentLevelIndex() ?? 0;
+        int totalLevels = sceneInteractionManager?.GetTotalLevels() ?? 0;
+        int plantsRequired = sceneInteractionManager?.GetCurrentPlantsRequired() ?? 1;
+
+        TransitionTo(FlowState.LevelStarting, "StartCurrentLevelGameplay");
+        GameEventBus.PublishLevelStarted(levelIndex, totalLevels, plantsRequired);
 
         sceneInteractionManager?.SpawnCurrentLevel();
         TransitionTo(FlowState.LevelPlaying, "SpawnedLevel");
@@ -406,8 +429,8 @@ public class GameFlowController : MonoBehaviour
         if (sceneInteractionManager == null)
             sceneInteractionManager = FindObjectOfType<SceneInteractionManager>(true);
 
-        if (startupOnboardingController == null)
-            startupOnboardingController = FindObjectOfType<StartupOnboardingController>(true);
+        if (levelIntroController == null)
+            levelIntroController = FindObjectOfType<LevelIntroController>(true);
 
         if (tutorialPanelController == null)
             tutorialPanelController = FindObjectOfType<TutorialPanelController>(true);

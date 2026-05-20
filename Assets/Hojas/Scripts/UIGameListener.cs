@@ -10,7 +10,7 @@ using UnityEngine;
 ///   TutorialPanelController.ShowAndStart() → barra corre → TutorialCompleted (bus)
 ///   → GameFlowController arranca primer nivel
 ///
-/// [Niveles de aprendizaje (índice menor que levelFinalIndex)]
+/// [Niveles de aprendizaje (no tutorial, no final)]
 ///   OnLevelStarted → diseasePanel.Show(asset del índice) + StartProgressBar()
 ///   OnDiseaseAnalysisCompleted → panel sube solo (SlideUp interno), cultivo aparece
 ///   OnPlantSelected(correcto)  → MsgCorrect → MsgProgress
@@ -18,13 +18,17 @@ using UnityEngine;
 ///   OnAllPlantsSelected        → MsgCongrats(nivel)
 ///   OnLevelCompleted           → diseasePanel.Hide() + HideAll mensajes
 ///
-/// [Nivel final de evaluación (índice == levelFinalIndex)]
-///   OnLevelStarted → MsgFinalLevel (sin panel de enfermedad)
+/// [Nivel final de evaluación (final index)]
+///   OnLevelStarted → (sin panel de enfermedad, sin MsgFinalLevel — ya lo mostro LevelIntroController)
 ///   Resto igual que niveles normales
 ///
 /// NOTA: Se usan Coroutines en vez de DOVirtual.DelayedCall para las
 /// transiciones críticas de flujo. DOVirtual.DelayedCall puede fallar
 /// silenciosamente en builds Android IL2CPP (Meta Quest).
+///
+/// NOTA: Las miniguias de inicio de nivel (Tutorial, NextLevel, FinalLevel)
+/// son ahora responsabilidad de LevelIntroController y se muestran ANTES
+/// de que OnLevelStarted se emita. Este listener ya no las muestra.
 ///
 /// CONFIGURACIÓN EN INSPECTOR:
 ///   - diseaseDataPerLevel: un PlantDiseaseDataAsset por nivel de aprendizaje,
@@ -35,9 +39,9 @@ using UnityEngine;
 public class UIGameListener : MonoBehaviour
 {
     [Header("Controllers de UI")]
-    [SerializeField] private UIMessagesController messages;
-    [SerializeField] private PlantDiseasePanelController diseasePanel;
-    [SerializeField] private TutorialPanelController tutorialPanel;
+    [SerializeField] private UIMessagesController messagesController;
+    [SerializeField] private PlantDiseasePanelController diseasePanelController;
+    [SerializeField] private TutorialPanelController tutorialPanelController;
 
     [Header("Datos de enfermedad por nivel")]
     [Tooltip("Un PlantDiseaseDataAsset por cada nivel de aprendizaje, en el mismo " +
@@ -51,9 +55,7 @@ public class UIGameListener : MonoBehaviour
 
 
     [Header("Timings (segundos)")]
-    [SerializeField] private float congratsDuration = 2.0f;
-    [SerializeField] private float nextLevelMessageDuration = 2.0f;
-    [SerializeField] private float finalLevelMessageDuration = 3.0f;
+    [SerializeField] private float congratsDuration    = 2.0f;
 
     private Coroutine _flowCoroutine;
     private int _currentLevelIndex = -1;
@@ -92,74 +94,65 @@ public class UIGameListener : MonoBehaviour
     private void HandleLevelStarted(int levelIndex, int totalLevels, int plantsRequired)
     {
         CancelFlowCoroutine();
-        _currentLevelIndex = levelIndex;
-        _currentTotalLevels = totalLevels;
+        _currentLevelIndex    = levelIndex;
+        _currentTotalLevels   = totalLevels;
         _currentPlantsRequired = plantsRequired < 1 ? 1 : plantsRequired;
 
-        messages.HideAll();
-        diseasePanel?.Hide();
+        messagesController.HideAll();
+        diseasePanelController?.Hide();
 
-        int finalLevelIndex = GetFinalLevelIndex(totalLevels);
-        bool isFinalLevel = levelIndex == finalLevelIndex;
+        int  finalLevelIndex         = GetFinalLevelIndex(totalLevels);
+        bool isFinalLevel            = levelIndex == finalLevelIndex;
         bool isTutorialGameplayLevel = levelIndex == tutorialLevelIndex;
 
-        if (isFinalLevel)
+        if (isFinalLevel || isTutorialGameplayLevel)
         {
-            messages.ShowFinalLevel();
-            _flowCoroutine = StartCoroutine(DelayedFinalLevelFlow());
-        }
-        else if (isTutorialGameplayLevel)
-        {
-            // En tutorial NO mostrar "siguiente nivel" automáticamente.
-            // Solo mostrar el progreso requerido del nivel tutorial.
-            messages.ShowProgress(0, _currentPlantsRequired);
+            // Las miniguias (FinalLevel, Tutorial) ya las mostró LevelIntroController antes de este evento.
+            // Aquí solo iniciamos el progreso o esperamos DiseaseAnalysis.
+            if (!isFinalLevel)
+                messagesController.ShowProgress(0, _currentPlantsRequired);
+            else
+                _flowCoroutine = StartCoroutine(DelayedFinalLevelFlow());
         }
         else
         {
-            if (levelIndex > 0)
-            {
-                messages.ShowNextLevel($"Nivel {levelIndex + 1} de {totalLevels}");
-                _flowCoroutine = StartCoroutine(DelayedNextLevelFlow(levelIndex));
-            }
-            else
-            {
-                ShowDiseasePanelForLevel(levelIndex, _currentPlantsRequired);
-            }
+            // Nivel normal: mostrar panel de enfermedad.
+            ShowDiseasePanelForLevel(levelIndex, _currentPlantsRequired);
         }
     }
 
     private void HandleLevelCompleted(int levelIndex)
     {
         CancelFlowCoroutine();
-        messages.HideAll();
-        diseasePanel?.Hide();
+        messagesController.HideAll();
+        diseasePanelController?.Hide();
 
         if (levelIndex == tutorialLevelIndex)
-            tutorialPanel?.Hide();
+            tutorialPanelController?.Hide();
     }
 
     private void HandleAllLevelsCompleted()
     {
         CancelFlowCoroutine();
-        messages.HideAll();
-        diseasePanel?.Hide();
-        messages.ShowCongrats("¡Completaste todas las pruebas!");
+        messagesController.HideAll();
+        diseasePanelController?.Hide();
+        messagesController.ShowCongrats("¡Completaste todas las pruebas!");
     }
 
     private void HandlePlantSelected(bool isCorrect, int plantsSelected, int plantsRequired)
     {
         CancelFlowCoroutine();
-        messages.HideAll();
+        messagesController.HideAll();
 
         if (plantsSelected < _currentPlantsRequired)
-            messages.ShowProgress(plantsSelected, _currentPlantsRequired);
+            messagesController.ShowProgress(plantsSelected, _currentPlantsRequired);
     }
 
     private void HandleAllPlantsSelected()
     {
         CancelFlowCoroutine();
-        messages.HideAll();
-        messages.ShowCongrats("¡Encontraste todas las plantas enfermas!");
+        messagesController.HideAll();
+        messagesController.ShowCongrats("¡Encontraste todas las plantas enfermas!");
         _flowCoroutine = StartCoroutine(DelayedCongratsFlow());
     }
 
@@ -170,31 +163,24 @@ public class UIGameListener : MonoBehaviour
     private void HandleDiseaseAnalysisCompleted()
     {
         if (ShouldShowDiseasePanel(_currentLevelIndex))
-            messages.ShowProgress(0, _currentPlantsRequired);
+            messagesController.ShowProgress(0, _currentPlantsRequired);
     }
 
     // ─────────────────────────────────────────────
     // Coroutines (reemplazan DOVirtual.DelayedCall)
     // ─────────────────────────────────────────────
 
-    private IEnumerator DelayedNextLevelFlow(int levelIndex)
-    {
-        yield return new WaitForSeconds(nextLevelMessageDuration);
-        messages.HideAll();
-        ShowDiseasePanelForLevel(levelIndex, _currentPlantsRequired);
-    }
-
     private IEnumerator DelayedFinalLevelFlow()
     {
-        yield return new WaitForSeconds(finalLevelMessageDuration);
-        messages.HideAll();
+        yield return new WaitForSeconds(congratsDuration);
+        messagesController.HideAll();
         GameEventBus.PublishDiseaseAnalysisCompleted();
     }
 
     private IEnumerator DelayedCongratsFlow()
     {
         yield return new WaitForSeconds(congratsDuration);
-        messages.HideAll();
+        messagesController.HideAll();
         GameEventBus.PublishDiseaseAnalysisCompleted();
     }
 
@@ -229,7 +215,7 @@ public class UIGameListener : MonoBehaviour
     /// </summary>
     private void ShowDiseasePanelForLevel(int levelIndex, int plantsRequired)
     {
-        if (diseasePanel == null) return;
+        if (diseasePanelController == null) return;
 
         if (diseaseDataPerLevel == null
             || levelIndex >= diseaseDataPerLevel.Length
@@ -247,7 +233,7 @@ public class UIGameListener : MonoBehaviour
             return;
         }
 
-        diseasePanel.Show(data);
-        diseasePanel.StartProgressBar();
+        diseasePanelController.Show(data);
+        diseasePanelController.StartProgressBar();
     }
 }

@@ -83,7 +83,7 @@ public class GameNarrationController : MonoBehaviour
     private void SubscribeEvents()
     {
         GameEventBus.OnSessionStartRequested += HandleStartFlowRequested;
-        GameEventBus.OnOnboardingStarted += HandleOnboardingStarted;
+        GameEventBus.OnLevelIntroStarted += HandleLevelIntroStarted;
         GameEventBus.OnTutorialStarted += HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted += HandleTutorialCompleted;
 
@@ -102,7 +102,7 @@ public class GameNarrationController : MonoBehaviour
     private void UnsubscribeEvents()
     {
         GameEventBus.OnSessionStartRequested -= HandleStartFlowRequested;
-        GameEventBus.OnOnboardingStarted -= HandleOnboardingStarted;
+        GameEventBus.OnLevelIntroStarted -= HandleLevelIntroStarted;
         GameEventBus.OnTutorialStarted -= HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted -= HandleTutorialCompleted;
 
@@ -161,7 +161,7 @@ public class GameNarrationController : MonoBehaviour
         SpeakLine(GameNarrationLineIds.StartSelectPlane, true);
     }
 
-    private void HandleOnboardingStarted()
+    private void HandleLevelIntroStarted()
     {
         SpeakSequence(true,
             GameNarrationLineIds.OnboardingOverview,

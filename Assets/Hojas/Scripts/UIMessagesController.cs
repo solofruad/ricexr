@@ -7,14 +7,15 @@ using System.Collections.Generic;
 /// Controlador de mensajes de feedback al jugador.
 /// Responsabilidad: mostrar y ocultar los paneles de mensaje con animaciones.
 /// No conoce la lógica del juego — recibe órdenes de UIGameListener.
+///
+/// Nota: los paneles de introducción de nivel (nextLevel, finalLevel, tutorial)
+/// son ahora responsabilidad de <see cref="LevelIntroController"/>.
 /// </summary>
 public class UIMessagesController : MonoBehaviour
 {
     [Header("UI Documents — uno por mensaje")]
     [SerializeField] private UIDocument docCongrats;
     [SerializeField] private UIDocument docProgress;
-    [SerializeField] private UIDocument docNextLevel;
-    [SerializeField] private UIDocument docFinalLevel;
 
     [Header("Animación")]
     [SerializeField] private float fadeInDuration = 0.25f;
@@ -27,8 +28,6 @@ public class UIMessagesController : MonoBehaviour
 
     private VisualElement _rootCongrats;
     private VisualElement _rootProgress;
-    private VisualElement _rootNextLevel;
-    private VisualElement _rootFinalLevel;
 
     private VisualElement _progressDotsContainer;
     private readonly List<VisualElement> _dynamicProgressDots = new List<VisualElement>();
@@ -39,8 +38,6 @@ public class UIMessagesController : MonoBehaviour
     {
         _rootCongrats = docCongrats?.rootVisualElement.Q<VisualElement>("msg-congrats");
         _rootProgress = docProgress?.rootVisualElement.Q<VisualElement>("msg-progress");
-        _rootNextLevel = docNextLevel?.rootVisualElement.Q<VisualElement>("msg-next-level");
-        _rootFinalLevel = docFinalLevel?.rootVisualElement.Q<VisualElement>("msg-final-level");
 
         _progressDotsContainer = _rootProgress?.Q<VisualElement>("progress-dots");
         HideAllImmediate();
@@ -93,27 +90,13 @@ public class UIMessagesController : MonoBehaviour
         ShowPanel(_rootCongrats);
     }
 
-    public void ShowNextLevel(string subtitle = null)
-    {
-        if (subtitle != null) _rootNextLevel?.Q<Label>("nextlevel-sub").SetText(subtitle);
-        PlaceDoc(docNextLevel, Vector3.zero);
-        ShowPanel(_rootNextLevel);
-    }
 
-    public void ShowFinalLevel(string description = null)
-    {
-        if (description != null) _rootFinalLevel?.Q<Label>("final-description").SetText(description);
-        PlaceDoc(docFinalLevel, Vector3.zero);
-        ShowPanel(_rootFinalLevel);
-    }
 
     public void HideAll()
     {
         _progressAutoHideTween?.Kill();
         FadeOutPanel(_rootCongrats);
         FadeOutPanel(_rootProgress);
-        FadeOutPanel(_rootNextLevel);
-        FadeOutPanel(_rootFinalLevel);
     }
 
     private void ShowPanel(VisualElement panel)
@@ -157,8 +140,6 @@ public class UIMessagesController : MonoBehaviour
     {
         SetHidden(_rootCongrats);
         SetHidden(_rootProgress);
-        SetHidden(_rootNextLevel);
-        SetHidden(_rootFinalLevel);
     }
 
     private static void SetHidden(VisualElement panel)

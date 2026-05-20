@@ -32,10 +32,6 @@ public class PlantDiseasePanelController : MonoBehaviour
     [SerializeField] private float slideUpAmount = 0.25f;
     [SerializeField] private float slideUpDuration = 0.6f;
 
-    [Header("World Space")]
-    [SerializeField] private float distanceFromCamera = 1.6f;
-    [SerializeField] private Vector3 cameraOffset = new Vector3(0f, -0.1f, 0f);
-
     [Header("Anclaje sobre superficie")]
     [SerializeField] private float surfaceHeightOffset = 0.18f;
 
@@ -298,8 +294,7 @@ public class PlantDiseasePanelController : MonoBehaviour
         if (SceneInteractionManager.Instance != null && SceneInteractionManager.Instance.HasSelectedPlane)
         {
             transform.position = SceneInteractionManager.Instance.SelectedPlanePosition
-                                 + (SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up) * surfaceHeightOffset
-                                 + cameraOffset;
+                                 + (SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up) * surfaceHeightOffset;
             _basePosition = transform.position;
             return;
         }
@@ -308,7 +303,7 @@ public class PlantDiseasePanelController : MonoBehaviour
         Transform cam = Camera.main.transform;
         Vector3 fwd = cam.forward; fwd.y = 0f;
         if (fwd.sqrMagnitude < 0.0001f) fwd = cam.forward;
-        transform.position = cam.position + fwd.normalized * distanceFromCamera + cameraOffset;
+        transform.position = cam.position + fwd.normalized;
         _basePosition = transform.position;
     }
 }
