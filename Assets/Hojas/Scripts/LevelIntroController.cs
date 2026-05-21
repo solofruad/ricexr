@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -143,10 +144,15 @@ public class LevelIntroController : MonoBehaviour
     private Tween _miniGuideFadeTween;
     private Tween _miniGuideHoldTween;
 
+    private Coroutine _introFadeDelayRoutine;
+    private Coroutine _continueButtonFadeDelayRoutine;
+    private Coroutine _miniGuideFadeDelayRoutine;
+
     // ── Estado interno de nivel ───────────────────────────────────────────────
 
-    private readonly List<VisualElement> _levelElements    = new List<VisualElement>();
-    private readonly List<Tween>         _levelColorTweens = new List<Tween>();
+    private readonly List<VisualElement> _levelElements        = new List<VisualElement>();
+    private readonly List<Tween>         _levelColorTweens     = new List<Tween>();
+    private readonly List<Coroutine>     _levelColorDelayRoutines = new List<Coroutine>();
     private UIDocument _cachedLevelsDocument;
     private int        _currentLevelIndex = -1;
 
@@ -319,6 +325,10 @@ public class LevelIntroController : MonoBehaviour
     {
         if (colorDuration < 0f) colorDuration = levelColorTweenDuration;
 
+
+        Debug.Log($"[LevelIntro] SetActiveLevel({levelIndex}, duration={colorDuration})--------------------------------");
+        Debug.Log($"Nivel actual: {_currentLevelIndex}, Nivel solicitado: {levelIndex}");
+
         CacheLevelElements();
         if (_levelElements.Count == 0) return;
 
@@ -419,12 +429,15 @@ public class LevelIntroController : MonoBehaviour
 
         SetVisible(root, doc);
         _miniGuideFadeTween?.Kill();
-        _miniGuideFadeTween = FadeElement(root, 0f, 1f, fadeInDuration, Ease.OutCubic, () =>
+        StartNextFrame(ref _miniGuideFadeDelayRoutine, () =>
         {
-            _miniGuideHoldTween?.Kill();
-            _miniGuideHoldTween = DOVirtual.DelayedCall(
-                Mathf.Max(0.5f, miniGuideDuration),
-                () => HideMiniGuide(root, doc, onDone));
+            _miniGuideFadeTween = FadeElement(root, 0f, 1f, fadeInDuration, Ease.OutCubic, () =>
+            {
+                _miniGuideHoldTween?.Kill();
+                _miniGuideHoldTween = DOVirtual.DelayedCall(
+                    Mathf.Max(0.5f, miniGuideDuration),
+                    () => HideMiniGuide(root, doc, onDone));
+            });
         });
     }
 
@@ -432,10 +445,13 @@ public class LevelIntroController : MonoBehaviour
     {
         _miniGuideFadeTween?.Kill();
         float from = root.resolvedStyle.opacity;
-        _miniGuideFadeTween = FadeElement(root, from, 0f, fadeOutDuration, Ease.InQuad, () =>
+        StartNextFrame(ref _miniGuideFadeDelayRoutine, () =>
         {
-            SetHidden(root, doc);
-            onDone?.Invoke();
+            _miniGuideFadeTween = FadeElement(root, from, 0f, fadeOutDuration, Ease.InQuad, () =>
+            {
+                SetHidden(root, doc);
+                onDone?.Invoke();
+            });
         });
     }
 
@@ -461,8 +477,15 @@ public class LevelIntroController : MonoBehaviour
         _introFadeTween?.Kill();
         _continueButtonFadeTween?.Kill();
 
-        _introFadeTween          = FadeElement(_introRoot,      0f, 1f, fadeInDuration, Ease.OutCubic, null);
-        _continueButtonFadeTween = FadeElement(_continueRoot, 0f, 1f, fadeInDuration, Ease.OutCubic, null);
+        StartNextFrame(ref _introFadeDelayRoutine, () =>
+        {
+            _introFadeTween = FadeElement(_introRoot, 0f, 1f, fadeInDuration, Ease.OutCubic, null);
+        });
+
+        StartNextFrame(ref _continueButtonFadeDelayRoutine, () =>
+        {
+            _continueButtonFadeTween = FadeElement(_continueRoot, 0f, 1f, fadeInDuration, Ease.OutCubic, null);
+        });
 
         _introAutoAdvanceTween?.Kill();
         _introAutoAdvanceTween = DOVirtual.DelayedCall(Mathf.Max(1f, introAutoAdvanceDelay), AdvanceFromIntro);
@@ -477,18 +500,27 @@ public class LevelIntroController : MonoBehaviour
         _introFadeTween?.Kill();
         _continueButtonFadeTween?.Kill();
 
+        StopDelayRoutine(ref _introFadeDelayRoutine);
+        StopDelayRoutine(ref _continueButtonFadeDelayRoutine);
+
         float fromIntro   = _introRoot?.resolvedStyle.opacity ?? 1f;
         float fromButton  = _continueRoot?.resolvedStyle.opacity ?? 1f;
 
-        _continueButtonFadeTween = FadeElement(_continueRoot, fromButton, 0f, fadeOutDuration, Ease.InQuad, () =>
+        StartNextFrame(ref _continueButtonFadeDelayRoutine, () =>
         {
-            SetHidden(_continueRoot, continueButtonDocument);
+            _continueButtonFadeTween = FadeElement(_continueRoot, fromButton, 0f, fadeOutDuration, Ease.InQuad, () =>
+            {
+                SetHidden(_continueRoot, continueButtonDocument);
+            });
         });
 
-        _introFadeTween = FadeElement(_introRoot, fromIntro, 0f, fadeOutDuration, Ease.InQuad, () =>
+        StartNextFrame(ref _introFadeDelayRoutine, () =>
         {
-            SetHidden(_introRoot, introDocument);
-            CompleteSequence();
+            _introFadeTween = FadeElement(_introRoot, fromIntro, 0f, fadeOutDuration, Ease.InQuad, () =>
+            {
+                SetHidden(_introRoot, introDocument);
+                CompleteSequence();
+            });
         });
     }
 
@@ -562,8 +594,11 @@ public class LevelIntroController : MonoBehaviour
     private void TweenLevelColors(VisualElement element, Color bgColor, Color borderColor, float duration)
     {
         if (element == null) return;
-        Tween t = BuildColorTween(element, bgColor, borderColor, duration);
-        if (t != null) _levelColorTweens.Add(t);
+        StartNextFrame(_levelColorDelayRoutines, () =>
+        {
+            Tween t = BuildColorTween(element, bgColor, borderColor, duration);
+            if (t != null) _levelColorTweens.Add(t);
+        });
     }
 
     private static Tween BuildColorTween(VisualElement element, Color bgColor, Color borderColor, float duration)
@@ -572,6 +607,7 @@ public class LevelIntroController : MonoBehaviour
         Color fromBorder = element.resolvedStyle.borderLeftColor;
 
         Sequence seq = DOTween.Sequence();
+        seq.SetUpdate(true);
         seq.Join(DOTween.To(() => fromBg,     v => { fromBg     = v; element.style.backgroundColor = v; }, bgColor,     duration));
         seq.Join(DOTween.To(() => fromBorder, v => { fromBorder = v; SetBorderColor(element, v);         }, borderColor, duration));
         return seq;
@@ -605,8 +641,6 @@ public class LevelIntroController : MonoBehaviour
             element.style.display = DisplayStyle.None;
             element.style.opacity = 0f;
         }
-        if (document != null && document.gameObject.activeSelf)
-            document.gameObject.SetActive(false);
     }
 
     private static Tween FadeElement(VisualElement element, float from, float to, float duration, Ease ease, Action onComplete)
@@ -624,8 +658,34 @@ public class LevelIntroController : MonoBehaviour
                 () => opacity,
                 v  => { opacity = v; element.style.opacity = v; },
                 to, duration)
+            .SetUpdate(true)
             .SetEase(ease)
             .OnComplete(() => onComplete?.Invoke());
+    }
+
+    private void StartNextFrame(ref Coroutine routine, Action action)
+    {
+        StopDelayRoutine(ref routine);
+        routine = StartCoroutine(NextFrameRoutine(action));
+    }
+
+    private void StartNextFrame(List<Coroutine> routines, Action action)
+    {
+        Coroutine routine = StartCoroutine(NextFrameRoutine(action));
+        routines.Add(routine);
+    }
+
+    private static IEnumerator NextFrameRoutine(Action action)
+    {
+        yield return null; // Espera un frame para asegurar que el panel esté activo.
+        action?.Invoke();
+    }
+
+    private void StopDelayRoutine(ref Coroutine routine)
+    {
+        if (routine == null) return;
+        StopCoroutine(routine);
+        routine = null;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -634,6 +694,12 @@ public class LevelIntroController : MonoBehaviour
 
     private void KillLevelColorTweens()
     {
+        for (int i = 0; i < _levelColorDelayRoutines.Count; i++)
+        {
+            if (_levelColorDelayRoutines[i] != null) StopCoroutine(_levelColorDelayRoutines[i]);
+        }
+        _levelColorDelayRoutines.Clear();
+
         for (int i = 0; i < _levelColorTweens.Count; i++) _levelColorTweens[i]?.Kill();
         _levelColorTweens.Clear();
     }
@@ -645,6 +711,10 @@ public class LevelIntroController : MonoBehaviour
         _continueButtonFadeTween?.Kill();
         _miniGuideFadeTween?.Kill();
         _miniGuideHoldTween?.Kill();
+
+        StopDelayRoutine(ref _introFadeDelayRoutine);
+        StopDelayRoutine(ref _continueButtonFadeDelayRoutine);
+        StopDelayRoutine(ref _miniGuideFadeDelayRoutine);
         KillLevelColorTweens();
     }
 }
