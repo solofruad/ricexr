@@ -2725,8 +2725,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIMessagesController
   docCongrats: {fileID: 1757377366}
   docProgress: {fileID: 608336917}
-  fadeInDuration: 0.6
-  fadeOutDuration: 0.6
+  fadeInDuration: 2
+  fadeOutDuration: 2
   progressVisibleDuration: 2.5
   surfaceHeightOffset: 0.28
 --- !u!1 &608336916
