@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8177346211307265670}
   - component: {fileID: 8619057581220553963}
   - component: {fileID: 6884323404646464268}
+  - component: {fileID: 5678110451935858331}
   m_Layer: 0
   m_Name: pyri2.001
   m_TagString: Untagged
@@ -58,10 +59,15 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a789c9729a2f7b74c8192d40ee5e0259, type: 2}
+  - {fileID: 2100000, guid: ea3935ea34944be41b5762ca708e6fe3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -79,10 +85,26 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5678110451935858331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 568510312296371863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96ef48963d10f7f468ab57dd14510004, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BurnLeafRenderer
+  albedo: {fileID: 2800000, guid: 34714d30c27a9424fb4fc16c637fd896, type: 3}
+  burnProgress: 0
 --- !u!1 &8997180890041100808
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,6 +163,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -162,9 +189,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1001 &7638661463880482840
 PrefabInstance:
@@ -312,7 +341,7 @@ PrefabInstance:
     - target: {fileID: 9020422268904497308, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: m_Name
-      value: Pyricularia1
+      value: Pyricularia2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

@@ -58,6 +58,11 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -79,9 +84,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7902621331152892562
 GameObject:
@@ -94,6 +101,7 @@ GameObject:
   - component: {fileID: 1554078589738666459}
   - component: {fileID: 6394128320267734843}
   - component: {fileID: 6100346507172084992}
+  - component: {fileID: 3173098632040510025}
   m_Layer: 0
   m_Name: pyri3.001
   m_TagString: Untagged
@@ -141,10 +149,15 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 66d9e80810757bf48b1b2d6a7561da0f, type: 2}
+  - {fileID: 2100000, guid: ea3935ea34944be41b5762ca708e6fe3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -162,10 +175,26 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3173098632040510025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7902621331152892562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96ef48963d10f7f468ab57dd14510004, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BurnLeafRenderer
+  albedo: {fileID: 2800000, guid: 529d5acc6d1905f40a4a2d9ce1e4f68a, type: 3}
+  burnProgress: 0
 --- !u!1001 &7638661463880482840
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -312,7 +341,7 @@ PrefabInstance:
     - target: {fileID: 9020422268904497308, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: m_Name
-      value: Pyricularia1 3
+      value: Pyricularia3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
