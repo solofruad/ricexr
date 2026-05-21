@@ -2321,11 +2321,11 @@ PrefabInstance:
         type: 3}
       propertyPath: mainMenuPanel
       value: 
-      objectReference: {fileID: 1675194212}
+      objectReference: {fileID: 2146888651}
     - target: {fileID: 1256800381239343014, guid: cfbc95b1f69c4134da6041be31de97ea,
         type: 3}
       propertyPath: positionOffset.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1256800381239343014, guid: cfbc95b1f69c4134da6041be31de97ea,
         type: 3}
@@ -2780,8 +2780,8 @@ Transform:
   m_GameObject: {fileID: 608336916}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.98, y: 1.5000001, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -5.98, y: 1.85, z: 0}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 594721546}
@@ -8746,19 +8746,13 @@ Transform:
   - {fileID: 59926630}
   m_Father: {fileID: 1367587311}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1675194212 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3150328593329379265, guid: 5f3cc421b2d59c544b67afb9283fbba0,
-    type: 3}
-  m_PrefabInstance: {fileID: 755066567}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1675194214 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5555753116857508969, guid: 5f3cc421b2d59c544b67afb9283fbba0,
     type: 3}
   m_PrefabInstance: {fileID: 755066567}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1675194212}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3582a3c3e185aa048a0f9c185c82a135, type: 3}

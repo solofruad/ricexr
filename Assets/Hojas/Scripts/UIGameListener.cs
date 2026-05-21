@@ -136,7 +136,6 @@ public class UIGameListener : MonoBehaviour
         CancelFlowCoroutine();
         messagesController.HideAll();
         diseasePanelController?.Hide();
-        messagesController.ShowCongrats("¡Completaste todas las pruebas!");
     }
 
     private void HandlePlantSelected(bool isCorrect, int plantsSelected, int plantsRequired)
