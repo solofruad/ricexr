@@ -56,8 +56,6 @@ public class MainMenuController : MonoBehaviour
         if (_startFlowTriggered) return;
         _startFlowTriggered = true;
 
-        if (startButton != null)
-            startButton.interactable = false;
 
         // Publicar al bus — GameFlowController escucha esto y orquesta todo
         GameEventBus.PublishSessionStartRequested();
