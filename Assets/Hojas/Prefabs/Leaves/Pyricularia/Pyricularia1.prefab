@@ -101,6 +101,7 @@ GameObject:
   - component: {fileID: 5489844350981722212}
   - component: {fileID: 1308708697021329159}
   - component: {fileID: 2129770845228069046}
+  - component: {fileID: 2860450057971903755}
   m_Layer: 0
   m_Name: pyri1.001
   m_TagString: Untagged
@@ -180,6 +181,20 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2860450057971903755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8911216152880149385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96ef48963d10f7f468ab57dd14510004, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BurnLeafRenderer
+  albedo: {fileID: 2800000, guid: 9de9bf364ef41a54b90e459bf1ffd9fc, type: 3}
+  burnProgress: 0
 --- !u!1001 &7638661463880482840
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -226,7 +241,7 @@ PrefabInstance:
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
@@ -241,7 +256,7 @@ PrefabInstance:
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].severity
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
@@ -261,12 +276,12 @@ PrefabInstance:
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.x
-      value: -0.095
+      value: -0.078
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.y
-      value: 0.479
+      value: 0.764
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}

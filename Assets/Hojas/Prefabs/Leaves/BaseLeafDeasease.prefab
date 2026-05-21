@@ -605,8 +605,8 @@ GameObject:
   - component: {fileID: 325899091973635244}
   - component: {fileID: 5207361169786461324}
   - component: {fileID: 704783356022489555}
-  - component: {fileID: 4961314317621461471}
   - component: {fileID: 7527870196964183638}
+  - component: {fileID: 4961314317621461471}
   m_Layer: 0
   m_Name: GrabHoja
   m_TagString: Untagged
@@ -683,6 +683,26 @@ MonoBehaviour:
   _rigidbody: {fileID: 5207361169786461324}
   _kinematicWhileSelected: 0
   _throwWhenUnselected: 1
+--- !u!114 &7527870196964183638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6503703563333422508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce4ea0ac8fced4847b62dfece075411e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  diseaseSpots: []
+  markerPrefab: {fileID: 5379944017890052449, guid: 5335195cb523ae24a873ba11e5465b25,
+    type: 3}
+  showMarkers: 0
+  ableToShowMarkers: 1
+  burnDuration: 1.5
+  delayBeforeBurn: 1
+  pointableWrapper: {fileID: 4961314317621461471}
 --- !u!114 &4961314317621461471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -801,26 +821,6 @@ MonoBehaviour:
   _whenCancel:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &7527870196964183638
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6503703563333422508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce4ea0ac8fced4847b62dfece075411e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  diseaseSpots: []
-  markerPrefab: {fileID: 5379944017890052449, guid: 5335195cb523ae24a873ba11e5465b25,
-    type: 3}
-  showMarkers: 0
-  ableToShowMarkers: 1
-  burnDuration: 1.5
-  delayBeforeBurn: 1
-  pointableWrapper: {fileID: 4961314317621461471}
 --- !u!1 &9020422268904497308
 GameObject:
   m_ObjectHideFlags: 0
