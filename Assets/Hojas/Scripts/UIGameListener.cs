@@ -47,7 +47,7 @@ public class UIGameListener : MonoBehaviour
     [Tooltip("Un PlantDiseaseDataAsset por cada nivel de aprendizaje, en el mismo " +
              "orden que levelConfigs en SceneInteractionManager. " +
              "El nivel final no necesita entrada.")]
-    [SerializeField] private PlantDiseaseDataAsset[] diseaseDataPerLevel;
+    [SerializeField] private PanelDiseaseDataObject[] diseaseDataPerLevel;
 
     [Header("Índices especiales")]
     [Tooltip("Índice base-0 del nivel de tutorial jugable (práctica sin panel de enfermedad).")]
@@ -226,7 +226,7 @@ public class UIGameListener : MonoBehaviour
             return;
         }
 
-        PlantDiseaseData data = diseaseDataPerLevel[levelIndex].data;
+        PanelDiseaseData data = diseaseDataPerLevel[levelIndex].data;
         if (data == null)
         {
             Debug.LogWarning($"[UIGameListener] El asset del nivel {levelIndex} existe pero 'data' está vacío.");

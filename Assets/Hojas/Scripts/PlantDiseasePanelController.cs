@@ -81,7 +81,7 @@ public class PlantDiseasePanelController : MonoBehaviour
     /// Muestra el panel con los datos de la enfermedad del nivel actual.
     /// Llamar al inicio de cada nivel de aprendizaje (no en el nivel final de evaluación).
     /// </summary>
-    public void Show(PlantDiseaseData data)
+    public void Show(PanelDiseaseData data)
     {
         if (_root == null || data == null) return;
 

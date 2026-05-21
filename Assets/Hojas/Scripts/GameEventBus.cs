@@ -103,7 +103,7 @@ public static class GameEventBus
     // ── Enfermedad detectada ─────────────────────────────────────────────────
 
     /// <summary>Emitido cuando se identifica una enfermedad y hay datos para mostrar en el panel.</summary>
-    public static event Action<PlantDiseaseData> OnDiseaseIdentified;
+    public static event Action<PanelDiseaseData> OnDiseaseIdentified;
 
     /// <summary>Emitido cuando el panel de enfermedad termina su análisis visual.</summary>
     public static event Action OnDiseaseAnalysisCompleted;
@@ -263,7 +263,7 @@ public static class GameEventBus
         OnAllPlantsSelected?.Invoke();
     }
 
-    public static void PublishDiseaseIdentified(PlantDiseaseData data)
+    public static void PublishDiseaseIdentified(PanelDiseaseData data)
     {
         Debug.Log($"[GameEventBus] DiseaseIdentified → {data?.title}");
         OnDiseaseIdentified?.Invoke(data);

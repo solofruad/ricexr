@@ -1480,7 +1480,7 @@ PrefabInstance:
         type: 3}
       propertyPath: diseaseSelectionPanel
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1897039743}
     - target: {fileID: 8462966564854158824, guid: 15667e6656432b641b5e5cbbc615ae0d,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -7762,8 +7762,8 @@ MonoBehaviour:
   tutorialPanelController: {fileID: 873954174}
   diseaseDataPerLevel:
   - {fileID: 0}
-  - {fileID: 11400000, guid: c9a9b0d6ec153ca4584b2e13623bd0b8, type: 2}
-  - {fileID: 11400000, guid: 4d7f6f66f6f05ba4b9b852ea33637c6a, type: 2}
+  - {fileID: 11400000, guid: e1fe9b826fd15e142a3e70a62563b8a6, type: 2}
+  - {fileID: 11400000, guid: 5dc904697ca98864994f66a9efa7a3d0, type: 2}
   - {fileID: 0}
   tutorialLevelIndex: 0
   congratsDuration: 3
@@ -9067,6 +9067,12 @@ Transform:
   - {fileID: 1193198298}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1897039743 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5271453744455933855, guid: 15667e6656432b641b5e5cbbc615ae0d,
+    type: 3}
+  m_PrefabInstance: {fileID: 80270023}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1900167007
 GameObject:
   m_ObjectHideFlags: 0
