@@ -2725,9 +2725,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIMessagesController
   docCongrats: {fileID: 1757377366}
   docProgress: {fileID: 608336917}
-  fadeInDuration: 2
-  fadeOutDuration: 2
-  progressVisibleDuration: 2.5
+  fadeInDuration: 1
+  fadeOutDuration: 1
+  progressVisibleDuration: 3
   surfaceHeightOffset: 0.28
 --- !u!1 &608336916
 GameObject:
@@ -7486,7 +7486,7 @@ MonoBehaviour:
   panelOffset: {x: 4, y: 0, z: 0}
   panelAnimDuration: 1
   observeToDiagnoseDelay: 10
-  slideUpAmount: 0.7
+  slideUpAmount: 0.5
   slideUpDuration: 1
   surfaceHeightOffset: 0.7
 --- !u!4 &873954176
@@ -9824,7 +9824,7 @@ MonoBehaviour:
   miniGuideDuration: 3
   fadeInDuration: 2
   fadeOutDuration: 2
-  levelColorTweenDuration: 4
+  levelColorTweenDuration: 1.5
   surfaceHeightOffset: 0.3
 --- !u!1 &2109511633
 GameObject:
