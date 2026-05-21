@@ -1,0 +1,146 @@
+/* ============================================================
+   DiseaseMarker.uss
+   Colores clave:
+     Rojo enfermedad : #FF0000  →  used in disease-* elements
+     Azul severidad  : #0022FF  →  used in severity-* elements
+   ============================================================ */
+
+/* ---------- Variables de color ---------- */
+:root {
+    --c-disease: rgb(255, 0, 0);
+    --c-disease-dim: rgba(255, 0, 0, 0.15);
+    --c-disease-mid: rgba(255, 0, 0, 0.55);
+
+    --c-severity: rgb(0, 34, 255);
+    --c-severity-dim: rgba(0, 34, 255, 0.15);
+    --c-severity-mid: rgba(0, 34, 255, 0.55);
+
+    --c-bg: rgba(8, 8, 12, 0.88);
+    --c-divider: rgba(255, 255, 255, 0.12);
+    --c-text-primary: rgb(245, 245, 245);
+    --c-text-muted: rgba(245, 245, 245, 0.55);
+}
+
+/* ---------- Contenedor raíz ---------- */
+.root {
+    width: 320px;
+    background-color: var(--c-bg);
+    border-radius: 14px;
+    overflow: hidden;
+    padding: 0px;
+
+    /* Borde sutil blanco para recorte en VR */
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.1);
+
+    /* Sombra difusa para legibilidad sobre la hoja */
+    -unity-font-style: normal;
+}
+
+/* ---------- Cabeceras de sección ---------- */
+.section-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 16px 6px 16px;
+}
+
+.disease-header {
+    background-color: var(--c-disease-dim);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--c-disease-mid);
+}
+
+.severity-header {
+    background-color: var(--c-severity-dim);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--c-severity-mid);
+}
+
+/* Punto de color indicador */
+.header-icon {
+    font-size: 8px;
+    margin-right: 8px;
+    -unity-font-style: normal;
+}
+
+.disease-header .header-icon {
+    color: var(--c-disease);
+}
+
+.severity-header .header-icon {
+    color: var(--c-severity);
+}
+
+/* Texto de etiqueta (ENFERMEDAD / SEVERIDAD) */
+.header-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--c-text-muted);
+    -unity-font-style: bold;
+}
+
+/* ---------- Cuerpos de sección ---------- */
+.section-body {
+    padding: 10px 16px 12px 16px;
+}
+
+/* ---------- Nombre de la enfermedad ---------- */
+.disease-name {
+    font-size: 20px;
+    color: var(--c-disease);
+    white-space: normal;
+    -unity-font-style: bold;
+    /* Leve resplandor textual: simulado con color más vivo */
+}
+
+/* ---------- Divisor ---------- */
+.divider {
+    height: 1px;
+    background-color: var(--c-divider);
+    margin-left: 16px;
+    margin-right: 16px;
+}
+
+/* ---------- Severidad: número + barra ---------- */
+.severity-body {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 16px 14px 16px;
+}
+
+/* Número grande */
+.severity-number {
+    font-size: 36px;
+    color: var(--c-severity);
+    -unity-font-style: bold;
+    width: 48px;
+    margin-right: 14px;
+    -unity-text-align: middle-center;
+}
+
+/* Barra de 5 segmentos */
+.severity-bar {
+    flex-direction: row;
+    flex-grow: 1;
+    height: 14px;
+    align-items: center;
+}
+
+.seg {
+    flex-grow: 1;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+/* Segmento activo (≤ severidad actual) */
+.seg.active {
+    background-color: var(--c-severity);
+}
+
+/* Segmento inactivo (> severidad actual) */
+.seg.inactive {
+    background-color: var(--c-severity-dim);
+    border-width: 1px;
+    border-color: var(--c-severity-mid);
+}
