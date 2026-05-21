@@ -105,6 +105,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BurnLeafRenderer
   albedo: {fileID: 2800000, guid: b874f4e61efb9d34f892762d952fc503, type: 3}
   burnProgress: 0
+  burnDuration: 1.5
+  delayBeforeBurn: 1
 --- !u!1 &8738730153839631609
 GameObject:
   m_ObjectHideFlags: 0
@@ -203,6 +205,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: burnLeafRenderer
+      value: 
+      objectReference: {fileID: 4596189382142449994}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.size
