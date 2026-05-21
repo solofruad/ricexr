@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using DG.Tweening;
 
 [RequireComponent(typeof(Renderer))]
 public class BurnLeafRenderer : MonoBehaviour
@@ -9,11 +11,20 @@ public class BurnLeafRenderer : MonoBehaviour
     [Header("Burn")]
     [Range(0f, 1f)] public float burnProgress = 0f;
 
+    [Tooltip("Duracion del efecto en segundos")]
+    public float burnDuration = 1.5f;
+    [Tooltip("Tiempo de espera antes de empezar a quemarse")]
+    public float delayBeforeBurn = 1.0f;
+
     Renderer _renderer;
     MaterialPropertyBlock _mpb;
 
     static readonly int PropAlbedo   = Shader.PropertyToID("_BaseMap");
     static readonly int PropProgress = Shader.PropertyToID("_BurnProgress");
+
+    // -------------------------------------------------------------------------
+    // Unity lifecycle
+    // -------------------------------------------------------------------------
 
     void Awake()
     {
@@ -22,11 +33,43 @@ public class BurnLeafRenderer : MonoBehaviour
         Apply();
     }
 
+    // -------------------------------------------------------------------------
+    // API pública
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Anima el efecto de quemado de 0 a 1 usando DOTween.
+    /// Llama a <paramref name="onComplete"/> al terminar.
+    /// Leaf (u otro sistema) llama a este método para arrancar el burn.
+    /// </summary>
+    public void Burn(Action onComplete = null)
+    {
+        // Resetear al inicio
+        SetBurn(0f);
+
+        DOVirtual.DelayedCall(delayBeforeBurn, () =>
+        {
+            DOTween.To(
+                () => burnProgress,
+                x  => SetBurn(x),
+                1f,
+                burnDuration
+            ).OnComplete(() => onComplete?.Invoke());
+        });
+    }
+
+    /// <summary>
+    /// Establece el progreso de quemado manualmente (útil para debug o control externo).
+    /// </summary>
     public void SetBurn(float progress)
     {
         burnProgress = progress;
         Apply();
     }
+
+    // -------------------------------------------------------------------------
+    // Interno
+    // -------------------------------------------------------------------------
 
     void Apply()
     {

@@ -1480,7 +1480,7 @@ PrefabInstance:
         type: 3}
       propertyPath: diseaseSelectionPanel
       value: 
-      objectReference: {fileID: 1897039743}
+      objectReference: {fileID: 0}
     - target: {fileID: 8462966564854158824, guid: 15667e6656432b641b5e5cbbc615ae0d,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -7279,7 +7279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &758161708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8781,7 +8781,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1701109464
 Transform:
   m_ObjectHideFlags: 0
@@ -9067,12 +9067,6 @@ Transform:
   - {fileID: 1193198298}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1897039743 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5271453744455933855, guid: 15667e6656432b641b5e5cbbc615ae0d,
-    type: 3}
-  m_PrefabInstance: {fileID: 80270023}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1900167007
 GameObject:
   m_ObjectHideFlags: 0
@@ -9621,7 +9615,7 @@ MonoBehaviour:
   m_WorldSpaceWidth: 642
   m_WorldSpaceHeight: 419.9
   m_PivotReferenceSize: 0
-  m_Pivot: 7
+  m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
 --- !u!4 &1945748628
 Transform:
@@ -9796,7 +9790,7 @@ MonoBehaviour:
   introDocument: {fileID: 2109511636}
   continueButtonDocument: {fileID: 1457785803}
   miniGuideTutorialDocument: {fileID: 0}
-  miniGuideNextLevelDocument: {fileID: 758161708}
+  miniGuideNextLevelDocument: {fileID: 0}
   miniGuideFinalLevelDocument: {fileID: 2005322336}
   autoFindDocuments: 0
   introRootElementName: panel-intro
@@ -9830,7 +9824,7 @@ MonoBehaviour:
   miniGuideDuration: 3
   fadeInDuration: 2
   fadeOutDuration: 2
-  levelColorTweenDuration: 2
+  levelColorTweenDuration: 4
   surfaceHeightOffset: 0.3
 --- !u!1 &2109511633
 GameObject:
