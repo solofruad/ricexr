@@ -126,7 +126,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   playerTag: Player
-  infoMessage: {fileID: 2358382116182989895}
+  infoMessage: {fileID: 5479976974120145376}
   visualTransform: {fileID: 7215639050441281105}
   surface: {fileID: 7309568860524962094}
   uiDocument: {fileID: 1926959744784688274}

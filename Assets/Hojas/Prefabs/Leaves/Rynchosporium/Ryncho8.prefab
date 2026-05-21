@@ -225,6 +225,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
+      propertyPath: diseaseSpots.Array.data[0].markerObject
+      value: 
+      objectReference: {fileID: 599675664375632624}
+    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
       propertyPath: diseaseSpots.Array.data[0].localPosition.x
       value: -0.034
       objectReference: {fileID: 0}
@@ -376,6 +381,12 @@ PrefabInstance:
 --- !u!4 &164823146824481841 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7900291983998647829, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+    type: 3}
+  m_PrefabInstance: {fileID: 8064513671652885028}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &599675664375632624 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7473883706703778004, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
     type: 3}
   m_PrefabInstance: {fileID: 8064513671652885028}
   m_PrefabAsset: {fileID: 0}
