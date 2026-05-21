@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 using Oculus.Interaction;
-using DG.Tweening;
 
 [System.Serializable]
 public class DiseaseSpot
@@ -25,17 +24,14 @@ public class DiseaseSpot
 /// Componente que representa una hoja con capacidad de mostrar manchas de enfermedad.
 ///
 /// Funcionalidades principales:
-/// 1. Gestiona múltiples manchas de enfermedad, cada una vinculada a un GameObject UIDocument
-///    que el diseñador posiciona manualmente en el editor.
+/// 1. Gestiona multiples manchas de enfermedad, cada una vinculada a un GameObject UIDocument
+///    que el disenador posiciona manualmente en el editor.
 /// 2. Rellena el contenido UXML de cada marcador con los datos del DiseaseSpot asociado.
-/// 3. Activa/desactiva los marcadores según showMarkers.
-/// 4. Implementa el efecto de quemado (BurnAndDisable) con DOTween.
+///    IMPORTANTE: UI Toolkit no garantiza que rootVisualElement exista en Start(), por eso
+///    FillMarkerUI lanza una corrutina que espera hasta que el panel este listo.
+/// 3. Activa/desactiva los marcadores segun showMarkers.
+/// 4. Delega el efecto de quemado a BurnLeafRenderer.
 /// 5. Integra con Oculus Interaction para detectar grab/release y notificar al listener global.
-///
-/// Uso típico:
-/// - Añadir los GameObjects marcadores a la escena y posicionarlos manualmente.
-/// - Asignar cada marcador al DiseaseSpot correspondiente en el inspector.
-/// - Los marcadores se rellenan y muestran/ocultan automáticamente al inicio.
 /// </summary>
 public class Leaf : MonoBehaviour
 {
@@ -47,16 +43,13 @@ public class Leaf : MonoBehaviour
     public bool showMarkers = true;
     public bool ableToShowMarkers = true;
 
-    [Header("Efecto de Desaparicion (Burn/Dissolve)")]
-    [Tooltip("Duracion del efecto en segundos")]
-    public float burnDuration = 1.5f;
-    [Tooltip("Tiempo de espera antes de empezar a quemarse")]
-    public float delayBeforeBurn = 1.0f;
+    [Header("Burn")]
+    [Tooltip("Referencia al BurnLeafRenderer que vive en el GameObject del mesh de la hoja")]
+    [SerializeField] private BurnLeafRenderer burnLeafRenderer;
 
     [SerializeField] private PointableUnityEventWrapper pointableWrapper;
 
     private bool _isBurning = false;
-    private static readonly int BurnProgressId = Shader.PropertyToID("_BurnProgress");
 
     // -------------------------------------------------------------------------
     // Unity lifecycle
@@ -77,9 +70,12 @@ public class Leaf : MonoBehaviour
     // Marcadores UIDocument
     // -------------------------------------------------------------------------
 
+    // Spots pendientes de poblar: se intentan cada frame hasta que el panel exista
+    private readonly List<DiseaseSpot> _pendingSpots = new List<DiseaseSpot>();
+
     /// <summary>
-    /// Recorre todos los DiseaseSpots, rellena su UIDocument con los datos
-    /// y aplica la visibilidad actual.
+    /// Activa los marcadores y los encola para poblar su UI en Update,
+    /// ya que el panel de UI Toolkit puede no estar listo en Start().
     /// </summary>
     public void PopulateAndShowMarkers()
     {
@@ -87,52 +83,70 @@ public class Leaf : MonoBehaviour
         {
             if (spot.markerObject == null)
             {
-                Debug.LogWarning($"[Leaf] El DiseaseSpot '{spot.diseaseName}' no tiene markerObject asignado.");
+                Debug.LogWarning($"[Leaf] DiseaseSpot '{spot.diseaseName}' no tiene markerObject asignado.");
                 continue;
             }
 
-            FillMarkerUI(spot);
             spot.markerObject.SetActive(showMarkers && ableToShowMarkers);
+            _pendingSpots.Add(spot);
         }
     }
 
     /// <summary>
-    /// Rellena los elementos del UXML con los datos del spot.
-    /// Requiere que el UIDocument tenga un elemento con name="disease-name"
-    /// y otro con name="severity-value".
+    /// Intenta poblar los spots pendientes cada frame.
+    /// En cuanto un spot queda poblado se saca de la lista.
+    /// Cuando la lista esta vacia, Update no hace nada.
     /// </summary>
-    private void FillMarkerUI(DiseaseSpot spot)
+    void Update()
     {
-        UIDocument doc = spot.markerObject.GetComponentInChildren<UIDocument>();
-        if (doc == null)
+        if (_pendingSpots.Count == 0) return;
+
+        for (int i = _pendingSpots.Count - 1; i >= 0; i--)
         {
-            Debug.LogWarning($"[Leaf] El markerObject '{spot.markerObject.name}' o sus hijos no tienen el componente UIDocument.");
-            return;
+            DiseaseSpot spot = _pendingSpots[i];
+
+            if (spot.markerObject == null) { _pendingSpots.RemoveAt(i); continue; }
+
+            UIDocument doc = spot.markerObject.GetComponentInChildren<UIDocument>(true);
+            if (doc == null)
+            {
+                Debug.LogError($"[Leaf] '{spot.markerObject.name}' no tiene UIDocument en si mismo ni en sus hijos.");
+                _pendingSpots.RemoveAt(i);
+                continue;
+            }
+
+            VisualElement root = doc.rootVisualElement;
+            if (root == null) continue;  // panel todavia no listo, reintentar el proximo frame
+
+            Debug.Log($"[Leaf] Poblando '{spot.markerObject.name}' | doc={doc.name} | diseaseName={spot.diseaseName} | severity={spot.severity}");
+            ApplySpotToRoot(spot, root);
+            _pendingSpots.RemoveAt(i);
         }
+    }
 
-        VisualElement root = doc.rootVisualElement;
-        if (root == null) return;
-
-        // Nombre de la enfermedad
+    /// <summary>
+    /// Escribe los datos del spot en el arbol visual ya inicializado.
+    /// </summary>
+    private static void ApplySpotToRoot(DiseaseSpot spot, VisualElement root)
+    {
         Label nameLabel = root.Q<Label>("disease-name");
+        Debug.Log($"[Leaf] disease-name label encontrado: {nameLabel != null}");
         if (nameLabel != null)
             nameLabel.text = string.IsNullOrEmpty(spot.scientificName)
                 ? spot.diseaseName
                 : $"{spot.diseaseName}\n<i>{spot.scientificName}</i>";
 
-        // Valor de severidad
         Label severityLabel = root.Q<Label>("severity-value");
+        Debug.Log($"[Leaf] severity-value label encontrado: {severityLabel != null}");
         if (severityLabel != null)
             severityLabel.text = spot.severity.ToString();
 
-        // Barra de severidad: llenamos los segmentos activos con la clase USS
         for (int i = 1; i <= 5; i++)
         {
             VisualElement segment = root.Q<VisualElement>($"seg-{i}");
-            if (segment == null) continue;
-
-            segment.EnableInClassList("active", i <= spot.severity);
-            segment.EnableInClassList("inactive", i > spot.severity);
+            if (segment == null) { Debug.LogWarning($"[Leaf] seg-{i} no encontrado"); continue; }
+            segment.EnableInClassList("active",   i <= spot.severity);
+            segment.EnableInClassList("inactive", i >  spot.severity);
         }
     }
 
@@ -219,7 +233,7 @@ public class Leaf : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Activa el efecto de quemado animando la propiedad del shader y desactiva la hoja.
+    /// Activa el efecto de quemado delegando la animacion del shader a BurnLeafRenderer.
     /// </summary>
     public void BurnAndDisable()
     {
@@ -231,27 +245,14 @@ public class Leaf : MonoBehaviour
 
         SetMarkersVisibility(false);
 
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-        if (renderers.Length == 0)
+        if (burnLeafRenderer == null)
         {
+            Debug.LogWarning($"[Leaf] No hay BurnLeafRenderer asignado en {gameObject.name}. Se desactiva sin animacion.");
             ReleaseAndDisable();
             return;
         }
 
-        foreach (var renderer in renderers)
-            renderer.material.SetFloat(BurnProgressId, 0f);
-
-        DOVirtual.DelayedCall(delayBeforeBurn, () =>
-        {
-            float val = 0f;
-            DOTween.To(() => val, x =>
-            {
-                val = x;
-                foreach (var renderer in renderers)
-                    renderer.material.SetFloat(BurnProgressId, x);
-            }, 1f, burnDuration)
-            .OnComplete(ReleaseAndDisable);
-        });
+        burnLeafRenderer.Burn(onComplete: ReleaseAndDisable);
     }
 
     private void ReleaseAndDisable()
