@@ -85,6 +85,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
 
     private Vector3 _originalScale = Vector3.one;
     private bool _panelVisible = false;
+    private Coroutine _feedbackCoroutine;
 
     void Awake()
     {
@@ -125,6 +126,11 @@ public class DiseaseSelectionSystem : MonoBehaviour
     void OnDisable()
     {
         GameEventBus.OnLevelStarted -= HandleLevelStarted;
+        if (_feedbackCoroutine != null)
+        {
+            StopCoroutine(_feedbackCoroutine);
+            _feedbackCoroutine = null;
+        }
     }
 
     /// <summary>Muestra el panel con animacion de escala.</summary>
@@ -395,12 +401,17 @@ public class DiseaseSelectionSystem : MonoBehaviour
             return;
         }
 
+        if (_feedbackCoroutine != null) StopCoroutine(_feedbackCoroutine);
+
         feedbackObject.SetActive(true);
-        DOVirtual.DelayedCall(feedbackDuration, () =>
-        {
-            if (feedbackObject != null)
-                feedbackObject.SetActive(false);
-        });
+        _feedbackCoroutine = StartCoroutine(HideFeedbackRoutine(feedbackObject, feedbackDuration));
+    }
+
+    private System.Collections.IEnumerator HideFeedbackRoutine(GameObject feedbackObject, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        if (feedbackObject != null)
+            feedbackObject.SetActive(false);
     }
 
     public void ResetSelection()
@@ -423,5 +434,6 @@ public class DiseaseSelectionSystem : MonoBehaviour
         if (submitButton != null)
             submitButton.onClick.RemoveListener(OnSubmit);
         diseaseSelectionPanel?.transform.DOKill();
+        if (_feedbackCoroutine != null) StopCoroutine(_feedbackCoroutine);
     }
 }

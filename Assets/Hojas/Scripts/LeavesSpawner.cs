@@ -108,14 +108,23 @@ public class LeavesSpawner : MonoBehaviour
 
             activeGrass.Add(grass.transform);
 
-            grass.transform
-                .DOScale(finalScale, instanceGrowDuration)
-                .SetDelay(spawnDelay)
-                .SetEase(growCurve)
-                .OnComplete(() => Debug.Log("Hoja creci� completamente."));
+            StartCoroutine(SpawnGrassRoutine(grass.transform, finalScale, instanceGrowDuration, spawnDelay));
         }
 
         yield return null;
+    }
+
+    private IEnumerator SpawnGrassRoutine(Transform grassTransform, Vector3 finalScale, float duration, float delay)
+    {
+        if (delay > 0f) yield return new WaitForSeconds(delay);
+        if (grassTransform != null)
+        {
+            grassTransform
+                .DOScale(finalScale, duration)
+                .SetEase(growCurve)
+                .SetLink(grassTransform.gameObject, LinkBehaviour.KillOnDestroy)
+                .OnComplete(() => Debug.Log("Hoja creció completamente."));
+        }
     }
 
     private List<Vector3> GenerateSpawnPositions()
@@ -147,6 +156,7 @@ public class LeavesSpawner : MonoBehaviour
 
     public void RespawnGrass()
     {
+        StopAllCoroutines();
         foreach (var t in activeGrass)
         {
             if (t != null)
@@ -158,6 +168,11 @@ public class LeavesSpawner : MonoBehaviour
 
         activeGrass.Clear();
         StartCoroutine(InitializeGrass());
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
     }
 
     private void OnDestroy()

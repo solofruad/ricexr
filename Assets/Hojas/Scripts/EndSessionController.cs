@@ -72,6 +72,7 @@ public class EndSessionController : MonoBehaviour
     private SessionMetricsTracker.SessionResult _pendingResult;
     private Vector3 _originalScale = Vector3.one;
     private Vector3 _menuOriginalScale = Vector3.one;
+    private Coroutine _returnToMenuRoutine;
 
     
     void Awake()
@@ -88,6 +89,11 @@ public class EndSessionController : MonoBehaviour
     void OnDisable()
     {
         GameEventBus.OnAllLevelsCompleted -= HandleAllLevelsCompleted;
+        if (_returnToMenuRoutine != null)
+        {
+            StopCoroutine(_returnToMenuRoutine);
+            _returnToMenuRoutine = null;
+        }
     }
 
     void Start()
@@ -284,12 +290,19 @@ public class EndSessionController : MonoBehaviour
     {
         GameEventBus.PublishReturningToMenu();
 
-        // Pequeña pausa, luego escala el endPanel a cero y lo desactiva
+        if (_returnToMenuRoutine != null) StopCoroutine(_returnToMenuRoutine);
+        _returnToMenuRoutine = StartCoroutine(ReturnToMenuRoutine());
+    }
+
+    private System.Collections.IEnumerator ReturnToMenuRoutine()
+    {
+        yield return new WaitForSeconds(1.2f);
+
+        // Luego escala el endPanel a cero y lo desactiva
         endPanel.transform.DOKill();
         endPanel.transform
             .DOScale(Vector3.zero, animDuration)
             .SetEase(Ease.InBack)
-            .SetDelay(1.2f)
             .OnComplete(() =>
             {
                 endPanel.SetActive(false);

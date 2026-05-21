@@ -396,7 +396,7 @@ public class TutorialPanelController : MonoBehaviour
         if (cg != null)
         {
             cg.alpha = 0f;
-            cg.DOFade(1f, panelAnimDuration).SetEase(Ease.OutCubic);
+            cg.DOFade(1f, panelAnimDuration).SetEase(Ease.OutCubic).SetLink(gameObject, LinkBehaviour.KillOnDisable);
             return;
         }
 
@@ -408,7 +408,8 @@ public class TutorialPanelController : MonoBehaviour
 
         float opacity = 0f;
         DOTween.To(() => opacity, v => { opacity = v; root.style.opacity = v; }, 1f, panelAnimDuration)
-            .SetEase(Ease.OutCubic);
+            .SetEase(Ease.OutCubic)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable);
     }
 
     /// <summary>
@@ -419,7 +420,7 @@ public class TutorialPanelController : MonoBehaviour
         var cg = panel.GetComponentInChildren<CanvasGroup>();
         if (cg != null)
         {
-            cg.DOFade(0f, panelAnimDuration).SetEase(Ease.InQuad).OnComplete(() => onComplete?.Invoke());
+            cg.DOFade(0f, panelAnimDuration).SetEase(Ease.InQuad).SetLink(gameObject, LinkBehaviour.KillOnDisable).OnComplete(() => onComplete?.Invoke());
             return;
         }
 
@@ -432,6 +433,7 @@ public class TutorialPanelController : MonoBehaviour
         float opacity = root.resolvedStyle.opacity;
         DOTween.To(() => opacity, v => { opacity = v; root.style.opacity = v; }, 0f, panelAnimDuration)
             .SetEase(Ease.InQuad)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable)
             .OnComplete(() => onComplete?.Invoke());
     }
 

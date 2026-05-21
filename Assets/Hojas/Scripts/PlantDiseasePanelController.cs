@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using DG.Tweening;
@@ -50,6 +50,8 @@ public class PlantDiseasePanelController : MonoBehaviour
     private Tween _progressTween;
     private Tween _fadeTween;
     private Tween _slideTween;
+    private Tween _carouselFadeOutTween;
+    private Tween _carouselFadeInTween;
     private bool _isVisible = false;
     private Vector3 _basePosition;
 
@@ -68,6 +70,8 @@ public class PlantDiseasePanelController : MonoBehaviour
         _progressTween?.Kill();
         _fadeTween?.Kill();
         _slideTween?.Kill();
+        _carouselFadeOutTween?.Kill();
+        _carouselFadeInTween?.Kill();
         StopCarousel();
     }
 
@@ -148,6 +152,8 @@ public class PlantDiseasePanelController : MonoBehaviour
         _isVisible = false;
 
         StopCarousel();
+        _carouselFadeOutTween?.Kill();
+        _carouselFadeInTween?.Kill();
         _progressTween?.Kill();
         _slideTween?.Kill();
 
@@ -197,7 +203,10 @@ public class PlantDiseasePanelController : MonoBehaviour
         bool done = false;
         float alphaOut = 1f;
 
-        DOTween.To(() => alphaOut, a =>
+        _carouselFadeOutTween?.Kill();
+        _carouselFadeInTween?.Kill();
+
+        _carouselFadeOutTween = DOTween.To(() => alphaOut, a =>
         {
             alphaOut = a;
             _carouselImage.style.backgroundColor = new Color(0f, 0f, 0f, 1f - a);
@@ -207,7 +216,7 @@ public class PlantDiseasePanelController : MonoBehaviour
         {
             SetCarouselFrame(index);
             float alphaIn = 0f;
-            DOTween.To(() => alphaIn, a =>
+            _carouselFadeInTween = DOTween.To(() => alphaIn, a =>
             {
                 alphaIn = a;
                 _carouselImage.style.backgroundColor = new Color(0f, 0f, 0f, 1f - a);

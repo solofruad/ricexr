@@ -467,9 +467,13 @@ public class GameFlowController : MonoBehaviour
             prefab.transform
                 .DOScale(Vector3.zero, scaleDuration)
                 .SetEase(Ease.InBack)
+                .SetLink(prefab, LinkBehaviour.KillOnDestroy)
                 .OnComplete(() =>
                 {
-                    prefab.SetActive(false);
+                    if (prefab != null)
+                    {
+                        prefab.SetActive(false);
+                    }
                     remaining--;
                     if (remaining <= 0)
                         onComplete?.Invoke();

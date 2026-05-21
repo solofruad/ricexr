@@ -37,6 +37,9 @@ public class BurnLeafRenderer : MonoBehaviour
     // API pública
     // -------------------------------------------------------------------------
 
+    private Coroutine _burnCoroutine;
+    private Tween _burnTween;
+
     /// <summary>
     /// Anima el efecto de quemado de 0 a 1 usando DOTween.
     /// Llama a <paramref name="onComplete"/> al terminar.
@@ -47,15 +50,35 @@ public class BurnLeafRenderer : MonoBehaviour
         // Resetear al inicio
         SetBurn(0f);
 
-        DOVirtual.DelayedCall(delayBeforeBurn, () =>
+        if (_burnCoroutine != null) StopCoroutine(_burnCoroutine);
+        _burnCoroutine = StartCoroutine(BurnRoutine(onComplete));
+    }
+
+    private System.Collections.IEnumerator BurnRoutine(Action onComplete)
+    {
+        yield return new WaitForSeconds(delayBeforeBurn);
+
+        _burnTween?.Kill();
+        _burnTween = DOTween.To(
+            () => burnProgress,
+            x  => SetBurn(x),
+            1f,
+            burnDuration
+        ).SetLink(gameObject).OnComplete(() => onComplete?.Invoke());
+    }
+
+    private void OnDisable()
+    {
+        if (_burnCoroutine != null)
         {
-            DOTween.To(
-                () => burnProgress,
-                x  => SetBurn(x),
-                1f,
-                burnDuration
-            ).OnComplete(() => onComplete?.Invoke());
-        });
+            StopCoroutine(_burnCoroutine);
+            _burnCoroutine = null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        _burnTween?.Kill();
     }
 
     /// <summary>
