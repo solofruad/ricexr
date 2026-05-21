@@ -58,6 +58,7 @@ public class TutorialPanelController : MonoBehaviour
     private Tween _fadeTween;
     private Tween _slideTween;
     private Tween _observeTween;
+    private Tween _allActsSlideTween;
 
     // Un tween de movimiento por panel para poder cancelarlos individualmente.
     private readonly Tween[] _panelMoveTweens = new Tween[3];
@@ -72,10 +73,13 @@ public class TutorialPanelController : MonoBehaviour
 
     // Referencia ordenada a los paneles de acto para iterar facilmente.
     private List<GameObject> _actPanels;
+    private Vector3 _allActsBaseLocalPos;
 
     private void Awake()
     {
         _actPanels = new List<GameObject> { actPanel1, actPanel2, actPanel3 };
+        if (allActsPanel != null)
+            _allActsBaseLocalPos = allActsPanel.transform.localPosition;
 
         // Ocultamos todo al inicio; ShowAndStart() se encarga de mostrar lo que corresponde.
         HideImmediate();
@@ -130,6 +134,7 @@ public class TutorialPanelController : MonoBehaviour
 
         _observeTween?.Kill();
         _slideTween?.Kill();
+        _allActsSlideTween?.Kill();
 
         // Fade out de todos los paneles activos y del allActsPanel si estuviera visible.
         FadeOutAllActPanels(() =>
@@ -334,8 +339,15 @@ public class TutorialPanelController : MonoBehaviour
     {
         FadeOutAllActPanels(() => HideAllActPanels());
 
-        if (allActsPanel != null)
-            allActsPanel.SetActive(true);
+        if (allActsPanel == null) return;
+
+        allActsPanel.SetActive(true);
+        _allActsSlideTween?.Kill();
+        allActsPanel.transform.localPosition = _allActsBaseLocalPos;
+        Vector3 target = _allActsBaseLocalPos + Vector3.up * slideUpAmount;
+        _allActsSlideTween = allActsPanel.transform
+            .DOLocalMove(target, slideUpDuration)
+            .SetEase(Ease.OutCubic);
     }
 
     /// <summary>
@@ -539,6 +551,7 @@ public class TutorialPanelController : MonoBehaviour
         _fadeTween?.Kill();
         _slideTween?.Kill();
         _observeTween?.Kill();
+        _allActsSlideTween?.Kill();
         foreach (var t in _panelMoveTweens) t?.Kill();
     }
 
