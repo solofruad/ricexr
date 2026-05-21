@@ -755,8 +755,7 @@ MonoBehaviour:
   diseaseSpots: []
   showMarkers: 0
   ableToShowMarkers: 1
-  burnDuration: 1.5
-  delayBeforeBurn: 1
+  burnLeafRenderer: {fileID: 0}
   pointableWrapper: {fileID: 4961314317621461471}
 --- !u!114 &4961314317621461471
 MonoBehaviour:
@@ -921,8 +920,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a80205dbd6b4e8742944665919bfce31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BillboardUI
-  smoothSpeed: 5
-  lockYAxis: 1
+  smoothSpeed: 10
+  lockYAxis: 0
   matchCameraUpVector: 1
 --- !u!1 &9020422268904497308
 GameObject:
