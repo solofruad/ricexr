@@ -2321,11 +2321,11 @@ PrefabInstance:
         type: 3}
       propertyPath: mainMenuPanel
       value: 
-      objectReference: {fileID: 2146888651}
+      objectReference: {fileID: 1675194212}
     - target: {fileID: 1256800381239343014, guid: cfbc95b1f69c4134da6041be31de97ea,
         type: 3}
       propertyPath: positionOffset.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1256800381239343014, guid: cfbc95b1f69c4134da6041be31de97ea,
         type: 3}
@@ -2725,9 +2725,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIMessagesController
   docCongrats: {fileID: 1757377366}
   docProgress: {fileID: 608336917}
-  fadeInDuration: 1
-  fadeOutDuration: 1
-  progressVisibleDuration: 3
+  fadeInDuration: 0.6
+  fadeOutDuration: 0.6
+  progressVisibleDuration: 2.5
   surfaceHeightOffset: 0.28
 --- !u!1 &608336916
 GameObject:
@@ -2780,8 +2780,8 @@ Transform:
   m_GameObject: {fileID: 608336916}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.98, y: 1.85, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
+  m_LocalPosition: {x: -5.98, y: 1.5000001, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 594721546}
@@ -6714,7 +6714,7 @@ PrefabInstance:
     - target: {fileID: 7817485683120088949, guid: 5f3cc421b2d59c544b67afb9283fbba0,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.755
+      value: 0.197
       objectReference: {fileID: 0}
     - target: {fileID: 7817485683120088949, guid: 5f3cc421b2d59c544b67afb9283fbba0,
         type: 3}
@@ -7279,7 +7279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &758161708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7482,11 +7482,11 @@ MonoBehaviour:
   actPanel3: {fileID: 828520119}
   activeBorderColor: {r: 0, g: 0.7830189, b: 0.10440256, a: 1}
   inactiveBorderColor: {r: 1, g: 1, b: 1, a: 0.12}
-  borderWidth: 8
+  borderWidth: 5
   panelOffset: {x: 4, y: 0, z: 0}
   panelAnimDuration: 1
   observeToDiagnoseDelay: 10
-  slideUpAmount: 1.2
+  slideUpAmount: 0.7
   slideUpDuration: 1
   surfaceHeightOffset: 0.7
 --- !u!4 &873954176
@@ -7558,7 +7558,7 @@ MonoBehaviour:
   Colliders: 1
   CutHoles: 0
   castShadows: 0
-  hideMesh: 1
+  hideMesh: 0
   Layer: 0
   textureCoordinateModes:
   - WallU: 5
@@ -7762,8 +7762,8 @@ MonoBehaviour:
   tutorialPanelController: {fileID: 873954174}
   diseaseDataPerLevel:
   - {fileID: 0}
-  - {fileID: 11400000, guid: e1fe9b826fd15e142a3e70a62563b8a6, type: 2}
-  - {fileID: 11400000, guid: 5dc904697ca98864994f66a9efa7a3d0, type: 2}
+  - {fileID: 11400000, guid: c9a9b0d6ec153ca4584b2e13623bd0b8, type: 2}
+  - {fileID: 11400000, guid: 4d7f6f66f6f05ba4b9b852ea33637c6a, type: 2}
   - {fileID: 0}
   tutorialLevelIndex: 0
   congratsDuration: 3
@@ -8746,13 +8746,19 @@ Transform:
   - {fileID: 59926630}
   m_Father: {fileID: 1367587311}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1675194212 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3150328593329379265, guid: 5f3cc421b2d59c544b67afb9283fbba0,
+    type: 3}
+  m_PrefabInstance: {fileID: 755066567}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1675194214 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5555753116857508969, guid: 5f3cc421b2d59c544b67afb9283fbba0,
     type: 3}
   m_PrefabInstance: {fileID: 755066567}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1675194212}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3582a3c3e185aa048a0f9c185c82a135, type: 3}
@@ -8775,7 +8781,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1701109464
 Transform:
   m_ObjectHideFlags: 0
@@ -8937,8 +8943,8 @@ Transform:
   m_GameObject: {fileID: 1757377365}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11.68, y: 1.8, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
+  m_LocalPosition: {x: -11.68, y: 1.4299996, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1.44}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 594721546}
@@ -9037,7 +9043,7 @@ MonoBehaviour:
   - levelPrefab: {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83,
       type: 3}
     plantsRequired: 3
-  - levelPrefab: {fileID: 5779791484926515347, guid: f411a4a61e53e414887f533d571eb418,
+  - levelPrefab: {fileID: 5779791484926515347, guid: 97f430a1c92cbae46a54ced83a479dc8,
       type: 3}
     plantsRequired: 3
   - levelPrefab: {fileID: 5571560547924518282, guid: 8c318eeec7ed0be45adf0f1a8d0c4095,
@@ -9615,7 +9621,7 @@ MonoBehaviour:
   m_WorldSpaceWidth: 642
   m_WorldSpaceHeight: 419.9
   m_PivotReferenceSize: 0
-  m_Pivot: 0
+  m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
 --- !u!4 &1945748628
 Transform:
@@ -9790,7 +9796,7 @@ MonoBehaviour:
   introDocument: {fileID: 2109511636}
   continueButtonDocument: {fileID: 1457785803}
   miniGuideTutorialDocument: {fileID: 0}
-  miniGuideNextLevelDocument: {fileID: 0}
+  miniGuideNextLevelDocument: {fileID: 758161708}
   miniGuideFinalLevelDocument: {fileID: 2005322336}
   autoFindDocuments: 0
   introRootElementName: panel-intro
@@ -9824,7 +9830,7 @@ MonoBehaviour:
   miniGuideDuration: 3
   fadeInDuration: 2
   fadeOutDuration: 2
-  levelColorTweenDuration: 3
+  levelColorTweenDuration: 2
   surfaceHeightOffset: 0.3
 --- !u!1 &2109511633
 GameObject:
