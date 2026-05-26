@@ -175,6 +175,7 @@ public class PlantDiseasePanelController : MonoBehaviour
         if (_severityEvolutionImage == null) return;
         if (_severityEvolutionImage.image == image) return;
 
+        _severityEvolutionImage.style.backgroundImage = StyleKeyword.None;
         _severityEvolutionImage.image = image;
         _severityEvolutionImage.style.display = image != null ? DisplayStyle.Flex : DisplayStyle.None;
     }
