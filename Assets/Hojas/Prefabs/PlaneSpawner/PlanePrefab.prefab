@@ -271,7 +271,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.Surfaces.BoundsClipper
   _position: {x: 0, y: 0, z: 0}
-  _size: {x: 1, y: 1, z: 0.1}
+  _size: {x: 1, y: 1, z: 0.15}
 --- !u!1 &7394851438620763456
 GameObject:
   m_ObjectHideFlags: 0
