@@ -273,7 +273,7 @@ MonoBehaviour:
     oncePerLevel: 1
     firstErrorOnly: 0
     audioClips:
-    - {fileID: 8300000, guid: c863e2ca744e2af46b8fe8443cdb2c50, type: 3}
+    - {fileID: 0}
   - id: FIRST_CORRECT
     description: 'Feedback: primer acierto.'
     enabled: 1
@@ -300,7 +300,7 @@ MonoBehaviour:
     oncePerLevel: 1
     firstErrorOnly: 0
     audioClips:
-    - {fileID: 8300000, guid: 8edad63e6e45de344a38c14df2f56f61, type: 3}
+    - {fileID: 8300000, guid: ce702e44671a8444b8a02c53da082342, type: 3}
   - id: FIRST_ERROR_ONLY
     description: 'Feedback: primer error del nivel.'
     enabled: 1
