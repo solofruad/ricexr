@@ -204,7 +204,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6001991550481182006}
   - component: {fileID: 4876482126639139586}
-  - component: {fileID: 7774460178664601496}
   m_Layer: 0
   m_Name: Message
   m_TagString: Untagged
@@ -251,21 +250,6 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
---- !u!114 &7774460178664601496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2937837937787497472}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a80205dbd6b4e8742944665919bfce31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BillboardUI
-  smoothSpeed: 5
-  lockYAxis: 1
-  matchCameraUpVector: 1
 --- !u!1 &3227469583734770396
 GameObject:
   m_ObjectHideFlags: 0
@@ -1053,7 +1037,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BillboardUI
   smoothSpeed: 10
-  lockYAxis: 1
+  lockYAxis: 0
   matchCameraUpVector: 1
 --- !u!1 &8582995604952445660
 GameObject:
