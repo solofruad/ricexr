@@ -232,6 +232,7 @@ public class UIGameListener : MonoBehaviour
             return;
         }
 
+        diseasePanelController.SetSeverityEvolutionImage(data.severityEvolutionImage);
         diseasePanelController.Show(data);
         diseasePanelController.StartProgressBar();
     }

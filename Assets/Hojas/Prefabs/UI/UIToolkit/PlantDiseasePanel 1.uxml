@@ -11,14 +11,15 @@
                 <ui:VisualElement name="dot-3" style="width: 5px; height: 5px; background-color: rgba(255, 255, 255, 0.28); border-radius: 3px; margin-left: 3px; margin-right: 3px;"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="content-side" style="flex-grow: 1; flex-direction: column; padding: 26px 26px 20px 22px; justify-content: space-between;">
+        <ui:VisualElement name="content-side" style="flex-grow: 1; flex-direction: column; padding: 26px 26px 20px 22px; justify-content: space-between; padding-top: 15px; padding-bottom: 15px; padding-right: 15px; padding-left: 15px;">
             <ui:VisualElement name="header-block">
-                <ui:Label name="disease-title" text="Tizón Tardío" style="font-size: 27px; color: rgba(255, 255, 255, 0.97); -unity-font-style: bold; margin-bottom: 2px; white-space: normal;"/>
-                <ui:Label name="scientific-name" text="Phytophthora infestans" style="font-size: 13px; color: rgba(255, 255, 255, 0.3); -unity-font-style: italic;"/>
+                <ui:Label name="scientific-name" text="Tizón Tardío" style="font-size: 27px; color: rgba(255, 255, 255, 0.97); -unity-font-style: bold; margin-bottom: 2px; white-space: normal;"/>
+                <ui:Label name="disease-title" text="Phytophthora infestans" style="font-size: 15px; color: rgba(255, 255, 255, 0.3); -unity-font-style: italic; margin-top: 2px;"/>
             </ui:VisualElement>
-            <ui:VisualElement style="height: 1px; background-color: rgba(255, 255, 255, 0.07); margin-top: 10px; margin-bottom: 10px;"/>
-            <ui:Label name="disease-description" text="Causada por un oomycete, se propaga en condiciones de alta humedad y temperaturas frescas. Las lesiones aparecen como manchas acuosas que se tornan marrones con borde amarillento. Puede destruir un cultivo completo en pocos días sin tratamiento." style="font-size: 15px; color: rgba(255, 255, 255, 0.62); white-space: normal; flex-grow: 1; overflow: hidden;"/>
-            <ui:VisualElement name="progress-section" style="margin-top: 14px;">
+            <ui:VisualElement style="height: 1px; background-color: rgba(255, 255, 255, 0.07); margin-top: 5px; margin-bottom: 5px;"/>
+            <ui:Label name="disease-description" text="Causada por un oomycete, se propaga en condiciones de alta humedad y temperaturas frescas. Las lesiones aparecen como manchas acuosas que se tornan marrones con borde amarillento. Puede destruir un cultivo completo en pocos días sin tratamiento." style="font-size: 12px; color: rgba(255, 255, 255, 0.62); white-space: normal; flex-grow: 0; overflow: hidden; margin-top: 2px;"/>
+            <ui:Image name="severity-evolution" style="flex-grow: 1;"/>
+            <ui:VisualElement name="progress-section" style="margin-top: 7px;">
                 <ui:VisualElement style="flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
                     <ui:Label name="progress-label" text="Analizando muestra..." style="font-size: 12px; color: rgba(255, 255, 255, 0.35);"/>
                     <ui:Label name="progress-percent" text="0%" style="font-size: 12px; color: rgba(100, 210, 120, 0.85);"/>

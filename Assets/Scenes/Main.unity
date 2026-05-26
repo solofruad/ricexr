@@ -1466,6 +1466,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7865740159851809658, guid: 15667e6656432b641b5e5cbbc615ae0d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7927251606987520882, guid: 15667e6656432b641b5e5cbbc615ae0d,
         type: 3}
       propertyPath: positionOffset.x
@@ -1480,7 +1485,7 @@ PrefabInstance:
         type: 3}
       propertyPath: diseaseSelectionPanel
       value: 
-      objectReference: {fileID: 1897039743}
+      objectReference: {fileID: 80270024}
     - target: {fileID: 8462966564854158824, guid: 15667e6656432b641b5e5cbbc615ae0d,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -1601,6 +1606,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 15667e6656432b641b5e5cbbc615ae0d, type: 3}
+--- !u!1 &80270024 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5271453744455933855, guid: 15667e6656432b641b5e5cbbc615ae0d,
+    type: 3}
+  m_PrefabInstance: {fileID: 80270023}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &102379188 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3445979088785730047, guid: 0a7d2469f24041c4284c66706f84c45e,
@@ -2904,7 +2915,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameNarrationController
   narrationReproductor: {fileID: 1542820516}
-  lineLibrary: {fileID: 11400000, guid: 2c535d37cfdff1141ac152e66e754c19, type: 2}
+  lineLibrary: {fileID: 11400000, guid: 6e9e4b0f4d8f4b0b9f4bb3c3aee9f3bb, type: 2}
   tutorialPanelController: {fileID: 873954174}
   autoFindDependencies: 1
   stopCurrentBeforeSpeaking: 1
@@ -8444,7 +8455,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NarrationReproductor
   audioSource: {fileID: 1542820515}
-  folderPath: Audio/Narration/Spanish
 --- !u!114 &1568194188 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1606244120966247315, guid: 0a7d2469f24041c4284c66706f84c45e,
@@ -9061,12 +9071,6 @@ Transform:
   - {fileID: 1193198298}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1897039743 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5271453744455933855, guid: 15667e6656432b641b5e5cbbc615ae0d,
-    type: 3}
-  m_PrefabInstance: {fileID: 80270023}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1900167007
 GameObject:
   m_ObjectHideFlags: 0

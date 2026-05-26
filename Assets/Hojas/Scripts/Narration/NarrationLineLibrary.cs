@@ -7,14 +7,16 @@ public class NarrationLineEntry
 {
     public string id;
 
-    [TextArea(2, 8)]
-    public string text;
+    [TextArea(1, 3)]
+    public string description;
 
     public bool enabled = true;
     public float cooldownSec = 0f;
     public bool oncePerSession;
     public bool oncePerLevel;
     public bool firstErrorOnly;
+
+    public List<AudioClip> audioClips = new List<AudioClip>();
 }
 
 [CreateAssetMenu(fileName = "NarrationLineLibrary", menuName = "Hojas/Narration/Line Library")]
@@ -33,13 +35,6 @@ public class NarrationLineLibrary : ScriptableObject
 
         RebuildIndexIfNeeded();
         return _lineById.TryGetValue(id, out line);
-    }
-
-    [ContextMenu("Load Default Offline Lines")]
-    public void LoadDefaultOfflineLines()
-    {
-        lines = GameNarrationDefaults.CreateDefaultEntries();
-        ForceRebuildIndex();
     }
 
     public void ForceRebuildIndex()

@@ -1,14 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Hojas/Prefabs/UI/UIToolkit/DiseaseSelecionSystem/DiseaseMarker.uss?fileID=7433441132597879392&amp;guid=678e62b521a39d649b3a00f5b71b4516&amp;type=3#DiseaseMarker"/>
-    <ui:VisualElement name="root" class="root">
-        <ui:VisualElement name="disease-header" class="section-header disease-header">
+    <ui:VisualElement name="root" class="root" style="border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-left-color: rgba(255, 255, 255, 0.3); border-right-color: rgba(255, 255, 255, 0.3); border-top-color: rgba(255, 255, 255, 0.3); border-bottom-color: rgba(255, 255, 255, 0.3); background-color: rgb(8, 8, 12);">
+        <ui:VisualElement name="disease-header" class="section-header disease-header" style="border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); background-color: rgba(229, 0, 0, 0.39);">
             <ui:Label name="header-label" text="ENFERMEDAD" class="header-label" style="font-size: 20px;"/>
         </ui:VisualElement>
         <ui:VisualElement name="disease-body" class="section-body disease-body">
             <ui:Label name="disease-name" text="Pyricularia oryzae" class="disease-name"/>
         </ui:VisualElement>
         <ui:VisualElement name="divider" class="divider" style="height: 15px; background-color: rgba(255, 255, 255, 0);"/>
-        <ui:VisualElement name="severity-header" class="section-header severity-header">
+        <ui:VisualElement name="severity-header" class="section-header severity-header" style="background-color: rgba(0, 34, 255, 0.34);">
             <ui:Label name="header-label-sev" text="SEVERIDAD" class="header-label" style="font-size: 20px;"/>
         </ui:VisualElement>
         <ui:VisualElement name="severity-body" class="section-body severity-body">

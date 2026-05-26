@@ -1,0 +1,366 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00768d61fb33b2b4a8dbdad8a7ab1efe, type: 3}
+  m_Name: NarrationLineLibrary
+  m_EditorClassIdentifier: 
+  lines:
+  - id: START_SELECT_PLANE
+    description: 'Inicio de sesion: pedir seleccionar plano.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 7078162b941747a4493c516c33755a00, type: 3}
+  - id: ONBOARDING_OVERVIEW
+    description: Resumen de niveles antes de empezar.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 247706c9efd876c4fbb21ca587c4d0c6, type: 3}
+  - id: ONBOARDING_CONTINUE
+    description: Prompt para continuar a practica guiada.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: de18b5466f7f9ea47a4f698cccb6a313, type: 3}
+  - id: TUTORIAL_BEGIN
+    description: Inicio del tutorial guiado.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: b23eb57df49e545479377fe993431a33, type: 3}
+  - id: TUTORIAL_GRAB
+    description: 'Paso: agarrar hoja.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: e6fb3ebe1cf63624b8e943e1c636fd7a, type: 3}
+  - id: TUTORIAL_INSPECT
+    description: 'Paso: observar lesion.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 2a12ae75d72f78e4083f9df604348e8a, type: 3}
+  - id: TUTORIAL_MENU_OPEN
+    description: 'Paso: abrir menu de diagnostico.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 6b6036891b785ed4fac1b9901034b4ea, type: 3}
+  - id: TUTORIAL_SELECT_DISEASE
+    description: 'Paso: elegir enfermedad.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 029cf326e074ad54bbef4cc3d63decd1, type: 3}
+  - id: TUTORIAL_SELECT_SEVERITY
+    description: 'Paso: elegir severidad.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 3af2a249bb6d736459304f7801ae35fd, type: 3}
+  - id: TUTORIAL_CONFIRM
+    description: 'Paso: confirmar diagnostico.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 10e6e6265f5ed204fab403bdd852e8a8, type: 3}
+  - id: TUTORIAL_RETRY_GUIDED
+    description: Reintento en tutorial guiado.
+    enabled: 1
+    cooldownSec: 0.8
+    oncePerSession: 0
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: dc719ee9f85df1e4a9b61ec6ca7c7069, type: 3}
+  - id: TUTORIAL_FREE_PRACTICE
+    description: Pasar a practica libre tras primer acierto.
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: f7667407b0fca4a4eb2fbef872052f1b, type: 3}
+  - id: TUTORIAL_DONE
+    description: Cierre del tutorial.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: fed0e18d90137a645aa89028f5248d1d, type: 3}
+  - id: LEVEL2_INTRO
+    description: Intro nivel 2.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 13a4613df83304d4a95e28a2c878a77b, type: 3}
+  - id: LEVEL2_EXPLAIN
+    description: Explicacion Pyricularia.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: e96290eb29eb4dc4189f63082916b5a6, type: 3}
+  - id: LEVEL3_INTRO
+    description: Intro nivel 3.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 8d9aeb7e616b2074a806a778f6c02e71, type: 3}
+  - id: LEVEL3_EXPLAIN
+    description: Explicacion Rhynchosporium.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 2f208cdc797e969438136992fd6682ea, type: 3}
+  - id: FINAL_WARNING
+    description: Advertencia nivel final sin ayudas.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: c3969dc77b46dd542a36f853650cf2d7, type: 3}
+  - id: PROGRESS_REMAIN_10
+    description: 'Progreso: faltan 10 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 9bd7af2d691718d438a4a4f1d2b98e2b, type: 3}
+  - id: PROGRESS_REMAIN_9
+    description: 'Progreso: faltan 9 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 57b0711da59e5c94b89641e7ccea8cbe, type: 3}
+  - id: PROGRESS_REMAIN_8
+    description: 'Progreso: faltan 8 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 076b214fdf8977a408bb58257acfbf42, type: 3}
+  - id: PROGRESS_REMAIN_7
+    description: 'Progreso: faltan 7 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: c94778bac238fe24f8e9fec51d2707e2, type: 3}
+  - id: PROGRESS_REMAIN_6
+    description: 'Progreso: faltan 6 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: f871fb6bccf5bf54280bbecbfa28dbab, type: 3}
+  - id: PROGRESS_REMAIN_5
+    description: 'Progreso: faltan 5 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: e7eb0033b88c79a44abda421f5c529cd, type: 3}
+  - id: PROGRESS_REMAIN_4
+    description: 'Progreso: faltan 4 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 96eb40833d7f6924c9b405d4f03eb1c6, type: 3}
+  - id: PROGRESS_REMAIN_3
+    description: 'Progreso: faltan 3 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: eeb89b56d89e71343ad48908ced9197c, type: 3}
+  - id: PROGRESS_REMAIN_2
+    description: 'Progreso: faltan 2 hojas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 44cbe779a1e462a42885381bced92dfe, type: 3}
+  - id: PROGRESS_REMAIN_1
+    description: 'Progreso: falta 1 hoja.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 2646299b0b274ea4b8cf3e7d4925855c, type: 3}
+  - id: PROGRESS_DONE
+    description: 'Progreso: hojas requeridas completadas.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: c863e2ca744e2af46b8fe8443cdb2c50, type: 3}
+  - id: FIRST_CORRECT
+    description: 'Feedback: primer acierto.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: c5475fa76037c8b4e984157f5d482a05, type: 3}
+  - id: SECOND_CORRECT
+    description: 'Feedback: segundo acierto.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 04a8ab61b59caaa45baf08a4161b7c1b, type: 3}
+  - id: THIRD_CORRECT
+    description: 'Feedback: tercer acierto.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 8edad63e6e45de344a38c14df2f56f61, type: 3}
+  - id: FIRST_ERROR_ONLY
+    description: 'Feedback: primer error del nivel.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 0
+    firstErrorOnly: 1
+    audioClips:
+    - {fileID: 8300000, guid: ce6ba54a34f932b4aa2df76084d089ec, type: 3}
+  - id: LEVEL_COMPLETE
+    description: Cierre de nivel.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 5b77b8bfa43b9604e9a46be0a6560070, type: 3}
+  - id: ALL_LEVELS_COMPLETE
+    description: Cierre de todos los niveles.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 887514fc4ce014a40a64b1872c13c351, type: 3}
+  - id: ENDSESSION_PROMPT_SAVE
+    description: Prompt para guardar apodo.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 447b93bf7e8d43443a367d09f97481b3, type: 3}
+  - id: SAVE_OK
+    description: Confirmacion de guardado.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 76608564103bc4945ac2c3380dee7d4d, type: 3}
+  - id: SAVE_FAIL
+    description: Error al guardar.
+    enabled: 1
+    cooldownSec: 1
+    oncePerSession: 0
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: bda8521406992d849adc45ebc3cba8b4, type: 3}
+  - id: RETURN_MENU
+    description: Aviso retorno al menu.
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 1297653216f8d1d48b7a77458aba98dc, type: 3}

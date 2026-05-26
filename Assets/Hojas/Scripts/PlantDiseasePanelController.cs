@@ -41,6 +41,7 @@ public class PlantDiseasePanelController : MonoBehaviour
     private Label _diseaseTitle;
     private Label _scientificName;
     private Label _diseaseDescription;
+    private Image _severityEvolutionImage;
     private VisualElement _progressFill;
     private Label _progressPercent;
     private Label _progressLabel;
@@ -90,6 +91,7 @@ public class PlantDiseasePanelController : MonoBehaviour
         _diseaseTitle.text = data.title;
         _scientificName.text = data.scientificName;
         _diseaseDescription.text = data.description;
+        SetSeverityEvolutionImage(data.severityEvolutionImage);
 
         if (data.images != null && data.images.Length > 0)
             carouselImages = data.images;
@@ -166,6 +168,15 @@ public class PlantDiseasePanelController : MonoBehaviour
         )
         .SetEase(Ease.InQuad)
         .OnComplete(() => _root.style.display = DisplayStyle.None);
+    }
+
+    public void SetSeverityEvolutionImage(Texture2D image)
+    {
+        if (_severityEvolutionImage == null) return;
+        if (_severityEvolutionImage.image == image) return;
+
+        _severityEvolutionImage.image = image;
+        _severityEvolutionImage.style.display = image != null ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     // ─────────────────────────────────────────────
@@ -257,9 +268,12 @@ public class PlantDiseasePanelController : MonoBehaviour
         _diseaseTitle = _root.Q<Label>("disease-title");
         _scientificName = _root.Q<Label>("scientific-name");
         _diseaseDescription = _root.Q<Label>("disease-description");
+        _severityEvolutionImage = _root.Q<Image>("severity-evolution");
         _progressFill = _root.Q<VisualElement>("progress-fill");
         _progressPercent = _root.Q<Label>("progress-percent");
         _progressLabel = _root.Q<Label>("progress-label");
+        if (_severityEvolutionImage != null)
+            _severityEvolutionImage.scaleMode = ScaleMode.ScaleToFit;
         _dots = new[]
         {
             _root.Q<VisualElement>("dot-0"), 

@@ -7,33 +7,9 @@ public class NarrationReproductor : MonoBehaviour
     [Header("Configuración")]
     [Tooltip("Fuente de audio donde sonarán los clips")]
     [SerializeField] private AudioSource audioSource;
-    
-    [Tooltip("Ruta dentro de 'Resources' donde están los audios")]
-    [SerializeField] private string folderPath = "Audio/Narration/Spanish";
 
-    private Dictionary<string, AudioClip> _audioClips;
     private Queue<AudioClip> _audioQueue = new Queue<AudioClip>();
     private Coroutine _playCoroutine;
-
-    private void Awake()
-    {
-        LoadAudios();
-    }
-
-    private void LoadAudios()
-    {
-        _audioClips = new Dictionary<string, AudioClip>();
-        AudioClip[] loadedClips = Resources.LoadAll<AudioClip>(folderPath);
-
-        foreach (AudioClip clip in loadedClips)
-        {
-            if (!_audioClips.ContainsKey(clip.name))
-            {
-                _audioClips.Add(clip.name, clip);
-            }
-        }
-        Debug.Log($"[NarrationReproductor] Cargados {_audioClips.Count} audios desde Resources/{folderPath}");
-    }
 
     public void Stop()
     {
@@ -54,44 +30,49 @@ public class NarrationReproductor : MonoBehaviour
     /// <summary>
     /// Detiene lo que esté sonando y reproduce el nuevo audio inmediatamente.
     /// </summary>
-    public void Speak(string id)
+    public void Speak(AudioClip clip)
     {
         Stop();
-
-        if (_audioClips.TryGetValue(id, out AudioClip clip))
-        {
-            _audioQueue.Enqueue(clip);
-            _playCoroutine = StartCoroutine(ProcessQueue());
-        }
-        else
-        {
-            Debug.LogError($"[NarrationReproductor] Audio no encontrado: {id}");
-        }
+        EnqueueClip(clip, true);
     }
 
     /// <summary>
     /// Añade el audio a la cola para que se reproduzca cuando termine el actual.
     /// </summary>
-    public void SpeakQueued(string id)
+    public void SpeakQueued(AudioClip clip)
     {
-        if (_audioClips.TryGetValue(id, out AudioClip clip))
+        EnqueueClip(clip, false);
+    }
+
+    private void EnqueueClip(AudioClip clip, bool startImmediately)
+    {
+        if (clip == null)
         {
-            _audioQueue.Enqueue(clip);
-            
-            // Si la corrutina no está corriendo, la iniciamos
-            if (_playCoroutine == null)
-            {
-                _playCoroutine = StartCoroutine(ProcessQueue());
-            }
+            Debug.LogWarning("[NarrationReproductor] Audio nulo.");
+            return;
         }
-        else
+
+        _audioQueue.Enqueue(clip);
+
+        if (_playCoroutine == null || startImmediately)
         {
-            Debug.LogError($"[NarrationReproductor] Audio no encontrado para encolar: {id}");
+            if (_playCoroutine != null)
+                StopCoroutine(_playCoroutine);
+
+            _playCoroutine = StartCoroutine(ProcessQueue());
         }
     }
 
     private IEnumerator ProcessQueue()
     {
+        if (audioSource == null)
+        {
+            Debug.LogWarning("[NarrationReproductor] AudioSource no asignado.");
+            _audioQueue.Clear();
+            _playCoroutine = null;
+            yield break;
+        }
+
         while (_audioQueue.Count > 0)
         {
             AudioClip nextClip = _audioQueue.Dequeue();

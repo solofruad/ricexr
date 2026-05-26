@@ -12,6 +12,7 @@ public class PanelDiseaseData
     public string      scientificName;
     public string      category;
     public string      description;
+    public Texture2D   severityEvolutionImage;
     public Texture2D[] images;
 }
 

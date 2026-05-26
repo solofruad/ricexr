@@ -2,8 +2,7 @@
     <ui:VisualElement style="flex-grow: 1; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: rgba(0, 8, 19, 0);">
         <ui:VisualElement style="flex-grow: 0; width: 79%; height: 50%; align-items: center; justify-content: center; background-color: rgb(20, 25, 128); background-size: 100% 100%; border-top-left-radius: 51px; border-top-right-radius: 51px; border-bottom-right-radius: 51px; border-bottom-left-radius: 51px;">
             <ui:Label text="Mantén tu mano encima &#10;para seleccionar&#10;" style="-unity-text-align: upper-center; white-space: normal; font-size: 28px; color: rgb(255, 255, 255); -unity-font-style: bold; margin-bottom: 0; padding-right: 10px; padding-left: 10px; margin-top: 20px;"/>
-            <ui:Image style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandIcon.svg?fileID=7388822144124034973&amp;guid=a9ca54687a2362544b399e707dda689f&amp;type=3#HandIcon&quot;); width: 120px; height: 120px; align-items: center; align-self: auto; align-content: auto; justify-content: center; translate: -4px 17px;"/>
-            <ui:VisualElement style="flex-grow: 0; height: 70px; width: 70px; rotate: 45deg; background-color: rgb(20, 25, 128); translate: 0 35px;"/>
+            <ui:Image style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Arrow.svg?fileID=7388822144124034973&amp;guid=a844d924cfb9d9840a3424526ecfd266&amp;type=3#Arrow&quot;); width: 120px; height: 120px; align-items: center; align-self: auto; align-content: auto; justify-content: center; translate: 0 20px; -unity-background-image-tint-color: rgb(255, 255, 255);"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

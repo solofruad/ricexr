@@ -13,7 +13,7 @@ using UnityEngine;
 public class GameNarrationController : MonoBehaviour
 {
     [Header("Dependencias")]
-    [SerializeField] private NarrationReproductor narrationReproductor; // Reemplazado TTSSpeaker
+    [SerializeField] private NarrationReproductor narrationReproductor;
     [SerializeField] private NarrationLineLibrary lineLibrary;
 
     [Header("Binding opcional (granularidad fina del tutorial)")]
@@ -30,7 +30,6 @@ public class GameNarrationController : MonoBehaviour
     private readonly Dictionary<int, HashSet<string>> _spokenPerLevel = new Dictionary<int, HashSet<string>>();
     private readonly Dictionary<string, float> _lastPlayedAt = new Dictionary<string, float>();
     private readonly HashSet<int> _errorGuidedLevels = new HashSet<int>();
-    private readonly Dictionary<string, NarrationLineEntry> _fallbackLines = new Dictionary<string, NarrationLineEntry>();
 
     private TutorialPanelController _boundTutorialPanelController;
 
@@ -40,7 +39,6 @@ public class GameNarrationController : MonoBehaviour
 
     private void Awake()
     {
-        BuildFallbackIndex();
         ResolveDependencies();
     }
 
@@ -64,20 +62,6 @@ public class GameNarrationController : MonoBehaviour
 
         if (tutorialPanelController == null)
             tutorialPanelController = FindObjectOfType<TutorialPanelController>(true);
-    }
-
-    private void BuildFallbackIndex()
-    {
-        _fallbackLines.Clear();
-
-        List<NarrationLineEntry> defaults = GameNarrationDefaults.CreateDefaultEntries();
-        for (int i = 0; i < defaults.Count; i++)
-        {
-            NarrationLineEntry line = defaults[i];
-            if (line == null || string.IsNullOrWhiteSpace(line.id)) continue;
-            if (_fallbackLines.ContainsKey(line.id)) continue;
-            _fallbackLines.Add(line.id, line);
-        }
     }
 
     private void SubscribeEvents()
@@ -212,11 +196,13 @@ public class GameNarrationController : MonoBehaviour
             _tutorialGuidedCompleted = false;
         EnsureLevelBucket(levelIndex);
 
+        string progressRemainId = GetProgressRemainId(plantsRequired);
+
         if (levelIndex == totalLevels - 1)
         {
-            if (plantsRequired >= 3)
+            if (!string.IsNullOrEmpty(progressRemainId) && plantsRequired >= 2)
             {
-                SpeakSequence(true, GameNarrationLineIds.FinalWarning, GameNarrationLineIds.ProgressRemain3);
+                SpeakSequence(true, GameNarrationLineIds.FinalWarning, progressRemainId);
             }
             else
             {
@@ -227,9 +213,9 @@ public class GameNarrationController : MonoBehaviour
 
         if (levelIndex == 1)
         {
-            if (plantsRequired >= 3)
+            if (!string.IsNullOrEmpty(progressRemainId) && plantsRequired >= 2)
             {
-                SpeakSequence(true, GameNarrationLineIds.Level2Intro, GameNarrationLineIds.Level2Explain, GameNarrationLineIds.ProgressRemain3);
+                SpeakSequence(true, GameNarrationLineIds.Level2Intro, GameNarrationLineIds.Level2Explain, progressRemainId);
             }
             else
             {
@@ -240,9 +226,9 @@ public class GameNarrationController : MonoBehaviour
 
         if (levelIndex == 2)
         {
-            if (plantsRequired >= 3)
+            if (!string.IsNullOrEmpty(progressRemainId) && plantsRequired >= 2)
             {
-                SpeakSequence(true, GameNarrationLineIds.Level3Intro, GameNarrationLineIds.Level3Explain, GameNarrationLineIds.ProgressRemain3);
+                SpeakSequence(true, GameNarrationLineIds.Level3Intro, GameNarrationLineIds.Level3Explain, progressRemainId);
             }
             else
             {
@@ -284,19 +270,29 @@ public class GameNarrationController : MonoBehaviour
 
         if (remaining >= 3)
         {
-            SpeakLine(GameNarrationLineIds.ProgressRemain3, true);
+            string progressRemainId = GetProgressRemainId(remaining);
+            if (!string.IsNullOrEmpty(progressRemainId))
+                SpeakLine(progressRemainId, true);
             return;
         }
 
         if (remaining == 2)
         {
-            SpeakSequence(true, GameNarrationLineIds.FirstCorrect, GameNarrationLineIds.ProgressRemain2);
+            string progressRemainId = GetProgressRemainId(remaining);
+            if (!string.IsNullOrEmpty(progressRemainId))
+                SpeakSequence(true, GameNarrationLineIds.FirstCorrect, progressRemainId);
+            else
+                SpeakLine(GameNarrationLineIds.FirstCorrect, true);
             return;
         }
 
         if (remaining == 1)
         {
-            SpeakSequence(true, GameNarrationLineIds.SecondCorrect, GameNarrationLineIds.ProgressRemain1);
+            string progressRemainId = GetProgressRemainId(remaining);
+            if (!string.IsNullOrEmpty(progressRemainId))
+                SpeakSequence(true, GameNarrationLineIds.SecondCorrect, progressRemainId);
+            else
+                SpeakLine(GameNarrationLineIds.SecondCorrect, true);
             return;
         }
 
@@ -348,12 +344,12 @@ public class GameNarrationController : MonoBehaviour
         if (narrationReproductor == null) return false;
         if (!TryResolveLine(lineId, out NarrationLineEntry line)) return false;
         if (!CanPlay(line)) return false;
+        if (!TryGetRandomClip(line, out AudioClip clip)) return false;
 
         if (interruptCurrent && stopCurrentBeforeSpeaking)
             narrationReproductor.Stop();
 
-        // Mandamos el ID al reproductor en lugar del texto
-        narrationReproductor.Speak(line.id); 
+        narrationReproductor.Speak(clip);
         
         RegisterPlayed(line);
         Log($"Speak: {lineId}");
@@ -366,12 +362,15 @@ public class GameNarrationController : MonoBehaviour
         if (lineIds == null || lineIds.Length == 0) return;
 
         List<NarrationLineEntry> playableLines = new List<NarrationLineEntry>();
+        List<AudioClip> playableClips = new List<AudioClip>();
         for (int i = 0; i < lineIds.Length; i++)
         {
             string lineId = lineIds[i];
             if (!TryResolveLine(lineId, out NarrationLineEntry line)) continue;
             if (!CanPlay(line)) continue;
+            if (!TryGetRandomClip(line, out AudioClip clip)) continue;
             playableLines.Add(line);
+            playableClips.Add(clip);
         }
 
         if (playableLines.Count == 0) return;
@@ -383,9 +382,9 @@ public class GameNarrationController : MonoBehaviour
         {
             NarrationLineEntry line = playableLines[i];
             if (i == 0)
-                narrationReproductor.Speak(line.id); // El primero se reproduce normal
+                narrationReproductor.Speak(playableClips[i]); // El primero se reproduce normal
             else
-                narrationReproductor.SpeakQueued(line.id); // Los siguientes se encolan
+                narrationReproductor.SpeakQueued(playableClips[i]); // Los siguientes se encolan
 
             RegisterPlayed(line);
             Log($"Queue: {line.id}");
@@ -397,17 +396,19 @@ public class GameNarrationController : MonoBehaviour
         line = null;
         if (string.IsNullOrWhiteSpace(lineId)) return false;
 
-        if (lineLibrary != null && lineLibrary.TryGetLine(lineId, out line))
+        if (lineLibrary == null) return false;
+
+        if (lineLibrary.TryGetLine(lineId, out line))
             return line != null;
 
-        return _fallbackLines.TryGetValue(lineId, out line);
+        Debug.LogWarning($"[Narration] LineId no encontrado: {lineId}");
+        return false;
     }
 
     private bool CanPlay(NarrationLineEntry line)
     {
         if (line == null) return false;
         if (!line.enabled) return false;
-        // Quité la validación de string.IsNullOrWhiteSpace(line.text) porque ahora reproducimos por ID.
 
         if (line.oncePerSession && _spokenSession.Contains(line.id))
             return false;
@@ -429,6 +430,55 @@ public class GameNarrationController : MonoBehaviour
             return false;
 
         return true;
+    }
+
+    private bool TryGetRandomClip(NarrationLineEntry line, out AudioClip clip)
+    {
+        clip = null;
+        if (line == null || line.audioClips == null || line.audioClips.Count == 0)
+        {
+            Debug.LogWarning($"[Narration] Sin audios para {line?.id}");
+            return false;
+        }
+
+        int attempts = line.audioClips.Count;
+        for (int i = 0; i < attempts; i++)
+        {
+            int index = Random.Range(0, line.audioClips.Count);
+            AudioClip candidate = line.audioClips[index];
+            if (candidate != null)
+            {
+                clip = candidate;
+                return true;
+            }
+        }
+
+        Debug.LogWarning($"[Narration] Audios nulos para {line.id}");
+        return false;
+    }
+
+    private string GetProgressRemainId(int remaining)
+    {
+        if (remaining <= 0) return null;
+
+        if (remaining > 10)
+            Debug.LogWarning($"[Narration] remaining={remaining} excede el maximo soportado (10). Se usara 10.");
+
+        int clamped = Mathf.Clamp(remaining, 1, 10);
+        switch (clamped)
+        {
+            case 10: return GameNarrationLineIds.ProgressRemain10;
+            case 9: return GameNarrationLineIds.ProgressRemain9;
+            case 8: return GameNarrationLineIds.ProgressRemain8;
+            case 7: return GameNarrationLineIds.ProgressRemain7;
+            case 6: return GameNarrationLineIds.ProgressRemain6;
+            case 5: return GameNarrationLineIds.ProgressRemain5;
+            case 4: return GameNarrationLineIds.ProgressRemain4;
+            case 3: return GameNarrationLineIds.ProgressRemain3;
+            case 2: return GameNarrationLineIds.ProgressRemain2;
+            case 1: return GameNarrationLineIds.ProgressRemain1;
+            default: return null;
+        }
     }
 
     private void RegisterPlayed(NarrationLineEntry line)
