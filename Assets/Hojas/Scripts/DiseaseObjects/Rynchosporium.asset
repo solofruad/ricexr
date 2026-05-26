@@ -22,6 +22,8 @@ MonoBehaviour:
       un tronco) en tonos paja y marr\xF3n. Visualmente, parece que la hoja hubiera
       sido sumergida en agua hirviendo, sec\xE1ndose desde la punta hacia abajo en
       franjas onduladas."
+    severityEvolutionImage: {fileID: 2800000, guid: cf34ff5a9b14fa342884c639d3726b34,
+      type: 3}
     images:
     - {fileID: 2800000, guid: a4e691c882bab5a46afeebf361b746f9, type: 3}
     - {fileID: 2800000, guid: ab28e94ca4c149b4480002ffe8eff867, type: 3}

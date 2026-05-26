@@ -272,8 +272,8 @@ public class PlantDiseasePanelController : MonoBehaviour
         _progressFill = _root.Q<VisualElement>("progress-fill");
         _progressPercent = _root.Q<Label>("progress-percent");
         _progressLabel = _root.Q<Label>("progress-label");
-        if (_severityEvolutionImage != null)
-            _severityEvolutionImage.scaleMode = ScaleMode.ScaleToFit;
+        // if (_severityEvolutionImage != null)
+        //     _severityEvolutionImage.scaleMode = ScaleMode.ScaleToFit;
         _dots = new[]
         {
             _root.Q<VisualElement>("dot-0"), 
