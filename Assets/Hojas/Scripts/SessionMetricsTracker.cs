@@ -93,7 +93,7 @@ public class SessionMetricsTracker : MonoBehaviour
     /// <summary>Llama esto cuando comienza la sesion completa (boton "Iniciar pruebas").</summary>
     public void StartSession()
     {
-        _sessionStartTime = Time.time;
+        _sessionStartTime = Time.unscaledTime;
         _levelMetrics.Clear();
         _currentLevel = -1;
         _activeLevelMetrics = null;
@@ -112,7 +112,7 @@ public class SessionMetricsTracker : MonoBehaviour
             return BuildResult(nickname, 0f);
         }
 
-        float totalTime = Time.time - _sessionStartTime;
+        float totalTime = Time.unscaledTime - _sessionStartTime;
         _sessionRunning = false;
 
         var result = BuildResult(nickname, totalTime);
@@ -127,7 +127,7 @@ public class SessionMetricsTracker : MonoBehaviour
         if (!_sessionRunning) return;
 
         _currentLevel = levelIndex;
-        _levelStartTime = Time.time;
+        _levelStartTime = Time.unscaledTime;
         _activeLevelMetrics = new LevelMetrics
         {
             levelIndex = levelIndex,
@@ -160,7 +160,7 @@ public class SessionMetricsTracker : MonoBehaviour
         if (!_sessionRunning || _activeLevelMetrics == null) return;
         if (_activeLevelMetrics.levelIndex != levelIndex) return;
 
-        _activeLevelMetrics.timeToComplete = Time.time - _levelStartTime;
+        _activeLevelMetrics.timeToComplete = Time.unscaledTime - _levelStartTime;
         float completedTime = _activeLevelMetrics.timeToComplete;
 
         _levelMetrics.Add(_activeLevelMetrics);
@@ -171,13 +171,14 @@ public class SessionMetricsTracker : MonoBehaviour
 
     private void HandleSessionEndRequested()
     {
-        // Auto-end session cuando se solicita desde el bus
-        // EndSessionController llama EndSession directamente con el nickname,
-        // pero este handler asegura que la sesión se cierre si nadie más lo hace.
+        // Hook de extensibilidad (intencionalmente vacío).
+        // EndSessionController llama EndSession() directamente con el nickname; este
+        // handler queda como punto de enganche por si algún día se necesita cerrar la
+        // sesión de forma autónoma desde el bus.
     }
 
     // ── Getters para mostrar en la UI de resultados ──────────────────────────
-    public float GetCurrentSessionTime() => _sessionRunning ? Time.time - _sessionStartTime : 0f;
+    public float GetCurrentSessionTime() => _sessionRunning ? Time.unscaledTime - _sessionStartTime : 0f;
 
     public int GetTotalFailuresSoFar()
     {
