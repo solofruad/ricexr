@@ -98,3 +98,14 @@ InitTestScene*.unity*
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 UIElementsSchema
+
+# ── Artefactos específicos del proyecto (no versionar) ──────────────────
+# Burst debug info (el propio nombre indica "DoNotShip")
+/riceXR_BurstDebugInformation_DoNotShip/
+# Escenas de recuperación / backup accidentales
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
+# Artefactos sueltos de build / IDE
+TempAssembly.dll
+UpgradeLog.htm
+*.csproj.lscache
