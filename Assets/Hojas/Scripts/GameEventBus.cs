@@ -325,4 +325,17 @@ public static class GameEventBus
         OnSessionEnded = null;
         OnFlowStateChanged = null;
     }
+
+    /// <summary>
+    /// Limpia suscripciones estáticas colgadas al arrancar el juego. Es útil cuando el
+    /// "Domain Reload" está desactivado (Enter Play Mode Options), pues los eventos
+    /// estáticos conservarían listeners de la sesión de Play anterior. Se ejecuta antes
+    /// de que cualquier MonoBehaviour se suscriba en OnEnable, así que no afecta a los
+    /// singletons persistentes (DontDestroyOnLoad).
+    /// </summary>
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStaticListenersOnStartup()
+    {
+        ClearAllListeners();
+    }
 }

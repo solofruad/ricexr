@@ -90,4 +90,12 @@ public class GrabbableLeafListener : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        // Limpia la referencia estatica solo si este objeto es el singleton activo,
+        // para no dejar un Instance colgante tras una recarga de escena.
+        if (Instance == this)
+            Instance = null;
+    }
+
 }
