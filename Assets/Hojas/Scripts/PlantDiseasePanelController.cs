@@ -54,7 +54,6 @@ public class PlantDiseasePanelController : MonoBehaviour
     private Tween _carouselFadeOutTween;
     private Tween _carouselFadeInTween;
     private bool _isVisible = false;
-    private Vector3 _basePosition;
 
     // ─────────────────────────────────────────────
     // Lifecycle
@@ -319,7 +318,6 @@ public class PlantDiseasePanelController : MonoBehaviour
         {
             transform.position = SceneInteractionManager.Instance.SelectedPlanePosition
                                  + (SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up) * surfaceHeightOffset;
-            _basePosition = transform.position;
             return;
         }
 
@@ -328,6 +326,5 @@ public class PlantDiseasePanelController : MonoBehaviour
         Vector3 fwd = cam.forward; fwd.y = 0f;
         if (fwd.sqrMagnitude < 0.0001f) fwd = cam.forward;
         transform.position = cam.position + fwd.normalized;
-        _basePosition = transform.position;
     }
 }
