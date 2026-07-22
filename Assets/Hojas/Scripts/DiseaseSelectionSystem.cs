@@ -3,6 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using RiceXR.Core;
 
 /// <summary>
 /// Es el menu UI con su sistema para la seleccion de enfermedades.
@@ -267,10 +268,14 @@ public class DiseaseSelectionSystem : MonoBehaviour
         bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity, out DiseaseSpot matchedSpot);
         int leafId = currentLeaf.GetInstanceID();
 
+        // Re-diagnosticar una hoja ya resuelta en este nivel no debe contar como fallo
+        // ni como acierto: no se publica el intento (para no distorsionar las métricas)
+        // y se muestra feedback positivo, ya que el diagnóstico en sí era correcto.
         if (isCorrect && _identifiedLeavesThisLevel.Contains(leafId))
         {
-            Debug.Log("[DiseaseSelection] Esta hoja ya fue contabilizada en este nivel.");
-            isCorrect = false;
+            Debug.Log("[DiseaseSelection] Esta hoja ya fue contabilizada en este nivel; no se registra el intento.");
+            ShowFeedback(true);
+            return;
         }
 
         GameEventBus.PublishDiagnosisAttemptEvaluated(selectedDisease, selectedSeverity, isCorrect);
@@ -361,12 +366,8 @@ public class DiseaseSelectionSystem : MonoBehaviour
 
         foreach (DiseaseSpot spot in leaf.diseaseSpots)
         {
-            bool diseaseMatch = selectedDisease == spot.diseaseName;
-            bool severityMatch = spot.severity == -1
-                ? true
-                : Mathf.Abs(selectedSeverity - spot.severity) <= MarginOfError;
-
-            if (diseaseMatch && severityMatch)
+            var candidate = new DiagnosisEvaluator.Spot(spot.diseaseName, spot.severity);
+            if (DiagnosisEvaluator.Matches(candidate, selectedDisease, selectedSeverity, MarginOfError))
             {
                 matchedSpot = spot;
                 Debug.Log($"CORRECTO! Enfermedad: {selectedDisease}, Severidad: {selectedSeverity}");
