@@ -26,6 +26,24 @@ public class GameNarrationController : MonoBehaviour
     [SerializeField] private bool verboseLogs = false;
     [SerializeField] private int tutorialLevelIndex = 0;
 
+    /// <summary>
+    /// Guion de intro por nivel. Desacopla la narración de una estructura fija de niveles:
+    /// añadir o reordenar niveles ya no requiere tocar el código, solo esta lista.
+    /// El último nivel (levelIndex == totalLevels - 1) usa siempre "FinalWarning" y no
+    /// necesita entrada aquí. El nivel del tutorial se narra por sus propios eventos.
+    /// </summary>
+    [System.Serializable]
+    private class LevelIntroNarration
+    {
+        public int levelIndex;
+        public string[] lineIds;
+    }
+
+    [Header("Narración por nivel (data-driven)")]
+    [Tooltip("IDs de línea de intro por índice de nivel. El último nivel usa 'FinalWarning' automáticamente.")]
+    [SerializeField]
+    private List<LevelIntroNarration> levelIntroNarrations = new List<LevelIntroNarration>();
+
     private readonly HashSet<string> _spokenSession = new HashSet<string>();
     private readonly Dictionary<int, HashSet<string>> _spokenPerLevel = new Dictionary<int, HashSet<string>>();
     private readonly Dictionary<string, float> _lastPlayedAt = new Dictionary<string, float>();
@@ -40,6 +58,40 @@ public class GameNarrationController : MonoBehaviour
     private void Awake()
     {
         ResolveDependencies();
+        EnsureLevelIntroDefaults();
+    }
+
+    /// <summary>
+    /// Rellena el guion por nivel con los valores por defecto si la lista está vacía
+    /// (p. ej. en escenas creadas antes de exponer este campo). Así el comportamiento
+    /// es correcto sin necesidad de poblar el asset en el Editor.
+    /// </summary>
+    private void EnsureLevelIntroDefaults()
+    {
+        if (levelIntroNarrations != null && levelIntroNarrations.Count > 0) return;
+
+        levelIntroNarrations = new List<LevelIntroNarration>
+        {
+            new LevelIntroNarration
+            {
+                levelIndex = 1,
+                lineIds = new[] { GameNarrationLineIds.Level2Intro, GameNarrationLineIds.Level2Explain }
+            },
+            new LevelIntroNarration
+            {
+                levelIndex = 2,
+                lineIds = new[] { GameNarrationLineIds.Level3Intro, GameNarrationLineIds.Level3Explain }
+            },
+        };
+    }
+
+    private string[] GetLevelIntroLines(int levelIndex)
+    {
+        if (levelIntroNarrations == null) return null;
+        foreach (var entry in levelIntroNarrations)
+            if (entry != null && entry.levelIndex == levelIndex)
+                return entry.lineIds;
+        return null;
     }
 
     private void OnEnable()
@@ -197,10 +249,12 @@ public class GameNarrationController : MonoBehaviour
         EnsureLevelBucket(levelIndex);
 
         string progressRemainId = GetProgressRemainId(plantsRequired);
+        bool appendProgress = !string.IsNullOrEmpty(progressRemainId) && plantsRequired >= 2;
 
+        // Último nivel: aviso final. El índice se calcula (totalLevels - 1), no está hardcodeado.
         if (levelIndex == totalLevels - 1)
         {
-            if (!string.IsNullOrEmpty(progressRemainId) && plantsRequired >= 2)
+            if (appendProgress)
             {
                 SpeakSequence(true, GameNarrationLineIds.FinalWarning, progressRemainId);
             }
@@ -211,29 +265,21 @@ public class GameNarrationController : MonoBehaviour
             return;
         }
 
-        if (levelIndex == 1)
-        {
-            if (!string.IsNullOrEmpty(progressRemainId) && plantsRequired >= 2)
-            {
-                SpeakSequence(true, GameNarrationLineIds.Level2Intro, GameNarrationLineIds.Level2Explain, progressRemainId);
-            }
-            else
-            {
-                SpeakSequence(true, GameNarrationLineIds.Level2Intro, GameNarrationLineIds.Level2Explain);
-            }
+        // Resto de niveles: guion definido por datos en levelIntroNarrations.
+        string[] baseLines = GetLevelIntroLines(levelIndex);
+        if (baseLines == null || baseLines.Length == 0)
             return;
-        }
 
-        if (levelIndex == 2)
+        if (appendProgress)
         {
-            if (!string.IsNullOrEmpty(progressRemainId) && plantsRequired >= 2)
-            {
-                SpeakSequence(true, GameNarrationLineIds.Level3Intro, GameNarrationLineIds.Level3Explain, progressRemainId);
-            }
-            else
-            {
-                SpeakSequence(true, GameNarrationLineIds.Level3Intro, GameNarrationLineIds.Level3Explain);
-            }
+            var sequence = new string[baseLines.Length + 1];
+            System.Array.Copy(baseLines, sequence, baseLines.Length);
+            sequence[baseLines.Length] = progressRemainId;
+            SpeakSequence(true, sequence);
+        }
+        else
+        {
+            SpeakSequence(true, baseLines);
         }
     }
 
