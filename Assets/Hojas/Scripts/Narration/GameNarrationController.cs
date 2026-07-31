@@ -120,7 +120,9 @@ public class GameNarrationController : MonoBehaviour
     {
         GameEventBus.OnSessionStartRequested += HandleStartFlowRequested;
         GameEventBus.OnLevelIntroStarted += HandleLevelIntroStarted;
+        GameEventBus.OnTutorialDemonstrationStepChanged += HandleTutorialDemonstrationStepChanged;
         GameEventBus.OnTutorialStarted += HandleTutorialStarted;
+        GameEventBus.OnGuidedTutorialStageChanged += HandleGuidedTutorialStageChanged;
         GameEventBus.OnTutorialCompleted += HandleTutorialCompleted;
 
         GameEventBus.OnLevelStarted += HandleLevelStarted;
@@ -139,7 +141,9 @@ public class GameNarrationController : MonoBehaviour
     {
         GameEventBus.OnSessionStartRequested -= HandleStartFlowRequested;
         GameEventBus.OnLevelIntroStarted -= HandleLevelIntroStarted;
+        GameEventBus.OnTutorialDemonstrationStepChanged -= HandleTutorialDemonstrationStepChanged;
         GameEventBus.OnTutorialStarted -= HandleTutorialStarted;
+        GameEventBus.OnGuidedTutorialStageChanged -= HandleGuidedTutorialStageChanged;
         GameEventBus.OnTutorialCompleted -= HandleTutorialCompleted;
 
         GameEventBus.OnLevelStarted -= HandleLevelStarted;
@@ -207,7 +211,53 @@ public class GameNarrationController : MonoBehaviour
     private void HandleTutorialStarted()
     {
         _tutorialGuidedCompleted = false;
-        SpeakLine(GameNarrationLineIds.TutorialBegin, true);
+        // Encola el primer paso para que el evento GRAB_LEAF inmediato no corte
+        // la locución de inicio. Si la demo ya reprodujo TUTORIAL_GRAB,
+        // oncePerSession lo filtra automáticamente.
+        SpeakSequence(true,
+            GameNarrationLineIds.TutorialBegin,
+            GameNarrationLineIds.TutorialGrab);
+    }
+
+    private void HandleTutorialDemonstrationStepChanged(TutorialDemonstrationStep step)
+    {
+        switch (step)
+        {
+            case TutorialDemonstrationStep.Grab:
+                SpeakLine(GameNarrationLineIds.TutorialGrab, true);
+                break;
+            case TutorialDemonstrationStep.Inspect:
+                SpeakLine(GameNarrationLineIds.TutorialInspect, true);
+                break;
+            case TutorialDemonstrationStep.Diagnose:
+                SpeakSequence(true,
+                    GameNarrationLineIds.TutorialMenuOpen,
+                    GameNarrationLineIds.TutorialSelectDisease,
+                    GameNarrationLineIds.TutorialSelectSeverity,
+                    GameNarrationLineIds.TutorialConfirm);
+                break;
+        }
+    }
+
+    private void HandleGuidedTutorialStageChanged(GuidedTutorialStage stage)
+    {
+        switch (stage)
+        {
+            case GuidedTutorialStage.Observing:
+                SpeakLine(GameNarrationLineIds.TutorialInspect, true);
+                break;
+            case GuidedTutorialStage.DemonstratingDiagnosis:
+                SpeakSequence(true,
+                    GameNarrationLineIds.TutorialMenuOpen,
+                    GameNarrationLineIds.TutorialSelectDisease,
+                    GameNarrationLineIds.TutorialSelectSeverity,
+                    GameNarrationLineIds.TutorialConfirm);
+                break;
+            case GuidedTutorialStage.FreePractice:
+                _tutorialGuidedCompleted = true;
+                SpeakLine(GameNarrationLineIds.TutorialFreePractice, true);
+                break;
+        }
     }
 
     private void HandleTutorialGuidedPhaseCompleted()

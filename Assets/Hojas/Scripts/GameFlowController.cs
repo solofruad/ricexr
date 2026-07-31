@@ -8,7 +8,8 @@ using DG.Tweening;
 /// CONTROLADOR CENTRAL DEL FLUJO DE JUEGO
 ///
 /// Única fuente de verdad para la máquina de estados del juego.
-/// Orquesta las transiciones: Menu → PlaneSelection → LevelIntro → Tutorial → Niveles → Fin.
+/// Orquesta las transiciones:
+/// Menu → PlaneSelection → LevelIntro → TutorialDemonstration → Tutorial → Niveles → Fin.
 ///
 /// No contiene lógica de presentación (eso es responsabilidad de UIGameListener,
 /// UIMessagesController, paneles, etc.).
@@ -24,12 +25,16 @@ public class GameFlowController : MonoBehaviour
     [Header("Referencias de escena")]
     [SerializeField] private SceneInteractionManager sceneInteractionManager;
     [SerializeField] private LevelIntroController levelIntroController;
+    [SerializeField] private GuidedTutorialController guidedTutorialController;
+    // Retained for deserializing legacy scenes; this flow no longer invokes the demo.
+    [SerializeField] private TutorialDemonstrationController tutorialDemonstrationController;
     [SerializeField] private TutorialPanelController tutorialPanelController;
     [SerializeField] private PlaneConfigurationSpawner planeSpawner;
     [SerializeField] private MainMenuController mainMenuController;
 
     [Header("Configuración de flujo")]
     [SerializeField] private bool runLevelIntro = true;
+    [SerializeField] private bool runTutorialDemonstration = false;
     [SerializeField] private int tutorialLevelIndex = 0;
 
     [Header("Tiempos")]
@@ -37,6 +42,7 @@ public class GameFlowController : MonoBehaviour
     [SerializeField] private float scaleDuration = 0.5f;
 
     public FlowState CurrentState { get; private set; } = FlowState.None;
+    public int TutorialLevelIndex => tutorialLevelIndex;
 
     // ── Estado interno ───────────────────────────────────────────────────────
     private Vector3 _selectedPlanePosition;
@@ -46,6 +52,7 @@ public class GameFlowController : MonoBehaviour
     private bool _sessionMetricsStarted;
     private bool _waitingForAllPlants;
     private bool _waitingAnalysisToSpawnLevel;
+    private bool _tutorialCompletionHandled;
 
     private Coroutine _levelTransitionCoroutine;
 
@@ -69,7 +76,6 @@ public class GameFlowController : MonoBehaviour
         GameEventBus.OnPlaneSelected += HandlePlaneSelected;
         GameEventBus.OnPlanesHidden += HandlePlanesHidden;
         GameEventBus.OnLevelIntroCompleted += HandleLevelIntroCompleted;
-        GameEventBus.OnTutorialStarted += HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted += HandleTutorialCompleted;
 
         // Gameplay
@@ -86,7 +92,6 @@ public class GameFlowController : MonoBehaviour
         GameEventBus.OnPlaneSelected -= HandlePlaneSelected;
         GameEventBus.OnPlanesHidden -= HandlePlanesHidden;
         GameEventBus.OnLevelIntroCompleted -= HandleLevelIntroCompleted;
-        GameEventBus.OnTutorialStarted -= HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted -= HandleTutorialCompleted;
 
         GameEventBus.OnAllPlantsSelected -= HandleAllPlantsSelected;
@@ -95,6 +100,7 @@ public class GameFlowController : MonoBehaviour
         GameEventBus.OnReturnToMenuRequested -= HandleReturnToMenuRequested;
 
         CancelLevelTransition();
+        guidedTutorialController?.ResetTutorial();
     }
 
     // ─────────────────────────────────────────────
@@ -168,6 +174,18 @@ public class GameFlowController : MonoBehaviour
     }
 
     /// <summary>
+    /// La demostración terminó de forma natural o fue omitida.
+    /// En ambos casos se continúa una sola vez con el tutorial interactivo.
+    /// </summary>
+    private void HandleTutorialDemonstrationCompleted(bool skipped)
+    {
+        return;
+
+        Debug.Log($"[GameFlow] Demostración tutorial completada. skipped={skipped}");
+        BeginInteractiveTutorial();
+    }
+
+    /// <summary>
     /// El tutorial comenzó (panel visible y animado).
     /// Arranca el nivel tutorial para que las hojas aparezcan
     /// mientras el jugador lee las instrucciones del panel.
@@ -185,6 +203,15 @@ public class GameFlowController : MonoBehaviour
     /// </summary>
     private void HandleTutorialCompleted()
     {
+        if (_tutorialCompletionHandled ||
+            (sceneInteractionManager?.GetCurrentLevelIndex() ?? -1) != tutorialLevelIndex)
+            return;
+
+        _tutorialCompletionHandled = true;
+        _waitingForAllPlants = false;
+        TransitionTo(FlowState.LevelTransition, "GuidedTutorialCompleted");
+        CancelLevelTransition();
+        _levelTransitionCoroutine = StartCoroutine(DelayedCompleteLevelAndAdvance(tutorialLevelIndex));
         // Nada que hacer: CompleteLevelAndAdvance ya se encargará del avance.
     }
 
@@ -193,6 +220,10 @@ public class GameFlowController : MonoBehaviour
     /// </summary>
     private void HandleAllPlantsSelected()
     {
+        if ((sceneInteractionManager?.GetCurrentLevelIndex() ?? -1) == tutorialLevelIndex &&
+            (guidedTutorialController == null || guidedTutorialController.IsRunning || _tutorialCompletionHandled))
+            return;
+
         _waitingForAllPlants = true;
         TransitionTo(FlowState.WaitingForLevelCompletion, "AllPlantsSelected");
     }
@@ -279,7 +310,6 @@ public class GameFlowController : MonoBehaviour
 
         if (!runLevelIntro || levelIntroController == null)
         {
-            StartSessionMetricsIfNeeded();
             AfterLevelIntroCompleted(levelIndex, totalLevels);
             return;
         }
@@ -290,7 +320,6 @@ public class GameFlowController : MonoBehaviour
         levelIntroController.ShowIntro(levelIndex, totalLevels, () =>
         {
             GameEventBus.PublishLevelIntroCompleted();
-            StartSessionMetricsIfNeeded();
             AfterLevelIntroCompleted(levelIndex, totalLevels);
         });
     }
@@ -303,15 +332,14 @@ public class GameFlowController : MonoBehaviour
     {
         int plantsRequired = sceneInteractionManager?.GetCurrentPlantsRequired() ?? 1;
 
-        // Nivel tutorial: mostrar panel de tutorial (el gameplay lo arranca HandleTutorialStarted)
-        if (levelIndex == tutorialLevelIndex && tutorialPanelController != null)
+        if (levelIndex == tutorialLevelIndex)
         {
-            TransitionTo(FlowState.Tutorial, "StartTutorial");
-            tutorialPanelController.ShowAndStart();
+            BeginGuidedTutorial();
             return;
         }
 
         // Nivel normal: publicar LevelStarted y continuar
+        StartSessionMetricsIfNeeded();
         TransitionTo(FlowState.LevelStarting, "StartCurrentLevelGameplay");
         GameEventBus.PublishLevelStarted(levelIndex, totalLevels, plantsRequired);
 
@@ -326,6 +354,72 @@ public class GameFlowController : MonoBehaviour
         sceneInteractionManager?.SpawnCurrentLevel();
         TransitionTo(FlowState.LevelPlaying, "SpawnedLevel");
         GameEventBus.PublishLevelSpawned(levelIndex);
+    }
+
+    private void BeginTutorialDemonstrationOrContinue()
+    {
+        if (runTutorialDemonstration)
+        {
+            if (tutorialDemonstrationController == null)
+            {
+                Debug.LogWarning(
+                    "[GameFlow] TutorialDemonstrationController no asignado. " +
+                    "Se continúa con el tutorial interactivo.");
+            }
+            else if (!tutorialDemonstrationController.CanPlay)
+            {
+                Debug.LogWarning(
+                    "[GameFlow] La demostración no tiene una Timeline completa. " +
+                    "Se continúa con el tutorial interactivo.");
+            }
+            else
+            {
+                return;
+
+                if (tutorialDemonstrationController.Play())
+                {
+                    GameEventBus.PublishTutorialDemonstrationStarted();
+                    return;
+                }
+
+                Debug.LogWarning(
+                    "[GameFlow] La demostración no pudo iniciarse. " +
+                    "Se continúa con el tutorial interactivo.");
+            }
+        }
+
+        BeginInteractiveTutorial();
+    }
+
+    private void BeginGuidedTutorial()
+    {
+        StartSessionMetricsIfNeeded();
+        TransitionTo(FlowState.Tutorial, "StartGuidedTutorial");
+        StartCurrentLevelGameplay();
+
+        if (guidedTutorialController == null)
+        {
+            Debug.LogError("[GameFlow] GuidedTutorialController no disponible.");
+            return;
+        }
+
+        guidedTutorialController.StartTutorial();
+    }
+
+    private void BeginInteractiveTutorial()
+    {
+        StartSessionMetricsIfNeeded();
+
+        if (tutorialPanelController == null)
+        {
+            Debug.LogWarning(
+                "[GameFlow] TutorialPanelController no disponible. Se inicia el nivel tutorial sin guía.");
+            StartCurrentLevelGameplay();
+            return;
+        }
+
+        TransitionTo(FlowState.Tutorial, "StartTutorial");
+        tutorialPanelController.ShowAndStart();
     }
 
     /// <summary>
@@ -396,7 +490,10 @@ public class GameFlowController : MonoBehaviour
         _sessionMetricsStarted = false;
         _waitingForAllPlants = false;
         _waitingAnalysisToSpawnLevel = false;
+        _tutorialCompletionHandled = false;
         CancelLevelTransition();
+        tutorialDemonstrationController?.ResetState();
+        guidedTutorialController?.ResetTutorial();
     }
 
     private IEnumerator DelayedCompleteLevelAndAdvance(int idx)
@@ -432,8 +529,14 @@ public class GameFlowController : MonoBehaviour
         if (levelIntroController == null)
             levelIntroController = FindObjectOfType<LevelIntroController>(true);
 
+        if (tutorialDemonstrationController == null)
+            tutorialDemonstrationController = FindObjectOfType<TutorialDemonstrationController>(true);
+
         if (tutorialPanelController == null)
             tutorialPanelController = FindObjectOfType<TutorialPanelController>(true);
+
+        if (guidedTutorialController == null)
+            guidedTutorialController = FindObjectOfType<GuidedTutorialController>(true);
 
         if (planeSpawner == null)
             planeSpawner = FindObjectOfType<PlaneConfigurationSpawner>(true);

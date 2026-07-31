@@ -7468,6 +7468,7 @@ GameObject:
   - component: {fileID: 873954176}
   - component: {fileID: 873954174}
   - component: {fileID: 873954177}
+  - component: {fileID: 873954178}
   m_Layer: 0
   m_Name: TutorialController
   m_TagString: Untagged
@@ -7534,6 +7535,21 @@ MonoBehaviour:
   smoothSpeed: 5
   lockYAxis: 1
   matchCameraUpVector: 1
+--- !u!114 &873954178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 873954173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1784d83d53b4e6e9b9bdaa0545f0b13, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::GuidedTutorialController
+  avatar: {fileID: 0}
+  hintPopup: {fileID: 0}
+  continuousObserveSeconds: 5
 --- !u!1 &888203834
 GameObject:
   m_ObjectHideFlags: 0
@@ -7640,11 +7656,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameFlowController
   sceneInteractionManager: {fileID: 1886615856}
   levelIntroController: {fileID: 2009511635}
+  tutorialDemonstrationController: {fileID: 3000000103}
   tutorialPanelController: {fileID: 873954174}
   planeSpawner: {fileID: 693940578}
   mainMenuController: {fileID: 1675194214}
   runLevelIntro: 1
+  runTutorialDemonstration: 0
   tutorialLevelIndex: 0
+  guidedTutorialController: {fileID: 873954178}
   levelTransitionDelay: 1.1
   scaleDuration: 0.5
 --- !u!4 &909255109
@@ -9793,8 +9812,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelIntroController
   introDocument: {fileID: 2109511636}
   continueButtonDocument: {fileID: 1457785803}
-  miniGuideTutorialDocument: {fileID: 0}
-  miniGuideNextLevelDocument: {fileID: 0}
+  miniGuideTutorialDocument: {fileID: 1701109465}
+  miniGuideNextLevelDocument: {fileID: 758161708}
   miniGuideFinalLevelDocument: {fileID: 2005322336}
   autoFindDocuments: 0
   introRootElementName: panel-intro
@@ -9909,6 +9928,73 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 755066567}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3000000100
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_RootOrder
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1000, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+      propertyPath: m_Name
+      value: TutorialDemonstration
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e40799875d83477c92cb1f4685fae321, type: 3}
+--- !u!4 &3000000101 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1001, guid: e40799875d83477c92cb1f4685fae321,
+    type: 3}
+  m_PrefabInstance: {fileID: 3000000100}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3000000103 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1003, guid: e40799875d83477c92cb1f4685fae321,
+    type: 3}
+  m_PrefabInstance: {fileID: 3000000100}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b453903e6e1640ef8f0a49e9ab0d3b0d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -9928,3 +10014,4 @@ SceneRoots:
   - {fileID: 237646264}
   - {fileID: 1025822507}
   - {fileID: 699673192}
+  - {fileID: 3000000100}

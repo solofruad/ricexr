@@ -149,6 +149,9 @@ public class UIGameListener : MonoBehaviour
 
     private void HandleAllPlantsSelected()
     {
+        if (_currentLevelIndex == tutorialLevelIndex)
+            return; // The avatar celebration owns the transition, never this UI timer.
+
         CancelFlowCoroutine();
         messagesController.HideAll();
         messagesController.ShowCongrats("¡Encontraste todas las plantas enfermas!");

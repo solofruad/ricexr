@@ -151,6 +151,22 @@ public class SceneInteractionManager : MonoBehaviour
 
         DiseaseSelectionSystem.Instance?.Hide();
 
+        // The tutorial owns its two leaves through a deterministic sequential spawner.
+        // It must be checked before LeavesSpawner so the normal 20-leaf random flow never starts.
+        int tutorialIndex = GameFlowController.Instance != null
+            ? GameFlowController.Instance.TutorialLevelIndex : 0;
+        TutorialLeafSequenceSpawner tutorialSequence = currentLevelInstance.GetComponent<TutorialLeafSequenceSpawner>();
+        if (currentLevelIndex == tutorialIndex && tutorialSequence == null)
+            tutorialSequence = currentLevelInstance.AddComponent<TutorialLeafSequenceSpawner>();
+
+        if (tutorialSequence != null && currentLevelIndex == tutorialIndex)
+        {
+            LeavesSpawner normalSpawner = currentLevelInstance.GetComponent<LeavesSpawner>();
+            if (normalSpawner != null) normalSpawner.enabled = false;
+            tutorialSequence.BeginSequence();
+            return;
+        }
+
         LeavesSpawner leafSpawner = currentLevelInstance.GetComponent<LeavesSpawner>();
         if (leafSpawner != null)
         {
