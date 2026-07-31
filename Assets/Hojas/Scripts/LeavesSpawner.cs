@@ -54,6 +54,13 @@ public class LeavesSpawner : MonoBehaviour
 
     private List<Transform> activeGrass = new List<Transform>();
 
+    /// <summary>Read-only deterministic access used by the two-leaf tutorial sequence.</summary>
+    public GameObject GetDeterministicPrefab(int index)
+    {
+        if (grassPrefabs == null || grassPrefabs.Length == 0) return null;
+        return grassPrefabs[Mathf.Clamp(index, 0, grassPrefabs.Length - 1)];
+    }
+
     private void Start()
     {
         if (grassParent == null)

@@ -87,6 +87,8 @@ public class DiseaseSelectionSystem : MonoBehaviour
     private Vector3 _originalScale = Vector3.one;
     private bool _panelVisible = false;
     private Coroutine _feedbackCoroutine;
+    private bool _tutorialGateActive;
+    private bool _tutorialInteractionAllowed = true;
 
     void Awake()
     {
@@ -187,6 +189,12 @@ public class DiseaseSelectionSystem : MonoBehaviour
         if (diseaseSelectionPanel == null)
             return;
 
+        if (_tutorialGateActive && !_tutorialInteractionAllowed)
+        {
+            if (_panelVisible) Hide();
+            return;
+        }
+
         if (GrabbableLeafListener.Instance == null)
         {
             if (_panelVisible) HideAnimated();
@@ -240,6 +248,11 @@ public class DiseaseSelectionSystem : MonoBehaviour
     // ── Logica de submit ─────────────────────────────────────────────────────
     void OnSubmit()
     {
+        if (_tutorialGateActive && !_tutorialInteractionAllowed)
+        {
+            Debug.Log("[DiseaseSelection] El menú está bloqueado por la etapa actual del tutorial.");
+            return;
+        }
         Leaf currentLeaf = GrabbableLeafListener.Instance != null
             ? GrabbableLeafListener.Instance.ActualLeafGrabbed
             : null;
@@ -419,6 +432,14 @@ public class DiseaseSelectionSystem : MonoBehaviour
     {
         if (diseaseToggleGroup != null) diseaseToggleGroup.SetAllTogglesOff();
         if (severityToggleGroup != null) severityToggleGroup.SetAllTogglesOff();
+    }
+
+    /// <summary>Restricts the diagnosis menu only while the guided tutorial is active.</summary>
+    public void ConfigureTutorialInteractionGate(bool tutorialActive, bool interactionAllowed)
+    {
+        _tutorialGateActive = tutorialActive;
+        _tutorialInteractionAllowed = interactionAllowed;
+        if (_tutorialGateActive && !_tutorialInteractionAllowed) Hide();
     }
 
     private void HandleLevelStarted(int levelIndex, int totalLevels, int plantsRequired)

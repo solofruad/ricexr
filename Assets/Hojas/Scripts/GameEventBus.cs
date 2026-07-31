@@ -18,6 +18,14 @@ public enum FlowState
     SessionEnding = 12
 }
 
+/// <summary>Etapas narrables de la demostración introductoria del tutorial.</summary>
+public enum TutorialDemonstrationStep
+{
+    Grab = 0,
+    Inspect = 1,
+    Diagnose = 2
+}
+
 /// <summary>
 /// Bus de eventos global del juego.
 /// 
@@ -52,8 +60,20 @@ public static class GameEventBus
     /// <summary>Emitido cuando la intro del nivel actual se completa.</summary>
     public static event Action OnLevelIntroCompleted;
 
+    /// <summary>Emitido cuando comienza la demostración 3D previa al tutorial interactivo.</summary>
+    public static event Action OnTutorialDemonstrationStarted;
+
+    /// <summary>Emitido por las señales de Timeline al cambiar el paso demostrado.</summary>
+    public static event Action<TutorialDemonstrationStep> OnTutorialDemonstrationStepChanged;
+
+    /// <summary>Emitido al terminar la demostración. skipped indica si el usuario la omitió.</summary>
+    public static event Action<bool> OnTutorialDemonstrationCompleted;
+
     /// <summary>Emitido cuando el tutorial inicia (panel visible y gameplay listo).</summary>
     public static event Action OnTutorialStarted;
+
+    /// <summary>Etapa actual del tutorial determinista controlado por acciones reales.</summary>
+    public static event Action<GuidedTutorialStage> OnGuidedTutorialStageChanged;
 
     /// <summary>Emitido cuando el tutorial se completa (todas las hojas identificadas).</summary>
     public static event Action OnTutorialCompleted;
@@ -163,10 +183,34 @@ public static class GameEventBus
         OnLevelIntroCompleted?.Invoke();
     }
 
+    public static void PublishTutorialDemonstrationStarted()
+    {
+        Debug.Log("[GameEventBus] TutorialDemonstrationStarted");
+        OnTutorialDemonstrationStarted?.Invoke();
+    }
+
+    public static void PublishTutorialDemonstrationStepChanged(TutorialDemonstrationStep step)
+    {
+        Debug.Log($"[GameEventBus] TutorialDemonstrationStepChanged → {step}");
+        OnTutorialDemonstrationStepChanged?.Invoke(step);
+    }
+
+    public static void PublishTutorialDemonstrationCompleted(bool skipped)
+    {
+        Debug.Log($"[GameEventBus] TutorialDemonstrationCompleted → skipped:{skipped}");
+        OnTutorialDemonstrationCompleted?.Invoke(skipped);
+    }
+
     public static void PublishTutorialStarted()
     {
         Debug.Log("[GameEventBus] TutorialStarted");
         OnTutorialStarted?.Invoke();
+    }
+
+    public static void PublishGuidedTutorialStageChanged(GuidedTutorialStage stage)
+    {
+        Debug.Log($"[GameEventBus] GuidedTutorialStageChanged → {stage}");
+        OnGuidedTutorialStageChanged?.Invoke(stage);
     }
 
     public static void PublishTutorialCompleted()
@@ -300,7 +344,11 @@ public static class GameEventBus
         OnPlanesHidden = null;
         OnLevelIntroStarted = null;
         OnLevelIntroCompleted = null;
+        OnTutorialDemonstrationStarted = null;
+        OnTutorialDemonstrationStepChanged = null;
+        OnTutorialDemonstrationCompleted = null;
         OnTutorialStarted = null;
+        OnGuidedTutorialStageChanged = null;
         OnTutorialCompleted = null;
         OnLevelSpawnRequested = null;
         OnLevelSpawned = null;
