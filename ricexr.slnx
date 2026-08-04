@@ -136,6 +136,7 @@
   <Project Path="Oculus.Platform.Editor.csproj" />
   <Project Path="Meta.XR.EnvironmentDepth.Editor.csproj" />
   <Project Path="Oculus.Interaction.Samples.Editor.UISet.csproj" />
+  <Project Path="RiceXR.Core.csproj" />
   <Project Path="Oculus.Haptics.csproj" />
   <Project Path="Unity.SurfaceCache.Runtime.csproj" />
   <Project Path="Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.csproj" />
@@ -156,6 +157,7 @@
   <Project Path="Oculus.Interaction.Editor.UnityXR.csproj" />
   <Project Path="UnityEngine.XR.LegacyInputHelpers.csproj" />
   <Project Path="Unity.XR.OpenXR.Features.RuntimeDebugger.Editor.csproj" />
+  <Project Path="RiceXR.Tests.EditMode.csproj" />
   <Project Path="Unity.InternalAPIEngineBridge.004.csproj" />
   <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />
   <Project Path="Unity.RenderPipelines.Universal.Shaders.csproj" />

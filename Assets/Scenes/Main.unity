@@ -2921,6 +2921,7 @@ MonoBehaviour:
   stopCurrentBeforeSpeaking: 1
   verboseLogs: 0
   tutorialLevelIndex: 0
+  levelIntroNarrations: []
 --- !u!114 &754232922 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 903382945424364175, guid: 0a7d2469f24041c4284c66706f84c45e,
