@@ -53,7 +53,7 @@ MonoBehaviour:
     description: 'Paso: agarrar hoja.'
     enabled: 1
     cooldownSec: 0
-    oncePerSession: 1
+    oncePerSession: 0
     oncePerLevel: 0
     firstErrorOnly: 0
     audioClips:
@@ -62,16 +62,24 @@ MonoBehaviour:
     description: 'Paso: observar lesion.'
     enabled: 1
     cooldownSec: 0
-    oncePerSession: 1
+    oncePerSession: 0
     oncePerLevel: 0
     firstErrorOnly: 0
     audioClips:
     - {fileID: 8300000, guid: 2a12ae75d72f78e4083f9df604348e8a, type: 3}
+  - id: TUTORIAL_HINT
+    description: 'Paso: mostrar la pista 3D de enfermedad y severidad.'
+    enabled: 1
+    cooldownSec: 0.25
+    oncePerSession: 0
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips: []
   - id: TUTORIAL_MENU_OPEN
     description: 'Paso: abrir menu de diagnostico.'
     enabled: 1
     cooldownSec: 0
-    oncePerSession: 1
+    oncePerSession: 0
     oncePerLevel: 0
     firstErrorOnly: 0
     audioClips:
@@ -80,7 +88,7 @@ MonoBehaviour:
     description: 'Paso: elegir enfermedad.'
     enabled: 1
     cooldownSec: 0
-    oncePerSession: 1
+    oncePerSession: 0
     oncePerLevel: 0
     firstErrorOnly: 0
     audioClips:
@@ -89,7 +97,7 @@ MonoBehaviour:
     description: 'Paso: elegir severidad.'
     enabled: 1
     cooldownSec: 0
-    oncePerSession: 1
+    oncePerSession: 0
     oncePerLevel: 0
     firstErrorOnly: 0
     audioClips:
@@ -98,7 +106,7 @@ MonoBehaviour:
     description: 'Paso: confirmar diagnostico.'
     enabled: 1
     cooldownSec: 0
-    oncePerSession: 1
+    oncePerSession: 0
     oncePerLevel: 0
     firstErrorOnly: 0
     audioClips:
@@ -109,7 +117,7 @@ MonoBehaviour:
     cooldownSec: 0.8
     oncePerSession: 0
     oncePerLevel: 0
-    firstErrorOnly: 0
+    firstErrorOnly: 1
     audioClips:
     - {fileID: 8300000, guid: dc719ee9f85df1e4a9b61ec6ca7c7069, type: 3}
   - id: TUTORIAL_FREE_PRACTICE

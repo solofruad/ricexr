@@ -86,6 +86,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
 
     private Vector3 _originalScale = Vector3.one;
     private bool _panelVisible = false;
+    private bool _panelAvailable = true;
     private Coroutine _feedbackCoroutine;
 
     void Awake()
@@ -181,11 +182,29 @@ public class DiseaseSelectionSystem : MonoBehaviour
         _panelVisible = false;
     }
 
+    /// <summary>
+    /// Controla si el selector puede abrirse automaticamente al agarrar una hoja.
+    /// El tutorial lo desactiva durante agarrar/observar/pista y lo habilita solo
+    /// al entrar en el acto de diagnostico.
+    /// </summary>
+    public void SetPanelAvailability(bool available)
+    {
+        _panelAvailable = available;
+        if (!available)
+            Hide();
+    }
+
 
     private void SyncPanelWithSelection()
     {
         if (diseaseSelectionPanel == null)
             return;
+
+        if (!_panelAvailable)
+        {
+            if (_panelVisible) HideAnimated();
+            return;
+        }
 
         if (GrabbableLeafListener.Instance == null)
         {
@@ -240,6 +259,9 @@ public class DiseaseSelectionSystem : MonoBehaviour
     // ── Logica de submit ─────────────────────────────────────────────────────
     void OnSubmit()
     {
+        if (!_panelAvailable)
+            return;
+
         Leaf currentLeaf = GrabbableLeafListener.Instance != null
             ? GrabbableLeafListener.Instance.ActualLeafGrabbed
             : null;
@@ -426,6 +448,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
         _correctSelectionsThisLevel = 0;
         _plantsRequiredThisLevel = Mathf.Max(1, plantsRequired);
         _identifiedLeavesThisLevel.Clear();
+        _panelAvailable = true;
         ResetSelection();
         Hide();
     }

@@ -228,6 +228,7 @@ public class GameFlowController : MonoBehaviour
     private void HandleReturnToMenuRequested()
     {
         sceneInteractionManager?.PrepareForNextSession();
+        tutorialPanelController?.Hide();
         ResetFlowState();
         TransitionTo(FlowState.Idle, "ReturnToMenu");
     }

@@ -164,6 +164,31 @@ public class Leaf : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Oculta los marcadores sin consultar ableToShowMarkers. Se usa al preparar
+    /// una hoja tutorial, antes de que el acto de pista los habilite.
+    /// </summary>
+    public void HideMarkersImmediate()
+    {
+        foreach (DiseaseSpot spot in diseaseSpots)
+        {
+            if (spot.markerObject != null)
+                spot.markerObject.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Cambia si los callbacks de interaccion pueden mostrar marcadores.
+    /// Al deshabilitarlos tambien los oculta para evitar que una hoja soltada
+    /// deje una pista visible en el cultivo.
+    /// </summary>
+    public void SetMarkersAvailability(bool available)
+    {
+        ableToShowMarkers = available;
+        if (!available)
+            HideMarkersImmediate();
+    }
+
     public void ToggleMarkers()
     {
         showMarkers = !showMarkers;

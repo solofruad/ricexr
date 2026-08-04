@@ -62,7 +62,10 @@ public class ButtonPlaneLogic : MonoBehaviour
         GameEventBus.PublishPlaneSelected(
             visualTransform.position,
             transform.rotation,
-            visualTransform.localScale
+            // localScale no incluye el escalado aplicado por MRUK al padre.
+            // lossyscale conserva las dimensiones reales del plano y tambien
+            // funciona para una futura superficie virtual movible.
+            visualTransform.lossyScale
         );
     }
 

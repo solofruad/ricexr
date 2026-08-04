@@ -7,6 +7,7 @@ public static class GameNarrationLineIds
     public const string TutorialBegin = "TUTORIAL_BEGIN";
     public const string TutorialGrab = "TUTORIAL_GRAB";
     public const string TutorialInspect = "TUTORIAL_INSPECT";
+    public const string TutorialHint = "TUTORIAL_HINT";
     public const string TutorialMenuOpen = "TUTORIAL_MENU_OPEN";
     public const string TutorialSelectDisease = "TUTORIAL_SELECT_DISEASE";
     public const string TutorialSelectSeverity = "TUTORIAL_SELECT_SEVERITY";

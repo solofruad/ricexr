@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -9,9 +10,10 @@ public enum TutorialGuidanceAct
     NONE = 0,
     GRAB_LEAF = 1,
     OBSERVE_LEAF = 2,
-    DIAGNOSE_FIRST_LEAF = 3,
-    FREE_PRACTICE_SECOND_LEAF = 4,
-    COMPLETED = 5
+    REVEAL_HINT = 3,
+    DIAGNOSE_FIRST_LEAF = 4,
+    FREE_PRACTICE_SECOND_LEAF = 5,
+    COMPLETED = 6
 }
 
 public class TutorialPanelController : MonoBehaviour
@@ -45,8 +47,22 @@ public class TutorialPanelController : MonoBehaviour
     [SerializeField] private float panelAnimDuration = 0.35f;
 
     [Header("Actos guiados")]
-    [Tooltip("Tiempo en segundos para pasar de observar a diagnosticar mientras la hoja sigue agarrada.")]
-    [SerializeField] private float observeToDiagnoseDelay = 6f;
+    [Tooltip("Tiempo en segundos de observacion antes de revelar la pista.")]
+    [SerializeField] private float observeToDiagnoseDelay = 3f;
+    [Tooltip("Tiempo en segundos que la pista permanece visible antes de abrir el menu.")]
+    [SerializeField] private float hintToDiagnoseDelay = 3f;
+
+    [Header("Avatar del tutorial")]
+    [Tooltip("FBX o prefab del granjero. Se instancia cuando empieza el tutorial.")]
+    [SerializeField] private GameObject avatarModel;
+    [SerializeField] private RuntimeAnimatorController avatarAnimatorController;
+    [SerializeField] private Vector3 avatarScale = new Vector3(0.25f, 0.25f, 0.25f);
+    [SerializeField] private float avatarLateralGap = 0.15f;
+    [SerializeField] private float avatarFrontGap = 0.12f;
+    [SerializeField] private float avatarSurfaceHeightOffset = 0f;
+    [SerializeField] private float avatarFacingOffsetY = 0f;
+    [SerializeField] private float avatarFallbackDistance = 1.1f;
+    [SerializeField] private float avatarFallbackHeight = 0f;
 
     [Header("Animacion de subida al completar tutorial")]
     [SerializeField] private float slideUpAmount = 0.25f;
@@ -70,6 +86,11 @@ public class TutorialPanelController : MonoBehaviour
     private int _plantsSelected;
     private int _plantsRequired = 2;
     private TutorialGuidanceAct _currentAct = TutorialGuidanceAct.NONE;
+    private TutorialGuidanceAct _resumeActAfterGrab = TutorialGuidanceAct.NONE;
+    private Leaf _guidedLeaf;
+    private GameObject _avatarObject;
+    private TutorialAvatarController _avatarController;
+    private Coroutine _avatarDestroyRoutine;
 
     // Referencia ordenada a los paneles de acto para iterar facilmente.
     private List<GameObject> _actPanels;
@@ -114,6 +135,8 @@ public class TutorialPanelController : MonoBehaviour
         KillTweens();
         ResetSessionState();
         RepositionPanel();
+        SpawnAvatar();
+        DiseaseSelectionSystem.Instance?.SetPanelAvailability(false);
         _isVisible = true;
 
         if (allActsPanel != null) allActsPanel.SetActive(false);
@@ -135,6 +158,11 @@ public class TutorialPanelController : MonoBehaviour
         _observeTween?.Kill();
         _slideTween?.Kill();
         _allActsSlideTween?.Kill();
+        if (_avatarDestroyRoutine != null)
+        {
+            StopCoroutine(_avatarDestroyRoutine);
+            _avatarDestroyRoutine = null;
+        }
 
         // Fade out de todos los paneles activos y del allActsPanel si estuviera visible.
         FadeOutAllActPanels(() =>
@@ -143,6 +171,8 @@ public class TutorialPanelController : MonoBehaviour
             if (allActsPanel != null) allActsPanel.SetActive(false);
             _isVisible = false;
             _currentAct = TutorialGuidanceAct.NONE;
+            DiseaseSelectionSystem.Instance?.SetPanelAvailability(true);
+            DestroyAvatar();
         });
     }
 
@@ -156,9 +186,28 @@ public class TutorialPanelController : MonoBehaviour
         if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted || leaf == null) return;
 
         if (_currentAct == TutorialGuidanceAct.GRAB_LEAF)
-            EnterAct(TutorialGuidanceAct.OBSERVE_LEAF);
-        else if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF)
-            StartObserveTimer();
+        {
+            _guidedLeaf = leaf;
+            leaf.SetMarkersAvailability(false);
+            TutorialGuidanceAct nextAct = _resumeActAfterGrab == TutorialGuidanceAct.NONE
+                ? TutorialGuidanceAct.OBSERVE_LEAF
+                : _resumeActAfterGrab;
+            _resumeActAfterGrab = TutorialGuidanceAct.NONE;
+            EnterAct(nextAct, true);
+        }
+        else if ((_currentAct == TutorialGuidanceAct.OBSERVE_LEAF
+                  || _currentAct == TutorialGuidanceAct.REVEAL_HINT
+                  || _currentAct == TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
+                 && _guidedLeaf != leaf)
+        {
+            // Blindaje para hand/controller tracking que cambie de hoja sin
+            // emitir primero el release de la anterior.
+            _guidedLeaf?.SetMarkersAvailability(false);
+            _guidedLeaf?.HideMarkersImmediate();
+            _guidedLeaf = leaf;
+            leaf.SetMarkersAvailability(false);
+            EnterAct(_currentAct, true);
+        }
     }
 
     /// <summary>
@@ -169,8 +218,20 @@ public class TutorialPanelController : MonoBehaviour
     {
         if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
 
-        if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF || _currentAct == TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
+        if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF
+            || _currentAct == TutorialGuidanceAct.REVEAL_HINT
+            || _currentAct == TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
+        {
+            _resumeActAfterGrab = _currentAct;
+            if (_guidedLeaf != null)
+            {
+                _guidedLeaf.SetMarkersAvailability(false);
+                _guidedLeaf.HideMarkersImmediate();
+            }
+
+            DiseaseSelectionSystem.Instance?.SetPanelAvailability(false);
             EnterAct(TutorialGuidanceAct.GRAB_LEAF, true);
+        }
     }
 
     /// <summary>
@@ -193,6 +254,7 @@ public class TutorialPanelController : MonoBehaviour
             {
                 _guidedPhaseCompleted = true;
                 _observeTween?.Kill();
+                _avatarController?.PlayThumbsUp();
                 GuidedPhaseCompleted?.Invoke();
 
                 int remaining = Mathf.Max(0, _plantsRequired - _plantsSelected);
@@ -204,13 +266,17 @@ public class TutorialPanelController : MonoBehaviour
             }
             else
             {
-                EnterAct(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF, true);
+                // El menu ya esta abierto en este punto. No se vuelve a narrar ni
+                // a reiniciar la etapa por cada intento incorrecto.
+                if (_currentAct != TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
+                    EnterAct(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF, true);
             }
             return;
         }
 
         if (isCorrect)
         {
+            _avatarController?.PlayThumbsUp();
             int remaining = Mathf.Max(0, _plantsRequired - _plantsSelected);
             EnterAct(remaining > 0
                 ? TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF
@@ -244,10 +310,40 @@ public class TutorialPanelController : MonoBehaviour
         _currentAct = act;
         _observeTween?.Kill();
         RenderAct(act);
+        ApplyActPresentation(act);
         TutorialActChanged?.Invoke(act);
 
         if (act == TutorialGuidanceAct.OBSERVE_LEAF)
-            StartObserveTimer();
+        {
+            _guidedLeaf?.SetMarkersAvailability(false);
+            _guidedLeaf?.HideMarkersImmediate();
+            DiseaseSelectionSystem.Instance?.SetPanelAvailability(false);
+            _avatarController?.PlayObserve();
+            StartActTimer(TutorialGuidanceAct.REVEAL_HINT, observeToDiagnoseDelay);
+        }
+        else if (act == TutorialGuidanceAct.REVEAL_HINT)
+        {
+            if (_guidedLeaf != null)
+            {
+                _guidedLeaf.SetMarkersAvailability(true);
+                _guidedLeaf.SetMarkersVisibility(true);
+            }
+
+            DiseaseSelectionSystem.Instance?.SetPanelAvailability(false);
+            StartActTimer(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF, hintToDiagnoseDelay);
+        }
+        else if (act == TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
+        {
+            _guidedLeaf?.SetMarkersAvailability(true);
+            _guidedLeaf?.SetMarkersVisibility(true);
+            DiseaseSelectionSystem.Instance?.SetPanelAvailability(true);
+            _avatarController?.PlayDiagnosis();
+        }
+        else if (act == TutorialGuidanceAct.GRAB_LEAF)
+        {
+            DiseaseSelectionSystem.Instance?.SetPanelAvailability(false);
+            _avatarController?.PlayGrab();
+        }
     }
 
     /// <summary>
@@ -264,6 +360,7 @@ public class TutorialPanelController : MonoBehaviour
             case TutorialGuidanceAct.OBSERVE_LEAF:
                 ShowGuidedActPanels(2);
                 break;
+            case TutorialGuidanceAct.REVEAL_HINT:
             case TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF:
                 ShowGuidedActPanels(3);
                 break;
@@ -489,27 +586,54 @@ public class TutorialPanelController : MonoBehaviour
 
     // ─── Utilidades ───────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Inicia el timer que avanza automaticamente de OBSERVE_LEAF a DIAGNOSE_FIRST_LEAF
-    /// si el usuario no diagnostica dentro del tiempo configurado en observeToDiagnoseDelay.
-    /// </summary>
-    private void StartObserveTimer()
+    private void StartActTimer(TutorialGuidanceAct nextAct, float delay)
     {
         _observeTween?.Kill();
-        _observeTween = DOVirtual.DelayedCall(Mathf.Max(0.5f, observeToDiagnoseDelay), () =>
+        _observeTween = DOVirtual.DelayedCall(Mathf.Max(0.5f, delay), () =>
         {
             if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
-            if (_currentAct != TutorialGuidanceAct.OBSERVE_LEAF) return;
+            if (_currentAct == TutorialGuidanceAct.NONE || _currentAct == TutorialGuidanceAct.GRAB_LEAF) return;
             if (GrabbableLeafListener.Instance?.ActualLeafGrabbed == null) return;
 
-            EnterAct(TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF);
+            if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF && nextAct != TutorialGuidanceAct.REVEAL_HINT) return;
+            if (_currentAct == TutorialGuidanceAct.REVEAL_HINT && nextAct != TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF) return;
+            EnterAct(nextAct);
         });
+    }
+
+    private void ApplyActPresentation(TutorialGuidanceAct act)
+    {
+        if (act != TutorialGuidanceAct.REVEAL_HINT && act != TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
+            return;
+
+        UIDocument document = actPanel3 != null ? actPanel3.GetComponentInChildren<UIDocument>(true) : null;
+        if (document == null || document.rootVisualElement == null) return;
+
+        Label header = document.rootVisualElement.Q<Label>("tutorial-title");
+        Label title = document.rootVisualElement.Q<Label>("tutorial-act-title");
+        Label detail = document.rootVisualElement.Q<Label>("tutorial-act-detail");
+        if (title == null || detail == null) return;
+
+        if (act == TutorialGuidanceAct.REVEAL_HINT)
+        {
+            if (header != null) header.text = "Mira la pista";
+            title.text = "Mira la pista";
+            detail.text = "Te mostrare una pista con la enfermedad y la severidad de esta hoja.";
+        }
+        else
+        {
+            if (header != null) header.text = "Registra tu diagnostico";
+            title.text = "Diagnostica la hoja";
+            detail.text = "Usa el menu con tu otra mano, sigue las pistas y confirma tu diagnostico.";
+        }
     }
 
     private void CompleteTutorial()
     {
         if (_tutorialFullyCompleted) return;
         _tutorialFullyCompleted = true;
+        DiseaseSelectionSystem.Instance?.SetPanelAvailability(true);
+        _avatarDestroyRoutine = StartCoroutine(DestroyAvatarAfterCompletion());
         TutorialCompleted?.Invoke();
         GameEventBus.PublishTutorialCompleted();
         SlideUp();
@@ -544,6 +668,8 @@ public class TutorialPanelController : MonoBehaviour
         _plantsSelected = 0;
         _plantsRequired = 2;
         _currentAct = TutorialGuidanceAct.NONE;
+        _resumeActAfterGrab = TutorialGuidanceAct.NONE;
+        _guidedLeaf = null;
     }
 
     private void KillTweens()
@@ -553,6 +679,66 @@ public class TutorialPanelController : MonoBehaviour
         _observeTween?.Kill();
         _allActsSlideTween?.Kill();
         foreach (var t in _panelMoveTweens) t?.Kill();
+    }
+
+    private void SpawnAvatar()
+    {
+        if (_avatarDestroyRoutine != null)
+        {
+            StopCoroutine(_avatarDestroyRoutine);
+            _avatarDestroyRoutine = null;
+        }
+        DestroyAvatar();
+        if (avatarModel == null)
+        {
+            Debug.LogWarning("[Tutorial] No hay avatarModel asignado; el tutorial continuara sin avatar.");
+            return;
+        }
+
+        _avatarObject = Instantiate(avatarModel);
+        _avatarObject.name = "TutorialAvatar";
+        _avatarObject.transform.localScale = avatarScale;
+        _avatarController = _avatarObject.GetComponent<TutorialAvatarController>();
+        if (_avatarController == null)
+            _avatarController = _avatarObject.AddComponent<TutorialAvatarController>();
+
+        _avatarController.Initialize(avatarAnimatorController);
+        Transform player = Camera.main != null ? Camera.main.transform : null;
+
+        if (SceneInteractionManager.Instance != null && SceneInteractionManager.Instance.HasSelectedPlane)
+        {
+            _avatarController.PlaceRelativeToSurface(
+                SceneInteractionManager.Instance.SelectedPlanePosition,
+                SceneInteractionManager.Instance.SelectedPlaneRotation,
+                SceneInteractionManager.Instance.SelectedPlaneScale,
+                player,
+                avatarLateralGap,
+                avatarFrontGap,
+                avatarSurfaceHeightOffset,
+                avatarFacingOffsetY);
+        }
+        else
+        {
+            _avatarController.PlaceInFrontOfPlayer(player, avatarFallbackDistance, avatarFallbackHeight);
+        }
+
+        _avatarController.PlayGrab();
+    }
+
+    private void DestroyAvatar()
+    {
+        if (_avatarObject != null)
+            Destroy(_avatarObject);
+
+        _avatarObject = null;
+        _avatarController = null;
+    }
+
+    private IEnumerator DestroyAvatarAfterCompletion()
+    {
+        yield return new WaitForSeconds(1.25f);
+        DestroyAvatar();
+        _avatarDestroyRoutine = null;
     }
 
     /// <summary>

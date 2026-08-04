@@ -7497,7 +7497,17 @@ MonoBehaviour:
   borderWidth: 8
   panelOffset: {x: 4, y: 0, z: 0}
   panelAnimDuration: 1
-  observeToDiagnoseDelay: 10
+  observeToDiagnoseDelay: 3
+  hintToDiagnoseDelay: 3
+  avatarModel: {fileID: 100100000, guid: dd72d7441932f7b41872825223f3d65c, type: 3}
+  avatarAnimatorController: {fileID: 9100000, guid: 22cb67f6ae41a764dacfe91ae9c52a95, type: 2}
+  avatarScale: {x: 0.25, y: 0.25, z: 0.25}
+  avatarLateralGap: 0.15
+  avatarFrontGap: 0.12
+  avatarSurfaceHeightOffset: 0
+  avatarFacingOffsetY: 0
+  avatarFallbackDistance: 1.1
+  avatarFallbackHeight: 0
   slideUpAmount: 1.2
   slideUpDuration: 1
   surfaceHeightOffset: 0.7
@@ -9042,7 +9052,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelConfigs:
-  - levelPrefab: {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83,
+  - levelPrefab: {fileID: 4892607314581732, guid: 2cfb2b8d7fbb4a918a8a80f5b6b1f9db,
       type: 3}
     plantsRequired: 2
   - levelPrefab: {fileID: 5571560547924518282, guid: a81dd748286b2d945b9cc0d3b9bf9e83,

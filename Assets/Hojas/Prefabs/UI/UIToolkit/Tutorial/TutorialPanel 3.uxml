@@ -12,8 +12,8 @@
             <ui:VisualElement class="tutorial-step" style="flex-direction: row; align-items: flex-start;">
                 <ui:VisualElement style="flex-direction: column; flex-grow: 1;">
                     <ui:Image style="flex-grow: 1; height: auto; max-height: 176px; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Menu.svg?fileID=7388822144124034973&amp;guid=a372fb3b2c251f0408f4c6648d2fdea8&amp;type=3#Menu&quot;); -unity-background-scale-mode: scale-to-fit; background-repeat: no-repeat no-repeat; -unity-slice-type: sliced; -unity-slice-scale: 0; background-position-y: center; background-position-x: center;"/>
-                    <ui:Label name="tutorial-step3-title" text="Usa el menu para registrar tu diagnostico" style="font-size: 19px; color: rgba(255, 255, 255, 0.92); -unity-font-style: bold; margin-bottom: 2px; white-space: normal; -unity-text-align: middle-center;"/>
-                    <ui:Label name="tutorial-step3-body" text="Selecciona la enfermedad y severidad en el panel lateral, luego presiona Confirmar." style="font-size: 12px; color: rgba(255, 255, 255, 0.52); white-space: normal; -unity-text-align: middle-center; height: 41px;"/>
+                    <ui:Label name="tutorial-act-title" text="Usa el menu para registrar tu diagnostico" style="font-size: 19px; color: rgba(255, 255, 255, 0.92); -unity-font-style: bold; margin-bottom: 2px; white-space: normal; -unity-text-align: middle-center;"/>
+                    <ui:Label name="tutorial-act-detail" text="Selecciona la enfermedad y severidad en el panel lateral, luego presiona Confirmar." style="font-size: 12px; color: rgba(255, 255, 255, 0.52); white-space: normal; -unity-text-align: middle-center; height: 41px;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

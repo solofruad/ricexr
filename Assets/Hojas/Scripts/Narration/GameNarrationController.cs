@@ -226,6 +226,12 @@ public class GameNarrationController : MonoBehaviour
             case TutorialGuidanceAct.OBSERVE_LEAF:
                 SpeakLine(GameNarrationLineIds.TutorialInspect, true);
                 break;
+            case TutorialGuidanceAct.REVEAL_HINT:
+                // La pista tiene una entrada de audio propia. Si aun no se ha
+                // grabado, al menos no dejamos sonando la frase de observacion.
+                StopNarration();
+                SpeakLine(GameNarrationLineIds.TutorialHint, true);
+                break;
             case TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF:
                 SpeakSequence(true,
                     GameNarrationLineIds.TutorialMenuOpen,

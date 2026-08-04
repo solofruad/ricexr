@@ -146,26 +146,37 @@ public class SceneInteractionManager : MonoBehaviour
 
         // currentLevelInstance es el contenedor raíz. Las hojas van dentro de él.
         currentLevelInstance = Instantiate(prefabToSpawn, Vector3.zero, Quaternion.identity, parent);
-        currentLevelInstance.transform.position = targetPosition - Vector3.up * 0.03f;
+        currentLevelInstance.transform.position = targetPosition - targetRotation * Vector3.up * 0.03f;
         currentLevelInstance.transform.rotation = targetRotation;
 
         DiseaseSelectionSystem.Instance?.Hide();
 
-        LeavesSpawner leafSpawner = currentLevelInstance.GetComponent<LeavesSpawner>();
-        if (leafSpawner != null)
+        TutorialLeavesSpawner tutorialSpawner = currentLevelInstance.GetComponent<TutorialLeavesSpawner>();
+        if (tutorialSpawner != null)
         {
-            leafSpawner.SpawnAreaSize = new Vector2(targetScale.x, targetScale.y);
+            tutorialSpawner.ConfigureArea(new Vector2(targetScale.x, ResolveDepth(targetScale)), currentLevelInstance.transform);
+            tutorialSpawner.Activate();
+        }
+        else
+        {
+            LeavesSpawner leafSpawner = currentLevelInstance.GetComponent<LeavesSpawner>();
+            if (leafSpawner == null)
+            {
+                Debug.LogWarning($"{prefabToSpawn.name} no tiene LeavesSpawner ni TutorialLeavesSpawner");
+                return;
+            }
 
-            // FIX: hojas hijas del nivel actual → se destruyen con él
+            leafSpawner.SpawnAreaSize = new Vector2(targetScale.x, ResolveDepth(targetScale));
+
+            // FIX: hojas hijas del nivel actual -> se destruyen con el
+            // contenedor cuando el nivel termina.
             leafSpawner.grassParent = currentLevelInstance.transform;
 
             if (leafSpawner.grassCount == -1)
-                leafSpawner.grassCount = Mathf.Max((int)(targetScale.x * targetScale.y * 0.7f), 20);
+                leafSpawner.grassCount = Mathf.Max((int)(targetScale.x * ResolveDepth(targetScale) * 0.7f), 20);
 
             leafSpawner.Activate();
         }
-        else
-            Debug.LogWarning($"{prefabToSpawn.name} no tiene LeavesSpawner");
     }
 
     /// <summary>
@@ -208,6 +219,13 @@ public class SceneInteractionManager : MonoBehaviour
         targetScale = scale;
     }
 
+    private static float ResolveDepth(Vector3 scale)
+    {
+        float z = Mathf.Abs(scale.z);
+        if (z > 0.01f) return z;
+        return Mathf.Abs(scale.y);
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
     public int GetCurrentLevelIndex() => currentLevelIndex;
     public int GetTotalLevels() => _runtimeLevels.Count;
@@ -243,5 +261,6 @@ public class SceneInteractionManager : MonoBehaviour
 
     public Vector3 SelectedPlanePosition => targetPosition;
     public Quaternion SelectedPlaneRotation => targetRotation;
+    public Vector3 SelectedPlaneScale => targetScale;
     public bool HasSelectedPlane => hasBeenActivated;
 }
