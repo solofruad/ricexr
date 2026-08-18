@@ -57,7 +57,6 @@ public class TutorialPanelController : MonoBehaviour
     [SerializeField] private GameObject avatarModel;
     [SerializeField] private RuntimeAnimatorController avatarAnimatorController;
     [SerializeField] private Vector3 avatarScale = new Vector3(0.25f, 0.25f, 0.25f);
-    [SerializeField] private float avatarLateralGap = 0.15f;
     [SerializeField] private float avatarFrontGap = 0.12f;
     [SerializeField] private float avatarSurfaceHeightOffset = 0f;
     [SerializeField] private float avatarFacingOffsetY = 0f;
@@ -695,8 +694,28 @@ public class TutorialPanelController : MonoBehaviour
             return;
         }
 
-        _avatarObject = Instantiate(avatarModel);
+        try
+        {
+            _avatarObject = Instantiate(avatarModel);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[Tutorial] No se pudo instanciar el avatar ({e.Message}); el tutorial continuara sin avatar.");
+            _avatarObject = null;
+            return;
+        }
+
         _avatarObject.name = "TutorialAvatar";
+
+        // El nodo referenciado puede ser cualquier sub-nodo del modelo (p.ej. el
+        // mesh humanLowPoly). Se normaliza a la raiz instanciada para usar su
+        // pivote (pies) y encontrar el Animator humanoide que importo el FBX.
+        Transform avatarRoot = _avatarObject.transform;
+        while (avatarRoot.parent != null)
+            avatarRoot = avatarRoot.parent;
+        if (avatarRoot != _avatarObject.transform)
+            _avatarObject = avatarRoot.gameObject;
+
         _avatarObject.transform.localScale = avatarScale;
         _avatarController = _avatarObject.GetComponent<TutorialAvatarController>();
         if (_avatarController == null)
@@ -712,7 +731,6 @@ public class TutorialPanelController : MonoBehaviour
                 SceneInteractionManager.Instance.SelectedPlaneRotation,
                 SceneInteractionManager.Instance.SelectedPlaneScale,
                 player,
-                avatarLateralGap,
                 avatarFrontGap,
                 avatarSurfaceHeightOffset,
                 avatarFacingOffsetY);

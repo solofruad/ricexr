@@ -2,125 +2,152 @@ using UnityEngine;
 
 /// <summary>
 /// Puente pequeno entre el tutorial y el Animator del granjero.
-/// El modelo puede ser un FBX instanciado en runtime; por eso el controller se
-/// asigna aqui en lugar de exigir un prefab importado adicional.
+/// Coloca al avatar al otro lado de la mesa respecto al jugador y dispara
+/// las animaciones del AnimationController por nombre de estado.
 /// </summary>
 public class TutorialAvatarController : MonoBehaviour
 {
+    private static readonly int GrabState = Animator.StringToHash("Grab");
+    private static readonly int ObserveState = Animator.StringToHash("Observe");
+    private static readonly int DiagnosisState = Animator.StringToHash("Diagnosis");
+    private static readonly int ThumbsUpState = Animator.StringToHash("ThumbsUp");
+
     private Animator _animator;
+    private Vector3 _plantedPosition;
+    private Quaternion _plantedRotation;
+    private bool _isPlanted;
 
     public void Initialize(RuntimeAnimatorController controller)
     {
         _animator = GetComponentInChildren<Animator>(true);
+        if (_animator == null)
+            _animator = GetComponentInParent<Animator>(true);
         if (_animator == null)
             _animator = gameObject.AddComponent<Animator>();
 
         if (controller != null)
             _animator.runtimeAnimatorController = controller;
 
+        // Los clips son humanoides de musculos; no deben desplazar al root.
+        _animator.applyRootMotion = false;
+        _animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        _animator.enabled = true;
+
         if (_animator.layerCount > 0)
             _animator.SetLayerWeight(0, 1f);
+
+        _animator.Rebind();
+        _animator.Update(0f);
     }
 
-    public void PlayGrab()
+    private void LateUpdate()
     {
-        if (_animator == null) return;
-        ResetTriggers();
-        _animator.Play("Grab", 0, 0f);
+        // Por si algun clip reintroduce root motion, mantenemos la pose plantada.
+        if (!_isPlanted || _animator == null || !_animator.enabled) return;
+        if (_animator.deltaPosition == Vector3.zero && _animator.deltaRotation == Quaternion.identity) return;
+        transform.SetPositionAndRotation(_plantedPosition, _plantedRotation);
     }
 
-    public void PlayObserve()
-    {
-        if (_animator == null) return;
-        ResetTriggers();
-        _animator.SetTrigger("PlayObserve");
-    }
+    public void PlayGrab() => PlayState(GrabState, "Grab");
 
-    public void PlayDiagnosis()
-    {
-        if (_animator == null) return;
-        ResetTriggers();
-        _animator.SetTrigger("PlayDiagnosis");
-    }
+    public void PlayObserve() => PlayState(ObserveState, "Observe");
 
-    public void PlayThumbsUp()
-    {
-        if (_animator == null) return;
-        ResetTriggers();
-        _animator.SetTrigger("PlayThumbsUp");
-    }
+    public void PlayDiagnosis() => PlayState(DiagnosisState, "Diagnosis");
 
-    private void ResetTriggers()
+    public void PlayThumbsUp() => PlayState(ThumbsUpState, "ThumbsUp");
+
+    private void PlayState(int stateHash, string stateName)
     {
-        _animator.ResetTrigger("PlayObserve");
-        _animator.ResetTrigger("PlayDiagnosis");
-        _animator.ResetTrigger("PlayThumbsUp");
+        if (_animator == null || _animator.runtimeAnimatorController == null) return;
+
+        _animator.enabled = true;
+        if (!_animator.HasState(0, stateHash))
+        {
+            Debug.LogWarning($"[TutorialAvatar] Estado '{stateName}' no encontrado en el AnimatorController.");
+            return;
+        }
+
+        // Play fuerza el estado al instante (ignora HasExitTime de las transiciones).
+        _animator.Play(stateHash, 0, 0f);
+        _animator.Update(0f);
     }
 
     /// <summary>
-    /// Coloca los pies del avatar fuera del borde del plano y hacia el jugador.
-    /// No consulta MRUK: cualquier sistema que entregue el mismo marco de superficie
-    /// (incluida una futura mesa virtual) puede usar esta API.
+    /// Coloca al avatar al otro lado de la superficie respecto al jugador,
+    /// mirando al jugador con la mesa en medio (J - M - A).
     /// </summary>
     public void PlaceRelativeToSurface(
         Vector3 surfacePosition,
         Quaternion surfaceRotation,
         Vector3 surfaceScale,
         Transform player,
-        float lateralGap,
         float frontGap,
         float surfaceHeightOffset,
         float facingOffsetY)
     {
         Vector3 up = surfaceRotation * Vector3.up;
+        if (up.sqrMagnitude < 0.0001f) up = Vector3.up;
+        up.Normalize();
+
         Vector3 right = surfaceRotation * Vector3.right;
+        right = Vector3.ProjectOnPlane(right, up);
+        if (right.sqrMagnitude < 0.0001f) right = Vector3.Cross(up, Vector3.forward);
+        right.Normalize();
+
+        // Direccion horizontal desde el centro de la mesa hacia el jugador.
         Vector3 toPlayer = player != null ? player.position - surfacePosition : surfaceRotation * Vector3.forward;
         toPlayer = Vector3.ProjectOnPlane(toPlayer, up);
         if (toPlayer.sqrMagnitude < 0.0001f)
             toPlayer = Vector3.ProjectOnPlane(surfaceRotation * Vector3.forward, up);
+        if (toPlayer.sqrMagnitude < 0.0001f)
+            toPlayer = Vector3.Cross(up, right);
         toPlayer.Normalize();
 
-        float side = Mathf.Sign(Vector3.Dot(toPlayer, right));
-        if (Mathf.Abs(Vector3.Dot(toPlayer, right)) < 0.1f)
-            side = 1f;
+        // Lado opuesto al jugador: mesa en medio.
+        Vector3 awayFromPlayer = -toPlayer;
 
-        float halfWidth = Mathf.Abs(surfaceScale.x) * 0.5f;
         float halfDepth = Mathf.Abs(surfaceScale.z) * 0.5f;
+        if (halfDepth < 0.01f)
+            halfDepth = Mathf.Abs(surfaceScale.x) * 0.5f;
         if (halfDepth < 0.01f)
             halfDepth = Mathf.Abs(surfaceScale.y) * 0.5f;
 
-        transform.rotation = Quaternion.LookRotation(toPlayer, up)
+        // Mira al jugador a traves de la mesa.
+        Quaternion facing = Quaternion.LookRotation(toPlayer, up)
             * Quaternion.AngleAxis(facingOffsetY, up);
+        transform.rotation = facing;
 
         GetWorldBounds(
-            out float avatarHalfWidth,
+            out _,
             out float avatarHalfDepth,
             out _,
             out float avatarBottomOffset,
             up,
             right,
-            toPlayer);
+            awayFromPlayer);
 
         Vector3 target = surfacePosition
-            + right * side * (halfWidth + avatarHalfWidth + Mathf.Max(0f, lateralGap))
-            + toPlayer * (halfDepth + avatarHalfDepth + Mathf.Max(0f, frontGap))
-            // Corrige el pivote del FBX: puede estar en los pies o en el centro.
+            + awayFromPlayer * (halfDepth + avatarHalfDepth + Mathf.Max(0f, frontGap))
             + up * (surfaceHeightOffset - avatarBottomOffset);
 
-        transform.position = target;
+        Plant(target, facing);
     }
 
     public void PlaceInFrontOfPlayer(Transform player, float distance, float height)
     {
         if (player == null)
         {
-            transform.position = Vector3.up * height;
+            Plant(Vector3.up * height, Quaternion.identity);
             return;
         }
+
         Vector3 forward = player.forward;
         forward.y = 0f;
         if (forward.sqrMagnitude < 0.0001f) forward = Vector3.forward;
-        transform.rotation = Quaternion.LookRotation(-forward.normalized, Vector3.up);
+        forward.Normalize();
+
+        Quaternion facing = Quaternion.LookRotation(-forward, Vector3.up);
+        transform.rotation = facing;
 
         GetWorldBounds(
             out _,
@@ -130,9 +157,20 @@ public class TutorialAvatarController : MonoBehaviour
             Vector3.up,
             transform.right,
             transform.forward);
-        transform.position = player.position
-            + forward.normalized * distance
+
+        Vector3 target = player.position
+            + forward * distance
             + Vector3.up * (height - avatarBottomOffset);
+
+        Plant(target, facing);
+    }
+
+    private void Plant(Vector3 position, Quaternion rotation)
+    {
+        _plantedPosition = position;
+        _plantedRotation = rotation;
+        _isPlanted = true;
+        transform.SetPositionAndRotation(position, rotation);
     }
 
     private void GetWorldBounds(
@@ -148,13 +186,16 @@ public class TutorialAvatarController : MonoBehaviour
         if (renderers.Length == 0)
         {
             halfWidth = halfDepth = halfHeight = 0.25f;
-            bottomOffset = -halfHeight;
+            bottomOffset = 0f;
             return;
         }
 
         Bounds bounds = renderers[0].bounds;
         for (int i = 1; i < renderers.Length; i++)
-            bounds.Encapsulate(renderers[i].bounds);
+        {
+            if (renderers[i] != null)
+                bounds.Encapsulate(renderers[i].bounds);
+        }
 
         Vector3 extents = bounds.extents;
         halfWidth = Mathf.Abs(right.x) * extents.x + Mathf.Abs(right.y) * extents.y + Mathf.Abs(right.z) * extents.z;
