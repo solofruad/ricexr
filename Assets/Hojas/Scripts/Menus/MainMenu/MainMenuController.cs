@@ -27,9 +27,13 @@ public class MainMenuController : MonoBehaviour
 
     [Header("Botones")]
     [SerializeField] private Button startButton;
+    [SerializeField] private Button startAndOmitSelectPlanesButton;
+    [SerializeField] private Button OptionsButton;
 
     [Header("Referencias")]
     [SerializeField] private LeaderboardController leaderboardController;
+    [SerializeField] private OptionsController optionsController;
+
 
     [Header("Animacion")]
     [SerializeField] private float animDuration = 0.3f;

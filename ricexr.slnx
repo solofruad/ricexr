@@ -65,6 +65,7 @@
   <Project Path="AssistantCoreSDKRuntime.csproj" />
   <Project Path="Meta.XR.Audio.Editor.csproj" />
   <Project Path="Oculus.Interaction.OVR.Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="AssistantVoiceCommandCommon.csproj" />
   <Project Path="Unity.Burst.Editor.csproj" />
   <Project Path="Meta.XR.Editor.Tags.csproj" />
@@ -94,7 +95,6 @@
   <Project Path="Assembly-CSharp-firstpass.csproj" />
   <Project Path="Unity.XR.Management.Editor.csproj" />
   <Project Path="Meta.XR.Editor.Notifications.csproj" />
-  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Unity.XR.OpenXR.Features.MetaQuestSupport.Editor.csproj" />
   <Project Path="Meta.XR.Audio.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Runtime.Shared.csproj" />
