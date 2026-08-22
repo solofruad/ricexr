@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Reproductor de las voces del juego.
+/// Mantiene una cola para las secuencias y controla el AudioSource que las reproduce.
+/// </summary>
 public class NarrationReproductor : MonoBehaviour
 {
     [Header("Configuración")]
@@ -10,6 +14,37 @@ public class NarrationReproductor : MonoBehaviour
 
     private Queue<AudioClip> _audioQueue = new Queue<AudioClip>();
     private Coroutine _playCoroutine;
+
+    /// <summary>Indica si las voces están habilitadas.</summary>
+    public bool VoicesEnabled { get; private set; } = true;
+
+    /// <summary>Velocidad actual aplicada al AudioSource.</summary>
+    public float VoicePitch { get; private set; } = 1f;
+
+    private void Awake()
+    {
+        VoicesEnabled = GameOptions.VoicesEnabled;
+        VoicePitch = GameOptions.VoicePitch;
+        ApplyAudioSettings();
+    }
+
+    /// <summary>
+    /// Activa o desactiva las voces. Al desactivarlas se detiene el audio actual
+    /// y se descartan las frases que estaban esperando en la cola.
+    /// </summary>
+    public void SetVoicesEnabled(bool enabled)
+    {
+        VoicesEnabled = enabled;
+        if (!enabled)
+            Stop();
+    }
+
+    /// <summary>Actualiza la velocidad de reproducción de las voces.</summary>
+    public void SetVoicePitch(float pitch)
+    {
+        VoicePitch = Mathf.Clamp(pitch, 0.5f, 3f);
+        ApplyAudioSettings();
+    }
 
     public void Stop()
     {
@@ -46,6 +81,8 @@ public class NarrationReproductor : MonoBehaviour
 
     private void EnqueueClip(AudioClip clip, bool startImmediately)
     {
+        if (!VoicesEnabled) return;
+
         if (clip == null)
         {
             Debug.LogWarning("[NarrationReproductor] Audio nulo.");
@@ -79,10 +116,17 @@ public class NarrationReproductor : MonoBehaviour
             audioSource.clip = nextClip;
             audioSource.Play();
             
-            // Esperamos la duración exacta del clip antes de pasar al siguiente en la cola
-            yield return new WaitForSeconds(nextClip.length);
+            // El pitch cambia la duración real del clip, por eso la espera también se ajusta.
+            float playbackSpeed = Mathf.Max(0.01f, Mathf.Abs(audioSource.pitch));
+            yield return new WaitForSeconds(nextClip.length / playbackSpeed);
         }
         
         _playCoroutine = null;
+    }
+
+    private void ApplyAudioSettings()
+    {
+        if (audioSource != null)
+            audioSource.pitch = VoicePitch;
     }
 }

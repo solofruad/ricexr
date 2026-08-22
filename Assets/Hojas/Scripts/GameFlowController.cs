@@ -109,8 +109,12 @@ public class GameFlowController : MonoBehaviour
     {
         if (CurrentState != FlowState.Idle && CurrentState != FlowState.None) return;
 
-        // Preparar para nueva sesión
-        sceneInteractionManager?.PrepareForNextSession();
+        // El índice 0 es el tutorial. Cuando se omite, la sesión empieza en el
+        // siguiente nivel.
+        int startingLevelIndex = GameOptions.SkipTutorial
+            ? tutorialLevelIndex + 1
+            : tutorialLevelIndex;
+        sceneInteractionManager?.PrepareForNextSession(startingLevelIndex);
         ResetFlowState();
 
         TransitionTo(FlowState.WaitingForPlaneSelection, "SessionStartRequested");
@@ -304,8 +308,11 @@ public class GameFlowController : MonoBehaviour
     {
         int plantsRequired = sceneInteractionManager?.GetCurrentPlantsRequired() ?? 1;
 
-        // Nivel tutorial: mostrar panel de tutorial (el gameplay lo arranca HandleTutorialStarted)
-        if (levelIndex == tutorialLevelIndex && tutorialPanelController != null)
+        // Con el tutorial activo, el panel también es quien dispara el inicio del gameplay.
+        // Si el usuario lo omitió, se continúa por la ruta normal de arranque del nivel.
+        if (levelIndex == tutorialLevelIndex
+            && tutorialPanelController != null
+            && !GameOptions.SkipTutorial)
         {
             TransitionTo(FlowState.Tutorial, "StartTutorial");
             tutorialPanelController.ShowAndStart();

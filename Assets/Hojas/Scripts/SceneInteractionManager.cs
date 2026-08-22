@@ -109,13 +109,15 @@ public class SceneInteractionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Prepara el manager para una nueva sesión: destruye nivel actual, resetea índices y flags.
+    /// Prepara el manager para una nueva sesión y comienza en el nivel indicado.
+    /// Si el índice queda fuera de la lista, se ajusta al primer o último nivel válido.
     /// </summary>
-    public void PrepareForNextSession()
+    public void PrepareForNextSession(int startingLevelIndex = 0)
     {
         DestroyCurrentLeaves();
 
-        currentLevelIndex = 0;
+        int lastLevelIndex = Mathf.Max(0, _runtimeLevels.Count - 1);
+        currentLevelIndex = Mathf.Clamp(startingLevelIndex, 0, lastLevelIndex);
         hasBeenActivated = false;
 
         DiseaseSelectionSystem.Instance?.HideAnimated();

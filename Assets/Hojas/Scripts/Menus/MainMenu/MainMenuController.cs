@@ -23,7 +23,7 @@ public class MainMenuController : MonoBehaviour
     public static event Action StartFlowRequested;
 
     [Header("Paneles")]
-    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private Transform mainMenuPanel;
 
     [Header("Botones")]
     [SerializeField] private Button startButton;
@@ -39,14 +39,24 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private float animDuration = 0.3f;
 
     private bool _startFlowTriggered;
+    private Vector3 _mainMenuOriginalScale = Vector3.one;
+
+    private void Awake()
+    {
+        if (mainMenuPanel != null)
+            _mainMenuOriginalScale = mainMenuPanel.localScale;
+    }
 
     void Start()
     {
-        if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+        if (mainMenuPanel != null) mainMenuPanel.gameObject.SetActive(true);
+        optionsController?.Close();
         if (leaderboardController != null)
             leaderboardController.Populate();
         if (startButton != null)
             startButton.onClick.AddListener(OnStartClicked);
+        if (OptionsButton != null)
+            OptionsButton.onClick.AddListener(OnOptionsClicked);
     }
 
     private void OnEnable()
@@ -60,26 +70,56 @@ public class MainMenuController : MonoBehaviour
         if (_startFlowTriggered) return;
         _startFlowTriggered = true;
 
+        optionsController?.Close();
 
         // Publicar al bus — GameFlowController escucha esto y orquesta todo
         GameEventBus.PublishSessionStartRequested();
 
         if (mainMenuPanel != null)
         {
-            mainMenuPanel.transform.DOKill();
-            mainMenuPanel.transform
+            mainMenuPanel.DOKill();
+            mainMenuPanel
                 .DOScale(Vector3.zero, animDuration)
                 .SetEase(Ease.InBack)
-                .OnComplete(() => mainMenuPanel.SetActive(false));
+                .OnComplete(() => mainMenuPanel.gameObject.SetActive(false));
         }
 
         // Legacy: mantener evento estático para GameNarrationController
         StartFlowRequested?.Invoke();
     }
 
+    private void OnOptionsClicked()
+    {
+        if (_startFlowTriggered) return;
+        optionsController?.ToggleFromMainMenu();
+    }
+
+    /// <summary>
+    /// Vuelve a mostrar el contenido del menú principal y restablece el botón de inicio.
+    /// </summary>
+    public void ShowMainMenu()
+    {
+        if (mainMenuPanel == null) return;
+
+        _startFlowTriggered = false;
+        mainMenuPanel.DOKill();
+        mainMenuPanel.gameObject.SetActive(true);
+        mainMenuPanel.localScale = Vector3.zero;
+        mainMenuPanel
+            .DOScale(_mainMenuOriginalScale, animDuration)
+            .SetEase(Ease.OutBack)
+            .OnComplete(() =>
+            {
+                if (startButton != null)
+                    startButton.interactable = true;
+                leaderboardController?.Populate();
+            });
+    }
+
     void OnDestroy()
     {
         if (startButton != null) startButton.onClick.RemoveListener(OnStartClicked);
-        mainMenuPanel?.transform.DOKill();
+        if (OptionsButton != null) OptionsButton.onClick.RemoveListener(OnOptionsClicked);
+        mainMenuPanel?.DOKill();
     }
 }

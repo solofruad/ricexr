@@ -251,7 +251,9 @@ public class GameNarrationController : MonoBehaviour
     {
         _currentLevelIndex = levelIndex;
         if (levelIndex == tutorialLevelIndex)
-            _tutorialGuidedCompleted = false;
+            // Si se omitió la guía, el nivel tutorial usa las mismas frases de progreso
+            // que una prueba normal en lugar de las frases de la fase guiada.
+            _tutorialGuidedCompleted = GameOptions.SkipTutorial;
         EnsureLevelBucket(levelIndex);
 
         string progressRemainId = GetProgressRemainId(plantsRequired);
@@ -394,6 +396,7 @@ public class GameNarrationController : MonoBehaviour
     private bool SpeakLine(string lineId, bool interruptCurrent)
     {
         if (narrationReproductor == null) return false;
+        if (!narrationReproductor.VoicesEnabled) return false;
         if (!TryResolveLine(lineId, out NarrationLineEntry line)) return false;
         if (!CanPlay(line)) return false;
         if (!TryGetRandomClip(line, out AudioClip clip)) return false;
@@ -411,6 +414,7 @@ public class GameNarrationController : MonoBehaviour
     private void SpeakSequence(bool interruptCurrent, params string[] lineIds)
     {
         if (narrationReproductor == null) return;
+        if (!narrationReproductor.VoicesEnabled) return;
         if (lineIds == null || lineIds.Length == 0) return;
 
         List<NarrationLineEntry> playableLines = new List<NarrationLineEntry>();
