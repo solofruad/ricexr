@@ -100,6 +100,11 @@ InitTestScene*.unity*
 UIElementsSchema
 
 # ── Artefactos específicos del proyecto (no versionar) ──────────────────
+# Documentación de trabajo local
+/docs/
+# Bindings de acciones generados en tiempo de ejecución
+/RuntimeActionBindings.json
+/[Aa]ssets/StreamingAssets/RuntimeActionBindings.json
 # Burst debug info (el propio nombre indica "DoNotShip")
 /riceXR_BurstDebugInformation_DoNotShip/
 # Escenas de recuperación / backup accidentales
