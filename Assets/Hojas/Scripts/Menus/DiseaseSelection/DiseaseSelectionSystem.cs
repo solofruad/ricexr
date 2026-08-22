@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using DG.Tweening;
 using RiceXR.Core;
 
@@ -108,6 +109,33 @@ public class DiseaseSelectionSystem : MonoBehaviour
     {
         SyncPanelWithSelection();
     }
+
+#if UNITY_EDITOR
+    // Atajo temporal de desarrollo: eliminar este bloque al volver a probar solo en VR.
+    void Update()
+    {
+        if (Keyboard.current?.cKey.wasPressedThisFrame != true || !_panelAvailable)
+            return;
+
+        Leaf currentLeaf = GrabbableLeafListener.Instance?.ActualLeafGrabbed
+            ?? FindFirstObjectByType<Leaf>();
+        if (currentLeaf == null || currentLeaf.diseaseSpots == null
+            || currentLeaf.diseaseSpots.Count == 0 || currentLeaf.diseaseSpots[0] == null)
+            return;
+
+        DiseaseSpot spot = currentLeaf.diseaseSpots[0];
+        int diseaseIndex = diseaseNames.IndexOf(spot.diseaseName);
+        int severityIndex = Mathf.Clamp(spot.severity, 1, 5) - 1;
+        if (diseaseIndex < 0 || diseaseIndex >= diseaseToggles.Count || severityIndex >= severityToggles.Count)
+            return;
+
+        GrabbableLeafListener.Instance?.SetActiveSelection(
+            currentLeaf, GrabbableLeafListener.SelectionHand.Unknown, currentLeaf.transform);
+        diseaseToggles[diseaseIndex].isOn = true;
+        severityToggles[severityIndex].isOn = true;
+        OnSubmit();
+    }
+#endif
 
     void Start()
     {
@@ -287,8 +315,9 @@ public class DiseaseSelectionSystem : MonoBehaviour
             return;
         }
 
-        bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity, out DiseaseSpot matchedSpot);
         int leafId = currentLeaf.GetInstanceID();
+
+        bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity, out _);
 
         // Re-diagnosticar una hoja ya resuelta en este nivel no debe contar como fallo
         // ni como acierto: no se publica el intento (para no distorsionar las métricas)
@@ -377,7 +406,7 @@ public class DiseaseSelectionSystem : MonoBehaviour
     /// Si un spot tiene severity == -1, la severidad se ignora y solo se valida la enfermedad.
     /// El spot que coincidio se devuelve en matchedSpot.
     /// </summary>
-    bool ValidateSelection(Leaf leaf, string selectedDisease, int selectedSeverity, out DiseaseSpot matchedSpot)
+    bool  ValidateSelection(Leaf leaf, string selectedDisease, int selectedSeverity, out DiseaseSpot matchedSpot)
     {
         matchedSpot = null;
         if (leaf.diseaseSpots == null || leaf.diseaseSpots.Count == 0)
