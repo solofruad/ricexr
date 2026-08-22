@@ -157,7 +157,15 @@ public class EndSessionController : MonoBehaviour
         endPanel.SetActive(true);
         GameEventBus.PublishEndPanelShown();
 
-        if (nicknameInput != null) nicknameInput.text = "";
+        if (nicknameInput != null)
+        {
+            nicknameInput.text = "";
+
+            // Abre el teclado virtual de Meta Quest automaticamente al llegar al panel,
+            // sin necesidad de que el jugador presione el campo para que aparezca.
+            nicknameInput.Select();
+            nicknameInput.ActivateInputField();
+        }
         if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
     }
 
