@@ -102,10 +102,10 @@ public class GameFlowController : MonoBehaviour
     // ─────────────────────────────────────────────
 
     /// <summary>
-    /// El usuario presionó "Iniciar" en el menú principal.
-    /// Prepara la sesión y spawnea los planos de MR.
+    /// El usuario presionó un botón de inicio en el menú principal.
+    /// Prepara la sesión y, si corresponde, spawnea los planos de MR.
     /// </summary>
-    private void HandleSessionStartRequested()
+    private void HandleSessionStartRequested(bool skipPlaneSelection)
     {
         if (CurrentState != FlowState.Idle && CurrentState != FlowState.None) return;
 
@@ -114,8 +114,20 @@ public class GameFlowController : MonoBehaviour
         int startingLevelIndex = GameOptions.SkipTutorial
             ? tutorialLevelIndex + 1
             : tutorialLevelIndex;
-        sceneInteractionManager?.PrepareForNextSession(startingLevelIndex);
+
+        bool reuseSelectedPlane = skipPlaneSelection
+            && sceneInteractionManager != null
+            && sceneInteractionManager.HasSelectedPlane;
+
+        sceneInteractionManager?.PrepareForNextSession(startingLevelIndex, reuseSelectedPlane);
         ResetFlowState();
+
+        if (reuseSelectedPlane)
+        {
+            _planeSelected = true;
+            BeginPostPlaneFlow();
+            return;
+        }
 
         TransitionTo(FlowState.WaitingForPlaneSelection, "SessionStartRequested");
         Debug.Log("[GameFlow] Listo — esperando selección de plano.");
@@ -231,7 +243,10 @@ public class GameFlowController : MonoBehaviour
     /// </summary>
     private void HandleReturnToMenuRequested()
     {
-        sceneInteractionManager?.PrepareForNextSession();
+        bool preserveSelectedPlane = sceneInteractionManager != null
+            && sceneInteractionManager.HasSelectedPlane;
+
+        sceneInteractionManager?.PrepareForNextSession(0, preserveSelectedPlane);
         tutorialPanelController?.Hide();
         ResetFlowState();
         TransitionTo(FlowState.Idle, "ReturnToMenu");

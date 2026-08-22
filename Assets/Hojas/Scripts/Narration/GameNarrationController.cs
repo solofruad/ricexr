@@ -184,7 +184,7 @@ public class GameNarrationController : MonoBehaviour
     // Handlers (Se mantienen igual)
     // ═══════════════════════════════════════════════════════════════════════
 
-    private void HandleStartFlowRequested()
+    private void HandleStartFlowRequested(bool skipPlaneSelection)
     {
         ResolveDependencies();
         BindTutorialActEvents();
@@ -194,7 +194,8 @@ public class GameNarrationController : MonoBehaviour
 
         ResetSessionState();
         _sessionActive = true;
-        SpeakLine(GameNarrationLineIds.StartSelectPlane, true);
+        if (!skipPlaneSelection)
+            SpeakLine(GameNarrationLineIds.StartSelectPlane, true);
     }
 
     private void HandleLevelIntroStarted()

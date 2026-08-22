@@ -55,25 +55,44 @@ public class MainMenuController : MonoBehaviour
             leaderboardController.Populate();
         if (startButton != null)
             startButton.onClick.AddListener(OnStartClicked);
+        if (startAndOmitSelectPlanesButton != null)
+            startAndOmitSelectPlanesButton.onClick.AddListener(OnStartAndOmitSelectPlanesClicked);
         if (OptionsButton != null)
             OptionsButton.onClick.AddListener(OnOptionsClicked);
+
+        RefreshPlaneSkipButton();
     }
 
     private void OnEnable()
     {
+        GameEventBus.OnReturnToMenuRequested += HandleReturnToMenuRequested;
         _startFlowTriggered = false;
-        if (startButton != null) startButton.interactable = true;
+        SetStartButtonsInteractable(true);
+        RefreshPlaneSkipButton();
     }
 
     private void OnStartClicked()
     {
+        BeginStartFlow(false);
+    }
+
+    private void OnStartAndOmitSelectPlanesClicked()
+    {
+        // El boton se mantiene oculto si no existe un plano valido. Si el estado
+        // cambio entre frames, el inicio normal conserva el flujo seguro.
+        BeginStartFlow(HasSelectedPlane());
+    }
+
+    private void BeginStartFlow(bool skipPlaneSelection)
+    {
         if (_startFlowTriggered) return;
         _startFlowTriggered = true;
+        SetStartButtonsInteractable(false);
 
         optionsController?.Close();
 
         // Publicar al bus — GameFlowController escucha esto y orquesta todo
-        GameEventBus.PublishSessionStartRequested();
+        GameEventBus.PublishSessionStartRequested(skipPlaneSelection);
 
         if (mainMenuPanel != null)
         {
@@ -86,6 +105,33 @@ public class MainMenuController : MonoBehaviour
 
         // Legacy: mantener evento estático para GameNarrationController
         StartFlowRequested?.Invoke();
+    }
+
+    private void HandleReturnToMenuRequested()
+    {
+        _startFlowTriggered = false;
+        SetStartButtonsInteractable(true);
+        RefreshPlaneSkipButton();
+    }
+
+    private bool HasSelectedPlane()
+    {
+        return SceneInteractionManager.Instance != null
+            && SceneInteractionManager.Instance.HasSelectedPlane;
+    }
+
+    private void RefreshPlaneSkipButton()
+    {
+        if (startAndOmitSelectPlanesButton != null)
+            startAndOmitSelectPlanesButton.gameObject.SetActive(HasSelectedPlane());
+    }
+
+    private void SetStartButtonsInteractable(bool interactable)
+    {
+        if (startButton != null)
+            startButton.interactable = interactable;
+        if (startAndOmitSelectPlanesButton != null)
+            startAndOmitSelectPlanesButton.interactable = interactable;
     }
 
     private void OnOptionsClicked()
@@ -110,15 +156,22 @@ public class MainMenuController : MonoBehaviour
             .SetEase(Ease.OutBack)
             .OnComplete(() =>
             {
-                if (startButton != null)
-                    startButton.interactable = true;
+                SetStartButtonsInteractable(true);
+                RefreshPlaneSkipButton();
                 leaderboardController?.Populate();
             });
+    }
+
+    private void OnDisable()
+    {
+        GameEventBus.OnReturnToMenuRequested -= HandleReturnToMenuRequested;
     }
 
     void OnDestroy()
     {
         if (startButton != null) startButton.onClick.RemoveListener(OnStartClicked);
+        if (startAndOmitSelectPlanesButton != null)
+            startAndOmitSelectPlanesButton.onClick.RemoveListener(OnStartAndOmitSelectPlanesClicked);
         if (OptionsButton != null) OptionsButton.onClick.RemoveListener(OnOptionsClicked);
         mainMenuPanel?.DOKill();
     }

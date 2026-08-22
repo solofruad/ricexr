@@ -111,14 +111,17 @@ public class SceneInteractionManager : MonoBehaviour
     /// <summary>
     /// Prepara el manager para una nueva sesión y comienza en el nivel indicado.
     /// Si el índice queda fuera de la lista, se ajusta al primer o último nivel válido.
+    /// preserveSelectedPlane mantiene el transform MR actual para una sesión que
+    /// explícitamente omite la selección de plano.
     /// </summary>
-    public void PrepareForNextSession(int startingLevelIndex = 0)
+    public void PrepareForNextSession(int startingLevelIndex = 0, bool preserveSelectedPlane = false)
     {
         DestroyCurrentLeaves();
 
         int lastLevelIndex = Mathf.Max(0, _runtimeLevels.Count - 1);
         currentLevelIndex = Mathf.Clamp(startingLevelIndex, 0, lastLevelIndex);
-        hasBeenActivated = false;
+        if (!preserveSelectedPlane)
+            hasBeenActivated = false;
 
         DiseaseSelectionSystem.Instance?.HideAnimated();
     }

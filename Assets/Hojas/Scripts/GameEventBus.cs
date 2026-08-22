@@ -37,8 +37,11 @@ public static class GameEventBus
 {
     // ── Sesión / Flujo (NUEVOS) ─────────────────────────────────────────────
 
-    /// <summary>Emitido cuando el usuario presiona "Iniciar" en el menú principal.</summary>
-    public static event Action OnSessionStartRequested;
+    /// <summary>
+    /// Emitido cuando el usuario presiona un boton de inicio en el menu principal.
+    /// skipPlaneSelection indica si se debe reutilizar el plano MR de la sesion anterior.
+    /// </summary>
+    public static event Action<bool> OnSessionStartRequested;
 
     /// <summary>Emitido cuando el usuario selecciona un plano MR. Incluye posición, rotación y escala.</summary>
     public static event Action<Vector3, Quaternion, Vector3> OnPlaneSelected;
@@ -133,10 +136,10 @@ public static class GameEventBus
 
     // ── Sesión / Flujo ───────────────────────────────────────────────────────
 
-    public static void PublishSessionStartRequested()
+    public static void PublishSessionStartRequested(bool skipPlaneSelection = false)
     {
-        Debug.Log("[GameEventBus] SessionStartRequested");
-        OnSessionStartRequested?.Invoke();
+        Debug.Log($"[GameEventBus] SessionStartRequested | Omitir plano: {skipPlaneSelection}");
+        OnSessionStartRequested?.Invoke(skipPlaneSelection);
     }
 
     public static void PublishPlaneSelected(Vector3 position, Quaternion rotation, Vector3 scale)
