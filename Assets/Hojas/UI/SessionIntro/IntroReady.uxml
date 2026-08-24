@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Hojas/UI/SessionIntro/SessionIntro.uss"/>
+    <ui:VisualElement name="intro-ready" class="intro-panel intro-panel--narrow">
+        <ui:Label text="¿Estás listo/a?" class="intro-title"/>
+
+        <ui:Label text="Vamos a elegir dónde montar tu laboratorio." class="intro-subtitle"/>
+
+        <ui:VisualElement class="intro-rule"/>
+    </ui:VisualElement>
+</ui:UXML>

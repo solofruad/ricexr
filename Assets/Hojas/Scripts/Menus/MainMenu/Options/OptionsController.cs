@@ -3,65 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Opciones generales que se conservan aunque se cierre la aplicación.
-/// No forman parte del progreso ni de los datos registrados de una partida.
-/// </summary>
-public static class GameOptions
-{
-    private const string SkipTutorialKey = "Hojas.Options.SkipTutorial";
-    private const string VoicesEnabledKey = "Hojas.Options.VoicesEnabled";
-    private const string VoicePitchKey = "Hojas.Options.VoicePitch";
-
-    /// <summary>Indica si se omite la guía interactiva del primer nivel.</summary>
-    public static bool SkipTutorial
-    {
-        get => PlayerPrefs.GetInt(SkipTutorialKey, 0) == 1;
-        set => SetBool(SkipTutorialKey, value);
-    }
-
-    /// <summary>Indica si la narración por voz puede reproducirse.</summary>
-    public static bool VoicesEnabled
-    {
-        get => PlayerPrefs.GetInt(VoicesEnabledKey, 1) == 1;
-        set => SetBool(VoicesEnabledKey, value);
-    }
-
-    /// <summary>
-    /// Velocidad de reproducción aplicada al AudioSource de la narración.
-    /// </summary>
-    public static float VoicePitch
-    {
-        get => Mathf.Clamp(PlayerPrefs.GetFloat(VoicePitchKey, 1f), 0.5f, 3f);
-        set
-        {
-            PlayerPrefs.SetFloat(VoicePitchKey, Mathf.Clamp(value, 0.5f, 3f));
-            PlayerPrefs.Save();
-        }
-    }
-
-    private static void SetBool(string key, bool value)
-    {
-        PlayerPrefs.SetInt(key, value ? 1 : 0);
-        PlayerPrefs.Save();
-    }
-}
-
-/// <summary>
-/// Contexto desde el que se abrió el panel de opciones.
-/// </summary>
-public enum OptionsContext
-{
-    MainMenu,
-    InGame
-}
-
-/// <summary>
 /// Controla la visibilidad del panel y sincroniza sus controles con las opciones guardadas.
 /// El contexto de apertura determina si se muestra el botón de regreso al menú.
 /// </summary>
 public class OptionsController : MonoBehaviour
 {
     [Header("Opciones")]
+    [SerializeField] private Toggle skipIntroToggle;
     [SerializeField] private Toggle skipTutorialToggle;
     [SerializeField] private Toggle disableVoicesToggle;
     [SerializeField] private Button returnToMainMenuButton;
@@ -88,6 +36,7 @@ public class OptionsController : MonoBehaviour
         ResolveReferences();
         ApplyCurrentSettings();
 
+        skipIntroToggle?.onValueChanged.AddListener(OnSkipIntroChanged);
         skipTutorialToggle?.onValueChanged.AddListener(OnSkipTutorialChanged);
         disableVoicesToggle?.onValueChanged.AddListener(OnDisableVoicesChanged);
         voiceVelocitySlider?.onValueChanged.AddListener(OnVoiceVelocityChanged);
@@ -96,6 +45,7 @@ public class OptionsController : MonoBehaviour
 
     private void OnDisable()
     {
+        skipIntroToggle?.onValueChanged.RemoveListener(OnSkipIntroChanged);
         skipTutorialToggle?.onValueChanged.RemoveListener(OnSkipTutorialChanged);
         disableVoicesToggle?.onValueChanged.RemoveListener(OnDisableVoicesChanged);
         voiceVelocitySlider?.onValueChanged.RemoveListener(OnVoiceVelocityChanged);
@@ -148,15 +98,17 @@ public class OptionsController : MonoBehaviour
     {
         // El panel se instancia dentro de distintos contenedores, así que sus controles
         // se localizan por nombre en vez de depender de referencias de una escena concreta.
-        if (skipTutorialToggle == null || disableVoicesToggle == null)
+        if (skipIntroToggle == null || skipTutorialToggle == null || disableVoicesToggle == null)
         {
             Toggle[] toggles = GetComponentsInChildren<Toggle>(true);
             foreach (Toggle toggle in toggles)
             {
                 if (toggle == null) continue;
-                if (toggle.name == "Tutorial" && skipTutorialToggle == null)
+                if (skipIntroToggle == null && NameMatches(toggle.name, "Intro"))
+                    skipIntroToggle = toggle;
+                else if (skipTutorialToggle == null && NameMatches(toggle.name, "Tutorial"))
                     skipTutorialToggle = toggle;
-                else if (toggle.name == "Voices" && disableVoicesToggle == null)
+                else if (disableVoicesToggle == null && NameMatches(toggle.name, "Voices"))
                     disableVoicesToggle = toggle;
             }
         }
@@ -166,7 +118,7 @@ public class OptionsController : MonoBehaviour
             Button[] buttons = GetComponentsInChildren<Button>(true);
             foreach (Button button in buttons)
             {
-                if (button != null && button.name == "ReturnToMenu")
+                if (button != null && NameMatches(button.name, "ReturnToMenu"))
                 {
                     returnToMainMenuButton = button;
                     break;
@@ -197,10 +149,22 @@ public class OptionsController : MonoBehaviour
             mainMenuController = FindObjectOfType<MainMenuController>(true);
     }
 
+    /// <summary>
+    /// Compara el nombre de un control con el esperado, tolerando el sufijo que añaden
+    /// los prefabs. 
+    /// </summary>
+    private static bool NameMatches(string actualName, string baseName)
+    {
+        return actualName == baseName
+            || actualName == baseName + "Toggle"
+            || actualName == baseName + "Button";
+    }
+
     private void ApplyCurrentSettings()
     {
         // Al cargar los valores no queremos que los eventos de los controles se ejecuten
         // como si acabaran de cambiarse.
+        skipIntroToggle?.SetIsOnWithoutNotify(GameOptions.SkipIntro);
         skipTutorialToggle?.SetIsOnWithoutNotify(GameOptions.SkipTutorial);
         disableVoicesToggle?.SetIsOnWithoutNotify(!GameOptions.VoicesEnabled);
         voiceVelocitySlider?.SetValueWithoutNotify(GameOptions.VoicePitch);
@@ -214,6 +178,11 @@ public class OptionsController : MonoBehaviour
     {
         if (returnToMainMenuButton != null)
             returnToMainMenuButton.gameObject.SetActive(_context == OptionsContext.InGame);
+    }
+
+    private void OnSkipIntroChanged(bool skipIntro)
+    {
+        GameOptions.SkipIntro = skipIntro;
     }
 
     private void OnSkipTutorialChanged(bool skipTutorial)

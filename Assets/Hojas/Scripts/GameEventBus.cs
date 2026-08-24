@@ -15,7 +15,8 @@ public enum FlowState
     WaitingForLevelCompletion = 9,
     LevelTransition = 10,
     AllLevelsCompleted = 11,
-    SessionEnding = 12
+    SessionEnding = 12,
+    SessionIntro = 13
 }
 
 /// <summary>
@@ -42,6 +43,19 @@ public static class GameEventBus
     /// skipPlaneSelection indica si se debe reutilizar el plano MR de la sesion anterior.
     /// </summary>
     public static event Action<bool> OnSessionStartRequested;
+
+    /// <summary>Emitido cuando arranca la introducción que precede a la selección de plano.</summary>
+    public static event Action OnSessionIntroStarted;
+
+    /// <summary>
+    /// Emitido cada vez que un panel de la introducción aparece en pantalla.
+    /// Lleva el id de línea de narración que le corresponde, para que la narración
+    /// pueda reaccionar sin que la intro conozca clips ni reglas de reproducción.
+    /// </summary>
+    public static event Action<string> OnSessionIntroPanelShown;
+
+    /// <summary>Emitido cuando la introducción termina (por el botón o porque se omitió).</summary>
+    public static event Action OnSessionIntroCompleted;
 
     /// <summary>Emitido cuando el usuario selecciona un plano MR. Incluye posición, rotación y escala.</summary>
     public static event Action<Vector3, Quaternion, Vector3> OnPlaneSelected;
@@ -140,6 +154,24 @@ public static class GameEventBus
     {
         Debug.Log($"[GameEventBus] SessionStartRequested | Omitir plano: {skipPlaneSelection}");
         OnSessionStartRequested?.Invoke(skipPlaneSelection);
+    }
+
+    public static void PublishSessionIntroStarted()
+    {
+        Debug.Log("[GameEventBus] SessionIntroStarted");
+        OnSessionIntroStarted?.Invoke();
+    }
+
+    public static void PublishSessionIntroPanelShown(string narrationLineId)
+    {
+        Debug.Log($"[GameEventBus] SessionIntroPanelShown → {narrationLineId}");
+        OnSessionIntroPanelShown?.Invoke(narrationLineId);
+    }
+
+    public static void PublishSessionIntroCompleted()
+    {
+        Debug.Log("[GameEventBus] SessionIntroCompleted");
+        OnSessionIntroCompleted?.Invoke();
     }
 
     public static void PublishPlaneSelected(Vector3 position, Quaternion rotation, Vector3 scale)
@@ -299,6 +331,9 @@ public static class GameEventBus
     {
         // Sesión / Flujo
         OnSessionStartRequested = null;
+        OnSessionIntroStarted = null;
+        OnSessionIntroPanelShown = null;
+        OnSessionIntroCompleted = null;
         OnPlaneSelected = null;
         OnPlanesHidden = null;
         OnLevelIntroStarted = null;

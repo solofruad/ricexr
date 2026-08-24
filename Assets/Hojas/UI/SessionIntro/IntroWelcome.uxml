@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Hojas/UI/SessionIntro/SessionIntro.uss"/>
+    <ui:VisualElement name="intro-welcome" class="intro-panel intro-panel--narrow">
+        <ui:VisualElement class="intro-icon">
+            <ui:Label text="★" class="intro-icon__glyph"/>
+        </ui:VisualElement>
+
+        <ui:Label text="¡Hola! Bienvenido/a a Rice XR" class="intro-title"/>
+
+        <ui:Label text="Durante los próximos minutos vas a ser fitopatólogo/a: la persona que descubre qué enferma a las plantas." class="intro-subtitle"/>
+
+        <ui:VisualElement class="intro-rule"/>
+    </ui:VisualElement>
+</ui:UXML>

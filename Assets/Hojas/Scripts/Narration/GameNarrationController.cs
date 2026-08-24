@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -50,6 +51,7 @@ public class GameNarrationController : MonoBehaviour
     private readonly HashSet<int> _errorGuidedLevels = new HashSet<int>();
 
     private TutorialPanelController _boundTutorialPanelController;
+    private Coroutine _selectPlaneRoutine;
 
     private int _currentLevelIndex = -1;
     private bool _sessionActive;
@@ -119,6 +121,8 @@ public class GameNarrationController : MonoBehaviour
     private void SubscribeEvents()
     {
         GameEventBus.OnSessionStartRequested += HandleStartFlowRequested;
+        GameEventBus.OnSessionIntroPanelShown += HandleSessionIntroPanelShown;
+        GameEventBus.OnFlowStateChanged += HandleFlowStateChanged;
         GameEventBus.OnLevelIntroStarted += HandleLevelIntroStarted;
         GameEventBus.OnTutorialStarted += HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted += HandleTutorialCompleted;
@@ -138,6 +142,8 @@ public class GameNarrationController : MonoBehaviour
     private void UnsubscribeEvents()
     {
         GameEventBus.OnSessionStartRequested -= HandleStartFlowRequested;
+        GameEventBus.OnSessionIntroPanelShown -= HandleSessionIntroPanelShown;
+        GameEventBus.OnFlowStateChanged -= HandleFlowStateChanged;
         GameEventBus.OnLevelIntroStarted -= HandleLevelIntroStarted;
         GameEventBus.OnTutorialStarted -= HandleTutorialStarted;
         GameEventBus.OnTutorialCompleted -= HandleTutorialCompleted;
@@ -194,8 +200,41 @@ public class GameNarrationController : MonoBehaviour
 
         ResetSessionState();
         _sessionActive = true;
-        if (!skipPlaneSelection)
-            SpeakLine(GameNarrationLineIds.StartSelectPlane, true);
+        // La frase de selección de plano ya no se dice aquí: con la introducción de por
+        // medio pueden pasar varios segundos hasta que esa fase llega de verdad.
+        // La dispara HandleFlowStateChanged.
+    }
+
+    /// <summary>
+    /// Narra la indicación de elegir superficie justo cuando el flujo entra en esa fase,
+    /// venga de la introducción o directamente del menú.
+    /// </summary>
+    private void HandleFlowStateChanged(FlowState previousState, FlowState nextState, string reason)
+    {
+        if (nextState != FlowState.WaitingForPlaneSelection) return;
+
+        // Se difiere un frame a propósito: según el orden de suscripción al bus, este
+        // evento puede llegar antes de que HandleStartFlowRequested haya reiniciado el
+        // estado de sesión, y ese reinicio corta la narración en curso.
+        if (_selectPlaneRoutine != null) StopCoroutine(_selectPlaneRoutine);
+        _selectPlaneRoutine = StartCoroutine(SpeakSelectPlaneNextFrame());
+    }
+
+    private IEnumerator SpeakSelectPlaneNextFrame()
+    {
+        yield return null;
+        _selectPlaneRoutine = null;
+        SpeakLine(GameNarrationLineIds.StartSelectPlane, true);
+    }
+
+    /// <summary>
+    /// Cada panel de la introducción publica su id de línea; aquí solo se reproduce.
+    /// Así la intro no necesita conocer clips, reglas de repetición ni el reproductor.
+    /// </summary>
+    private void HandleSessionIntroPanelShown(string narrationLineId)
+    {
+        if (string.IsNullOrWhiteSpace(narrationLineId)) return;
+        SpeakLine(narrationLineId, true);
     }
 
     private void HandleLevelIntroStarted()

@@ -13,6 +13,38 @@ MonoBehaviour:
   m_Name: NarrationLineLibrary
   m_EditorClassIdentifier: 
   lines:
+  - id: SESSION_INTRO_WELCOME
+    description: 'Introduccion: panel de bienvenida.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips: []
+  - id: SESSION_INTRO_CONTENT
+    description: 'Introduccion: que se va a encontrar el jugador.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips: []
+  - id: SESSION_INTRO_STEPS
+    description: 'Introduccion: los tres pasos (observar, identificar, aprender).'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips: []
+  - id: SESSION_INTRO_READY
+    description: 'Introduccion: invitacion a pulsar el boton para empezar.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 1
+    oncePerLevel: 0
+    firstErrorOnly: 0
+    audioClips: []
   - id: START_SELECT_PLANE
     description: 'Inicio de sesion: pedir seleccionar plano.'
     enabled: 1

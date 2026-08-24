@@ -1,5 +1,11 @@
 public static class GameNarrationLineIds
 {
+    // Introducción de sesión (paneles previos a la selección de plano).
+    public const string SessionIntroWelcome = "SESSION_INTRO_WELCOME";
+    public const string SessionIntroContent = "SESSION_INTRO_CONTENT";
+    public const string SessionIntroSteps = "SESSION_INTRO_STEPS";
+    public const string SessionIntroReady = "SESSION_INTRO_READY";
+
     public const string StartSelectPlane = "START_SELECT_PLANE";
     public const string OnboardingOverview = "ONBOARDING_OVERVIEW";
     public const string OnboardingContinue = "ONBOARDING_CONTINUE";

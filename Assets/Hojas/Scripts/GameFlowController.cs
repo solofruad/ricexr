@@ -23,12 +23,14 @@ public class GameFlowController : MonoBehaviour
 
     [Header("Referencias de escena")]
     [SerializeField] private SceneInteractionManager sceneInteractionManager;
+    [SerializeField] private SessionIntroController sessionIntroController;
     [SerializeField] private LevelIntroController levelIntroController;
     [SerializeField] private TutorialPanelController tutorialPanelController;
     [SerializeField] private PlaneConfigurationSpawner planeSpawner;
     [SerializeField] private MainMenuController mainMenuController;
 
     [Header("Configuración de flujo")]
+    [SerializeField] private bool runSessionIntro = true;
     [SerializeField] private bool runLevelIntro = true;
     [SerializeField] private int tutorialLevelIndex = 0;
 
@@ -122,6 +124,29 @@ public class GameFlowController : MonoBehaviour
         sceneInteractionManager?.PrepareForNextSession(startingLevelIndex, reuseSelectedPlane);
         ResetFlowState();
 
+        // La introducción va antes de cualquier seleccion de superficie/plano. Es una presentación del
+        // juego, no del entorno.
+        if (runSessionIntro && sessionIntroController != null && !GameOptions.SkipIntro)
+        {
+            TransitionTo(FlowState.SessionIntro, "ShowSessionIntro");
+            GameEventBus.PublishSessionIntroStarted();
+
+            sessionIntroController.ShowSequence(() =>
+            {
+                GameEventBus.PublishSessionIntroCompleted();
+                ContinueAfterSessionIntro(reuseSelectedPlane);
+            });
+            return;
+        }
+
+        ContinueAfterSessionIntro(reuseSelectedPlane);
+    }
+
+    /// <summary>
+    /// Bifurcación de plano, una vez pasada (u omitida) la introducción.
+    /// </summary>
+    private void ContinueAfterSessionIntro(bool reuseSelectedPlane)
+    {
         if (reuseSelectedPlane)
         {
             _planeSelected = true;
@@ -129,6 +154,14 @@ public class GameFlowController : MonoBehaviour
             return;
         }
 
+        BeginPlaneSelection();
+    }
+
+    /// <summary>
+    /// Deja el flujo esperando a que el jugador toque un plano y spawnea los planos de MR.
+    /// </summary>
+    private void BeginPlaneSelection()
+    {
         TransitionTo(FlowState.WaitingForPlaneSelection, "SessionStartRequested");
         Debug.Log("[GameFlow] Listo — esperando selección de plano.");
 
@@ -247,14 +280,13 @@ public class GameFlowController : MonoBehaviour
             && sceneInteractionManager.HasSelectedPlane;
 
         sceneInteractionManager?.PrepareForNextSession(0, preserveSelectedPlane);
+        sessionIntroController?.ResetState();
         tutorialPanelController?.Hide();
         ResetFlowState();
         TransitionTo(FlowState.Idle, "ReturnToMenu");
     }
 
-    // ─────────────────────────────────────────────
-    // Lógica de flujo interna
-    // ─────────────────────────────────────────────
+
 
     private void BeginDisablingPlanes()
     {
@@ -452,6 +484,9 @@ public class GameFlowController : MonoBehaviour
         if (sceneInteractionManager == null)
             sceneInteractionManager = FindObjectOfType<SceneInteractionManager>(true);
 
+        if (sessionIntroController == null)
+            sessionIntroController = FindObjectOfType<SessionIntroController>(true);
+
         if (levelIntroController == null)
             levelIntroController = FindObjectOfType<LevelIntroController>(true);
 
@@ -465,7 +500,8 @@ public class GameFlowController : MonoBehaviour
             mainMenuController = FindObjectOfType<MainMenuController>(true);
     }
 
-    // ── Planos MR ────────────────────────────────────────────────────────────
+
+
 
     private List<GameObject> CollectActivePlanePrefabs(MRUKRoom room)
     {

@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Hojas/UI/SessionIntro/SessionIntro.uss"/>
+    <!--
+      Ojo: esto NO es un ui:Button. En el proyecto UI Toolkit solo dibuja; el clic llega
+      por el collider 3D del GameObject y su InteractableUnityEventWrapper, igual que en
+      ButtonContinue.uxml. Cablear _whenSelect a SessionIntroController.HandleReadyClicked.
+    -->
+    <ui:VisualElement name="intro-ready-button" class="intro-ready-button">
+        <ui:Image class="intro-ready-button__icon" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandIcon.svg?fileID=7388822144124034973&amp;guid=a9ca54687a2362544b399e707dda689f&amp;type=3#HandIcon&quot;);"/>
+        <ui:Label text="¡ESTOY LISTO/A!" class="intro-ready-button__label"/>
+    </ui:VisualElement>
+</ui:UXML>

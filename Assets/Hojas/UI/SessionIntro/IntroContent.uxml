@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Hojas/UI/SessionIntro/SessionIntro.uss"/>
+    <ui:VisualElement name="intro-content" class="intro-panel intro-panel--narrow">
+        <ui:Label text="¿Qué vas a encontrar aquí?" class="intro-title"/>
+
+        <ui:VisualElement class="intro-list">
+            <ui:VisualElement class="intro-row">
+                <ui:Label text="●" class="intro-row__bullet"/>
+                <ui:Label text="Hojas de arroz reales, sobre tu propia mesa." class="intro-row__text"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="intro-row">
+                <ui:Label text="●" class="intro-row__bullet"/>
+                <ui:Label text="Manchas y lesiones que tendrás que aprender a leer." class="intro-row__text"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="intro-row">
+                <ui:Label text="●" class="intro-row__bullet"/>
+                <ui:Label text="Una ficha de cada enfermedad, con fotos de verdad." class="intro-row__text"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="intro-rule"/>
+    </ui:VisualElement>
+</ui:UXML>
