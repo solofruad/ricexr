@@ -1,11 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss?fileID=7433441132597879392&amp;guid=aa710d7cc42d420895fc62535ed1a2c5&amp;type=3#RiceXRUI"/>
     <Style src="project://database/Assets/Hojas/Prefabs/UI/UIToolkit/PlaneSpawn/WaveBorder.uss?fileID=7433441132597879392&amp;guid=42ac73607268815468a445d4648e06f2&amp;type=3#WaveBorder"/>
-    <ui:VisualElement name="root" class="main-container" style="height: 100%; width: 100%; flex-grow: 1;">
-        <ui:VisualElement name="LoadingBar" class="loading-bar"/>
-        <ui:Image style="position: absolute; right: auto; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandIcon.svg?fileID=7388822144124034973&amp;guid=a9ca54687a2362544b399e707dda689f&amp;type=3#HandIcon&quot;); width: 30px; height: 30px; padding-right: 0; margin-right: 0; background-position-x: center; padding-left: 0; margin-left: 0; background-size: 100% 100%; -unity-background-scale-mode: stretch-to-fill; -unity-background-image-tint-color: rgb(133, 167, 197); -unity-slice-left: 0; -unity-slice-top: 0; -unity-slice-right: 0; -unity-slice-bottom: 0; border-right-width: 0; transform-origin: center; translate: -3px 0;"/>
-        <ui:VisualElement name="Wave1" class="wave-line"/>
-        <ui:VisualElement name="Wave2" class="wave-line"/>
-        <ui:VisualElement name="Wave3" class="wave-line"/>
-        <ui:VisualElement name="Content" class="content-box"/>
+    <ui:VisualElement name="root" class="main-container quest-surface quest-wave-root" style="width: 100%; height: 100%; flex-grow: 1; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;">
+        <ui:VisualElement name="LoadingBar" class="loading-bar quest-wave-loading" style="border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;"/>
+        <ui:Image class="quest-wave-hand" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandIcon.svg?fileID=7388822144124034973&amp;guid=a9ca54687a2362544b399e707dda689f&amp;type=3#HandIcon&quot;); background-position-x: center; -unity-background-image-tint-color: rgb(133, 167, 197); width: auto; height: 50%; aspect-ratio: 1;"/>
+        <ui:VisualElement name="Wave1" class="wave-line quest-wave-line" style="border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;"/>
+        <ui:VisualElement name="Wave2" class="wave-line quest-wave-line" style="border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;"/>
+        <ui:VisualElement name="Wave3" class="wave-line quest-wave-line" style="border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;"/>
+        <ui:VisualElement name="Content" class="content-box" style="border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;"/>
     </ui:VisualElement>
 </ui:UXML>

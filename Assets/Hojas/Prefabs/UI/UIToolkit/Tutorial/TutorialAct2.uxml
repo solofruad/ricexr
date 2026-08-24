@@ -1,41 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:VisualElement name="tutorial-act-2" style="
-        flex-grow: 1;
-        flex-direction: column;
-        background-color: rgba(255, 255, 255, 0.03);
-        border-width: 1px;
-        border-color: rgba(255, 255, 255, 0.12);
-        border-top-left-radius: 16px;
-        border-top-right-radius: 16px;
-        border-bottom-left-radius: 16px;
-        border-bottom-right-radius: 16px;
-        padding: 14px;
-    ">
-        <ui:VisualElement style="
-            width: 100%;
-            height: 214px;
-            min-height: 214px;
-            background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Imagenes/HandHoldingEye.png?fileID=2800000&amp;guid=45c9c0d05c12d3143a7f2242a7113002&amp;type=3#HandHoldingEye&quot;);
-            -unity-background-scale-mode: scale-and-crop;
-            background-size: auto 255px;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-            margin-bottom: 10px;
-        "/>
-        <ui:Label text="Observa los sintomas" style="
-            font-size: 19px;
-            color: rgba(255, 255, 255, 0.96);
-            -unity-font-style: bold;
-            -unity-text-align: middle-center;
-            margin-bottom: 4px;
-        "/>
-        <ui:Label text="Gira la hoja y busca forma de lesion, contraste de color y patron del dano." style="
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.66);
-            white-space: normal;
-            -unity-text-align: middle-center;
-        "/>
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
+    <ui:VisualElement name="tutorial-act-2" class="quest-surface quest-surface--compact quest-tutorial-act">
+        <ui:VisualElement class="quest-tutorial-act__image" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandHoldingEye.png?fileID=2800000&amp;guid=45c9c0d05c12d3143a7f2242a7113002&amp;type=3#HandHoldingEye&quot;); -unity-background-scale-mode: scale-and-crop; background-size: auto 255px;"/>
+        <ui:Label text="Observa los sintomas" class="quest-tutorial-act__title"/>
+        <ui:Label text="Gira la hoja y busca forma de lesion, contraste de color y patron del dano." class="quest-tutorial-act__body"/>
     </ui:VisualElement>
 </ui:UXML>

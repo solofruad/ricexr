@@ -1,75 +1,18 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:VisualElement name="msg-tutorial-start" style="
-        width: 520px;
-        background-color: rgba(10, 14, 22, 0.98);
-        border-radius: 22px;
-        padding: 26px 30px 24px 30px;
-        align-items: center;
-        border-width: 1px;
-        border-color: rgba(113, 181, 255, 0.3);
-    ">
-        <ui:VisualElement style="
-            width: 64px;
-            height: 64px;
-            border-top-left-radius: 32px;
-            border-top-right-radius: 32px;
-            border-bottom-left-radius: 32px;
-            border-bottom-right-radius: 32px;
-            background-color: rgba(113, 181, 255, 0.2);
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 12px;
-        ">
-            <ui:Label text="1" style="
-                font-size: 32px;
-                color: rgba(113, 181, 255, 0.98);
-                -unity-font-style: bold;
-                -unity-text-align: middle-center;
-            "/>
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
+    <ui:VisualElement name="msg-tutorial-start" class="quest-surface quest-surface--compact quest-panel quest-panel--centered quest-message quest-message--tutorial">
+        <ui:VisualElement class="quest-icon-disc" style="margin-bottom: 12px;">
+            <ui:Label text="1" class="quest-icon-disc__label"/>
         </ui:VisualElement>
 
-        <ui:Label name="tutorialstart-title" text="Inicia el Nivel 1: Tutorial" style="
-            font-size: 28px;
-            color: rgba(255, 255, 255, 0.98);
-            -unity-font-style: bold;
-            -unity-text-align: middle-center;
-            margin-bottom: 6px;
-        "/>
+        <ui:Label name="tutorialstart-title" text="Inicia el Nivel 1: Tutorial" class="quest-message__title" style="margin-bottom: 6px;"/>
 
-        <ui:Label name="tutorialstart-sub" text="Primero aprenderas a usar la herramienta VR." style="
-            font-size: 15px;
-            color: rgba(214, 232, 255, 0.72);
-            -unity-text-align: middle-center;
-            white-space: normal;
-            max-width: 420px;
-            margin-bottom: 10px;
-        "/>
+        <ui:Label name="tutorialstart-sub" text="Primero aprenderas a usar la herramienta VR." class="quest-message__subtitle" style="max-width: 420px; margin-bottom: 10px;"/>
 
-        <ui:VisualElement style="
-            width: 420px;
-            background-color: rgba(255, 255, 255, 0.04);
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-            border-width: 1px;
-            border-color: rgba(255, 255, 255, 0.09);
-            padding: 8px 12px;
-            align-items: center;
-        ">
-            <ui:Label text="Objetivo inicial: completar 2 hojas guiadas en el tutorial." style="
-                font-size: 12px;
-                color: rgba(255, 255, 255, 0.66);
-                -unity-text-align: middle-center;
-            "/>
+        <ui:VisualElement class="quest-card" style="width: 420px; padding: 8px 12px; align-items: center;">
+            <ui:Label text="Objetivo inicial: completar 2 hojas guiadas en el tutorial." class="quest-caption" style="-unity-text-align: middle-center;"/>
         </ui:VisualElement>
 
-        <ui:VisualElement style="
-            width: 48px;
-            height: 3px;
-            background-color: rgba(113, 181, 255, 0.85);
-            border-radius: 2px;
-            margin-top: 14px;
-        "/>
+        <ui:VisualElement class="quest-rule quest-accent--blue" style="margin-top: 14px;"/>
     </ui:VisualElement>
 </ui:UXML>

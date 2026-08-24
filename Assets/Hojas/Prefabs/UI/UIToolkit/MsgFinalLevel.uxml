@@ -1,9 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="msg-final-level" style="width: 480px; background-color: rgba(12, 12, 16, 0.97); border-radius: 22px; padding: 36px 32px 32px 32px; align-items: center; border-width: 1px; border-color: rgba(220, 80, 80, 0.25);">
-        <ui:Label text="⚠" style="font-size: 46px; margin-bottom: 12px; -unity-text-align: upper-center;"/>
-        <ui:Label name="final-title" text="Último nivel" style="font-size: 30px; color: rgba(255, 255, 255, 0.97); -unity-font-style: bold; -unity-text-align: middle-center; margin-bottom: 8px;"/>
-        <ui:Label name="final-subtitle" text="Sin ayudas" style="font-size: 16px; color: rgba(220, 80, 80, 0.9); -unity-text-align: middle-center; -unity-font-style: bold; margin-bottom: 12px;"/>
-        <ui:Label name="final-description" text="Ahora identificarás enfermedades por tu cuenta. Aplica todo lo que aprendiste." style="font-size: 15px; color: rgba(255, 255, 255, 0.45); -unity-text-align: middle-center; white-space: normal;"/>
-        <ui:VisualElement style="width: 48px; height: 3px; background-color: rgba(220, 80, 80, 0.6); border-radius: 2px; margin-top: 22px;"/>
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
+    <ui:VisualElement name="msg-final-level" class="quest-surface quest-surface--compact quest-panel quest-panel--centered quest-message quest-message--wide">
+        <ui:Label text="⚠" class="quest-message__icon quest-accent--error"/>
+        <ui:Label name="final-title" text="Último nivel" class="quest-message__title quest-message__title--large"/>
+        <ui:Label name="final-subtitle" text="Sin ayudas" class="quest-message__subtitle quest-accent--error" style="-unity-font-style: bold; margin-bottom: 12px;"/>
+        <ui:Label name="final-description" text="Ahora identificarás enfermedades por tu cuenta. Aplica todo lo que aprendiste." class="quest-message__subtitle"/>
+        <ui:VisualElement class="quest-message__rule quest-message__rule--error"/>
     </ui:VisualElement>
 </ui:UXML>

@@ -4383,9 +4383,9 @@ MonoBehaviour:
   actPanel1: {fileID: 1726088513}
   actPanel2: {fileID: 179312377}
   actPanel3: {fileID: 828520119}
-  activeBorderColor: {r: 0, g: 0.7830189, b: 0.10440256, a: 1}
+  activeBorderColor: {r: 0.30588236, g: 0.5686275, b: 1, a: 1}
   inactiveBorderColor: {r: 1, g: 1, b: 1, a: 0.12}
-  borderWidth: 8
+  borderWidth: 2
   panelOffset: {x: 4, y: 0, z: 0}
   panelAnimDuration: 1
   observeToDiagnoseDelay: 3
@@ -6784,10 +6784,10 @@ MonoBehaviour:
   - msgLevel2
   - msgLevel3
   - msgLevel4
-  activeLevelBackgroundColor: {r: 0.078431375, g: 0.15294118, b: 0.12156863, a: 1}
-  activeLevelBorderColor: {r: 0.46666667, g: 1, b: 0.44313726, a: 1}
-  inactiveLevelBackgroundColor: {r: 0.105882354, g: 0.105882354, b: 0.105882354, a: 1}
-  inactiveLevelBorderColor: {r: 1, g: 1, b: 1, a: 0}
+  activeLevelBackgroundColor: {r: 0.078431375, g: 0.11372549, b: 0.2, a: 1}
+  activeLevelBorderColor: {r: 0.30588236, g: 0.5686275, b: 1, a: 1}
+  inactiveLevelBackgroundColor: {r: 0.11372549, g: 0.12941177, b: 0.15686275, a: 1}
+  inactiveLevelBorderColor: {r: 1, g: 1, b: 1, a: 0.14}
   miniGuideRules:
   - type: 1
     onlyFinalLevel: 0

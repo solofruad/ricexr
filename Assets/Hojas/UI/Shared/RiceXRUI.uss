@@ -1,0 +1,924 @@
+/* ============================================================
+   RiceXRUI.uss — lenguaje visual compartido de la UI Toolkit.
+
+   La base visual sigue la referencia de Horizon OS usada en
+   SessionIntro. El color se reserva para acciones y estados; las
+   superficies usan una textura de brillo porque Unity 6 no admite
+   linear-gradient() en background-image.
+   ============================================================ */
+
+:root {
+    --quest-surface: rgb(20, 23, 28);
+    --quest-surface-soft: rgb(29, 33, 40);
+    --quest-surface-raised: rgba(255, 255, 255, 0.045);
+    --quest-hairline: rgba(255, 255, 255, 0.1);
+    --quest-border: rgba(255, 255, 255, 0.14);
+    --quest-divider: rgb(38, 41, 48);
+
+    --quest-text: rgb(255, 255, 255);
+    --quest-text-secondary: rgb(161, 165, 173);
+    --quest-text-tertiary: rgb(110, 114, 122);
+
+    --quest-blue: rgb(0, 100, 224);
+    --quest-blue-soft: rgba(78, 145, 255, 0.2);
+    --quest-success: rgb(91, 210, 126);
+    --quest-warning: rgb(247, 190, 89);
+    --quest-error: rgb(239, 111, 119);
+    --quest-disease: rgb(239, 111, 119);
+    --quest-severity: rgb(118, 158, 255);
+}
+
+/* ---------- Superficies ---------- */
+.quest-surface {
+    background-color: var(--quest-surface);
+    background-image: url("project://database/Assets/Hojas/UI/Shared/PanelSheen.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    border-radius: 32px;
+    overflow: hidden;
+
+    /* Reflejo sutil del canto superior del panel. */
+    border-top-width: 1px;
+    border-top-color: var(--quest-hairline);
+}
+
+.quest-surface--compact {
+    border-radius: 24px;
+}
+
+.quest-surface--soft {
+    background-color: var(--quest-surface-soft);
+}
+
+.quest-panel {
+    align-items: flex-start;
+}
+
+.quest-panel--centered {
+    align-items: center;
+}
+
+.quest-panel--padded {
+    padding: 36px 40px 40px 40px;
+}
+
+/* ---------- Tipografía ---------- */
+.quest-title {
+    font-size: 30px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.quest-title--large {
+    font-size: 34px;
+}
+
+.quest-title--small {
+    font-size: 24px;
+}
+
+.quest-body {
+    font-size: 16px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+}
+
+.quest-body--small {
+    font-size: 14px;
+}
+
+.quest-caption {
+    font-size: 12px;
+    color: var(--quest-text-tertiary);
+    white-space: normal;
+}
+
+.quest-accent--success {
+    color: var(--quest-success);
+}
+
+.quest-accent--warning {
+    color: var(--quest-warning);
+}
+
+.quest-accent--error {
+    color: var(--quest-error);
+}
+
+.quest-accent--blue {
+    color: var(--quest-blue);
+}
+
+/* ---------- Separadores y listas ---------- */
+.quest-divider {
+    height: 1px;
+    background-color: var(--quest-divider);
+}
+
+.quest-divider--space {
+    margin-top: 18px;
+    margin-bottom: 18px;
+}
+
+.quest-list {
+    width: 100%;
+}
+
+.quest-list__row {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top-width: 1px;
+    border-top-color: var(--quest-divider);
+}
+
+.quest-list__row--first {
+    border-top-width: 0;
+    padding-top: 0;
+}
+
+/* ---------- Tarjetas de contenido ---------- */
+.quest-card {
+    background-color: var(--quest-surface-raised);
+    border-width: 1px;
+    border-color: var(--quest-border);
+    border-radius: 24px;
+}
+
+.quest-card__image {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.quest-card__title {
+    font-size: 18px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.quest-card__body {
+    font-size: 14px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+}
+
+/* ---------- Introducción de nivel ---------- */
+.quest-level-intro {
+    width: 1372px;
+    height: 639px;
+    flex-direction: column;
+    padding: 32px 36px 32px 36px;
+    align-items: stretch;
+}
+
+.quest-level-intro__header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--quest-divider);
+}
+
+.quest-level-intro__heading {
+    flex-direction: column;
+    flex-grow: 1;
+    margin-left: 16px;
+}
+
+.quest-level-intro__cards {
+    flex-direction: row;
+    flex-grow: 1;
+    flex-basis: 100%;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.quest-level-card {
+    width: 25%;
+    height: 100%;
+    min-width: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 14px;
+    margin-right: 24px;
+    max-height: 100%;
+}
+
+.quest-level-card--last {
+    margin-right: 0;
+}
+
+.quest-level-card__image {
+    width: 100%;
+    height: 229px;
+    min-height: 70%;
+    max-height: 70%;
+    flex-grow: 1;
+    margin-bottom: 12px;
+}
+
+.quest-level-card__title {
+    width: 100%;
+    height: 90px;
+    flex-grow: 1;
+    font-size: 20px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.quest-level-card__title--final {
+    font-size: 19px;
+}
+
+.quest-level-card__body {
+    width: 100%;
+    min-height: 44px;
+    flex-grow: 1;
+    font-size: 14px;
+    color: var(--quest-text-secondary);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* ---------- Iconos y marcadores visuales ---------- */
+.quest-icon-disc {
+    width: 52px;
+    height: 52px;
+    border-radius: 26px;
+    background-color: var(--quest-blue-soft);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.quest-icon-disc__label {
+    font-size: 26px;
+    color: var(--quest-blue);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.quest-rule {
+    width: 48px;
+    height: 3px;
+    border-radius: 2px;
+    background-color: var(--quest-blue);
+}
+
+/* ---------- Mensajes ---------- */
+.quest-message {
+    width: 460px;
+    padding: 36px 32px 32px 32px;
+    align-items: center;
+}
+
+.quest-message--wide {
+    width: 480px;
+}
+
+.quest-message--tutorial {
+    width: 520px;
+    padding: 32px 36px 32px 36px;
+}
+
+.quest-message__icon {
+    font-size: 46px;
+    margin-bottom: 12px;
+    -unity-text-align: middle-center;
+}
+
+.quest-message__icon--large {
+    font-size: 52px;
+}
+
+.quest-message__title {
+    font-size: 28px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 8px;
+}
+
+.quest-message__title--large {
+    font-size: 30px;
+}
+
+.quest-message__subtitle {
+    font-size: 15px;
+    color: var(--quest-text-secondary);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.quest-message__rule {
+    width: 48px;
+    height: 3px;
+    border-radius: 2px;
+    margin-top: 22px;
+}
+
+.quest-message__rule--success {
+    background-color: var(--quest-success);
+}
+
+.quest-message__rule--blue {
+    background-color: var(--quest-severity);
+}
+
+.quest-message__rule--error {
+    background-color: var(--quest-error);
+}
+
+.quest-message__progress-icon {
+    font-size: 44px;
+    margin-bottom: 10px;
+}
+
+.quest-message__progress-title {
+    font-size: 26px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 6px;
+}
+
+.quest-message__progress-subtitle {
+    font-size: 15px;
+    color: var(--quest-text-secondary);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 20px;
+}
+
+/* ---------- Botones ---------- */
+.quest-button {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 48px;
+    background-color: var(--quest-blue);
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.16);
+}
+
+.quest-button--full {
+    width: 100%;
+    height: 100%;
+}
+
+.quest-button__icon {
+    width: 46px;
+    height: 46px;
+    margin-right: 16px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.quest-button__label {
+    font-size: 27px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* ---------- Feedback y progreso ---------- */
+.quest-feedback__header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.quest-feedback {
+    width: 348px;
+    height: 659px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 24px;
+    flex-wrap: wrap;
+    align-content: center;
+}
+
+.quest-feedback__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 26px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 16px;
+    border-width: 1px;
+}
+
+.quest-feedback__icon--success {
+    background-color: rgba(91, 210, 126, 0.16);
+    border-color: rgba(91, 210, 126, 0.5);
+}
+
+.quest-feedback__icon--error {
+    background-color: rgba(239, 111, 119, 0.16);
+    border-color: rgba(239, 111, 119, 0.5);
+}
+
+.quest-feedback__icon-label {
+    font-size: 28px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.quest-feedback__icon-label--success {
+    color: var(--quest-success);
+}
+
+.quest-feedback__icon-label--error {
+    color: var(--quest-error);
+}
+
+.quest-feedback__title {
+    font-size: 30px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    white-space: normal;
+}
+
+.quest-feedback__title--success {
+    color: var(--quest-success);
+}
+
+.quest-feedback__title--error {
+    color: var(--quest-error);
+}
+
+.quest-feedback__body {
+    font-size: 16px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+}
+
+.quest-feedback__message {
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 270px;
+    align-self: center;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 54px;
+}
+
+.quest-progress-track {
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.quest-progress-fill {
+    height: 100%;
+    background-color: var(--quest-success);
+    border-radius: 2px;
+}
+
+.quest-progress-label {
+    font-size: 12px;
+    color: var(--quest-text-tertiary);
+}
+
+.quest-progress-percent {
+    font-size: 12px;
+    color: var(--quest-success);
+}
+
+/* ---------- Tutorial ---------- */
+.quest-tutorial-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--quest-divider);
+}
+
+.quest-tutorial-step {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.quest-tutorial-step__image {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.quest-tutorial-step__title {
+    font-size: 16px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.quest-tutorial-step__body {
+    font-size: 13px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+}
+
+.quest-tutorial-panel {
+    width: 700px;
+    height: 543px;
+    flex-direction: column;
+    padding: 28px 32px 24px 32px;
+}
+
+.quest-tutorial-panel--act {
+    width: 370px;
+}
+
+.quest-tutorial-header__disc {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: var(--quest-blue-soft);
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+
+.quest-tutorial-header__label {
+    width: 36px;
+    font-size: 20px;
+    color: var(--quest-severity);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.quest-tutorial-header__heading {
+    flex-direction: column;
+}
+
+.quest-tutorial-header__title {
+    font-size: 22px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.quest-tutorial-steps {
+    flex-direction: row;
+    flex-grow: 1;
+    flex-basis: auto;
+    flex-shrink: 1;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: stretch;
+}
+
+.quest-tutorial-step--divider {
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-left: 3px;
+    margin-right: 3px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-left-color: var(--quest-divider);
+    border-right-color: var(--quest-divider);
+}
+
+.quest-tutorial-step__content {
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.quest-tutorial-progress {
+    margin-top: 5px;
+    padding-top: 10px;
+    border-top-width: 1px;
+    border-top-color: var(--quest-divider);
+}
+
+.quest-tutorial-progress__labels {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.quest-tutorial-light-panel {
+    display: none;
+    flex-grow: 1;
+    border-width: 1px;
+    border-color: var(--quest-border);
+    border-radius: 20px;
+    background-color: var(--quest-surface-raised);
+    padding: 22px 24px 18px 24px;
+    justify-content: center;
+}
+
+.quest-tutorial-light-title {
+    font-size: 24px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    -unity-text-align: upper-left;
+}
+
+.quest-tutorial-light-body {
+    font-size: 14px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+    -unity-text-align: upper-left;
+}
+
+.quest-tutorial-act {
+    flex-grow: 1;
+    flex-direction: column;
+    padding: 14px;
+    align-items: stretch;
+}
+
+.quest-tutorial-act__image {
+    width: 100%;
+    height: 214px;
+    min-height: 214px;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.quest-tutorial-act__title {
+    font-size: 19px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 4px;
+}
+
+.quest-tutorial-act__body {
+    font-size: 13px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+/* ---------- Panel informativo de enfermedad ---------- */
+.quest-disease-image {
+    background-color: rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+}
+
+.quest-disease-panel {
+    width: 860px;
+    height: 420px;
+    flex-direction: row;
+}
+
+.quest-disease-image-side {
+    width: 380px;
+    height: 100%;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.quest-disease-carousel {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.04);
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.quest-disease-image-overlay-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 110px;
+    background-color: rgba(20, 23, 28, 0.58);
+}
+
+.quest-disease-image-overlay-side {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 100%;
+    background-color: rgba(20, 23, 28, 0.58);
+}
+
+.quest-disease-carousel-dots {
+    position: absolute;
+    bottom: 14px;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.quest-disease-dot {
+    width: 5px;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.28);
+    border-radius: 3px;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.quest-disease-dot--active {
+    width: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.quest-disease-content {
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 15px;
+    justify-content: space-between;
+}
+
+.quest-disease-main {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.quest-disease-name {
+    font-size: 27px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.quest-disease-scientific {
+    font-size: 15px;
+    color: var(--quest-text-tertiary);
+    -unity-font-style: italic;
+}
+
+.quest-disease-description {
+    font-size: 14px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+    flex-grow: 0;
+    overflow: hidden;
+    margin-top: 2px;
+    width: 192px;
+    -unity-text-align: middle-left;
+}
+
+.quest-disease-severity-image {
+    flex-grow: 1;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.quest-disease-progress {
+    margin-top: 7px;
+}
+
+.quest-disease-progress__labels {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+/* ---------- Marcador sobre la hoja ---------- */
+.quest-marker-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 16px 8px 16px;
+}
+
+.quest-marker-header__label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--quest-text-secondary);
+    -unity-font-style: bold;
+}
+
+.quest-marker-body {
+    padding: 12px 16px 14px 16px;
+}
+
+.quest-marker-disease {
+    background-color: rgba(239, 111, 119, 0.14);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(239, 111, 119, 0.42);
+}
+
+.quest-marker-severity {
+    background-color: rgba(118, 158, 255, 0.14);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(118, 158, 255, 0.42);
+}
+
+.quest-marker-disease__name {
+    font-size: 20px;
+    color: var(--quest-disease);
+    white-space: normal;
+    -unity-font-style: bold;
+}
+
+.quest-marker-severity__number {
+    font-size: 36px;
+    color: var(--quest-severity);
+    -unity-font-style: bold;
+    width: 48px;
+    margin-right: 14px;
+    -unity-text-align: middle-center;
+}
+
+.quest-marker-severity__bar {
+    flex-direction: row;
+    flex-grow: 1;
+    height: 14px;
+    align-items: center;
+}
+
+.quest-marker-segment {
+    flex-grow: 1;
+    height: 10px;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+.quest-marker-segment.active {
+    background-color: var(--quest-severity);
+}
+
+.quest-marker-segment.inactive {
+    background-color: rgba(118, 158, 255, 0.16);
+    border-width: 1px;
+    border-color: rgba(118, 158, 255, 0.48);
+}
+
+/* ---------- Selección de plano ---------- */
+.quest-plane-guide {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.quest-plane-guide__card {
+    flex-grow: 0;
+    width: 79%;
+    height: 50%;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 100, 224, 0.86);
+    border-radius: 48px;
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.quest-plane-guide__label {
+    font-size: 28px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    white-space: normal;
+    margin-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.quest-plane-guide__arrow {
+    width: 120px;
+    height: 120px;
+    translate: 0 20px;
+    -unity-background-image-tint-color: var(--quest-text);
+}
+
+.quest-wave-root {
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(20, 23, 28, 0.76);
+    border-radius: 32px;
+    border-width: 2px;
+    border-color: rgba(78, 181, 255, 0.72);
+    overflow: hidden;
+}
+
+.quest-wave-loading {
+    background-color: rgba(0, 100, 224, 0.3);
+}
+
+.quest-wave-line {
+    border-width: 2px;
+    border-color: rgba(78, 181, 255, 0.82);
+    border-radius: 32px;
+}
+
+.quest-wave-hand {
+    position: absolute;
+    right: auto;
+    width: 30px;
+    height: 30px;
+    background-size: 100% 100%;
+    -unity-background-scale-mode: stretch-to-fill;
+    translate: -3px 0;
+}

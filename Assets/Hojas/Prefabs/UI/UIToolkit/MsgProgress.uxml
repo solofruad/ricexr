@@ -1,45 +1,23 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
     <!--
         MsgProgress.uxml
         IMPORTANTE: el VisualElement name="progress-dots" es requerido por UIMessagesController.
         Los dots reales se generan dinámicamente en runtime según plantsRequired del nivel.
         Este contenedor solo actúa como padre — no pongas dots hardcodeados aquí.
     -->
-    <ui:VisualElement name="msg-progress" style="
-        width: 460px;
-        background-color: rgba(12, 12, 16, 0.97);
-        border-radius: 22px;
-        padding: 30px 32px 28px 32px;
-        align-items: center;
-    ">
-        <ui:Label text="🌿" style="font-size: 44px; margin-bottom: 10px;"/>
+    <ui:VisualElement name="msg-progress" class="quest-surface quest-surface--compact quest-panel quest-panel--centered quest-message">
+        <ui:Label text="🌿" class="quest-message__progress-icon"/>
 
-        <ui:Label name="progress-main" text="0 de 1 plantas" style="
-            font-size: 26px;
-            color: rgba(255,255,255,0.97);
-            -unity-font-style: bold;
-            -unity-text-align: middle-center;
-            margin-bottom: 6px;
-        "/>
+        <ui:Label name="progress-main" text="0 de 1 plantas" class="quest-message__progress-title"/>
 
-        <ui:Label name="progress-sub" text="Te falta 1 planta por seleccionar." style="
-            font-size: 15px;
-            color: rgba(255,255,255,0.48);
-            -unity-text-align: middle-center;
-            white-space: normal;
-            margin-bottom: 20px;
-        "/>
+        <ui:Label name="progress-sub" text="Te falta 1 planta por seleccionar." class="quest-message__progress-subtitle"/>
 
         <!--
             progress-dots: contenedor de dots generados dinámicamente por UIMessagesController.
             EnsureProgressDots() añade aquí los VisualElements de cada planta.
         -->
-        <ui:VisualElement name="progress-dots" style="
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        "/>
+        <ui:VisualElement name="progress-dots" class="quest-list" style="flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap;"/>
 
     </ui:VisualElement>
 </ui:UXML>

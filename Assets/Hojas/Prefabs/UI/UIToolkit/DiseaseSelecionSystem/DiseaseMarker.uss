@@ -1,124 +1,86 @@
 /* ============================================================
-   DiseaseMarker.uss
-   Colores clave:
-     Rojo enfermedad : #FF0000  →  used in disease-* elements
-     Azul severidad  : #0022FF  →  used in severity-* elements
+   DiseaseMarker.uss — marcador de enfermedad sobre la hoja.
+
+   La superficie sigue el mismo tratamiento que el resto de paneles.
+   Rojo y azul quedan reservados para distinguir enfermedad y severidad.
    ============================================================ */
 
-/* ---------- Variables de color ---------- */
 :root {
-    --c-disease: rgb(255, 0, 0);
-    --c-disease-dim: rgba(255, 0, 0, 0.15);
-    --c-disease-mid: rgba(255, 0, 0, 0.55);
-
-    --c-severity: rgb(0, 34, 255);
-    --c-severity-dim: rgba(0, 34, 255, 0.15);
-    --c-severity-mid: rgba(0, 34, 255, 0.55);
-
-    --c-bg: rgba(8, 8, 12, 0.88);
-    --c-divider: rgba(255, 255, 255, 0.12);
-    --c-text-primary: rgb(245, 245, 245);
-    --c-text-muted: rgba(245, 245, 245, 0.55);
+    --marker-disease: rgb(239, 111, 119);
+    --marker-disease-soft: rgba(239, 111, 119, 0.14);
+    --marker-disease-mid: rgba(239, 111, 119, 0.48);
+    --marker-severity: rgb(118, 158, 255);
+    --marker-severity-soft: rgba(118, 158, 255, 0.16);
+    --marker-severity-mid: rgba(118, 158, 255, 0.48);
 }
 
-/* ---------- Contenedor raíz ---------- */
 .root {
     width: 320px;
-    background-color: var(--c-bg);
-    border-radius: 14px;
+    background-color: var(--quest-surface);
+    background-image: url("project://database/Assets/Hojas/UI/Shared/PanelSheen.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    border-radius: 24px;
     overflow: hidden;
-    padding: 0px;
-
-    /* Borde sutil blanco para recorte en VR */
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.1);
-
-    /* Sombra difusa para legibilidad sobre la hoja */
-    -unity-font-style: normal;
+    border-top-width: 1px;
+    border-top-color: var(--quest-hairline);
 }
 
-/* ---------- Cabeceras de sección ---------- */
 .section-header {
     flex-direction: row;
     align-items: center;
-    padding: 8px 16px 6px 16px;
+    padding: 10px 16px 8px 16px;
 }
 
 .disease-header {
-    background-color: var(--c-disease-dim);
+    background-color: var(--marker-disease-soft);
     border-bottom-width: 1px;
-    border-bottom-color: var(--c-disease-mid);
+    border-bottom-color: var(--marker-disease-mid);
 }
 
 .severity-header {
-    background-color: var(--c-severity-dim);
+    background-color: var(--marker-severity-soft);
     border-bottom-width: 1px;
-    border-bottom-color: var(--c-severity-mid);
+    border-bottom-color: var(--marker-severity-mid);
 }
 
-/* Punto de color indicador */
-.header-icon {
-    font-size: 8px;
-    margin-right: 8px;
-    -unity-font-style: normal;
-}
-
-.disease-header .header-icon {
-    color: var(--c-disease);
-}
-
-.severity-header .header-icon {
-    color: var(--c-severity);
-}
-
-/* Texto de etiqueta (ENFERMEDAD / SEVERIDAD) */
 .header-label {
     font-size: 11px;
     letter-spacing: 2px;
-    color: var(--c-text-muted);
+    color: var(--quest-text-secondary);
     -unity-font-style: bold;
 }
 
-/* ---------- Cuerpos de sección ---------- */
 .section-body {
-    padding: 10px 16px 12px 16px;
+    padding: 12px 16px 14px 16px;
 }
 
-/* ---------- Nombre de la enfermedad ---------- */
 .disease-name {
     font-size: 20px;
-    color: var(--c-disease);
+    color: var(--marker-disease);
     white-space: normal;
     -unity-font-style: bold;
-    /* Leve resplandor textual: simulado con color más vivo */
 }
 
-/* ---------- Divisor ---------- */
 .divider {
-    height: 1px;
-    background-color: var(--c-divider);
-    margin-left: 16px;
-    margin-right: 16px;
+    height: 14px;
+    background-color: transparent;
 }
 
-/* ---------- Severidad: número + barra ---------- */
 .severity-body {
     flex-direction: row;
     align-items: center;
-    padding: 10px 16px 14px 16px;
+    padding: 12px 16px 16px 16px;
 }
 
-/* Número grande */
 .severity-number {
     font-size: 36px;
-    color: var(--c-severity);
+    color: var(--marker-severity);
     -unity-font-style: bold;
     width: 48px;
     margin-right: 14px;
     -unity-text-align: middle-center;
 }
 
-/* Barra de 5 segmentos */
 .severity-bar {
     flex-direction: row;
     flex-grow: 1;
@@ -129,18 +91,16 @@
 .seg {
     flex-grow: 1;
     height: 10px;
-    border-radius: 3px;
+    border-radius: 5px;
     margin-right: 5px;
 }
 
-/* Segmento activo (≤ severidad actual) */
 .seg.active {
-    background-color: var(--c-severity);
+    background-color: var(--marker-severity);
 }
 
-/* Segmento inactivo (> severidad actual) */
 .seg.inactive {
-    background-color: var(--c-severity-dim);
+    background-color: var(--marker-severity-soft);
     border-width: 1px;
-    border-color: var(--c-severity-mid);
+    border-color: var(--marker-severity-mid);
 }

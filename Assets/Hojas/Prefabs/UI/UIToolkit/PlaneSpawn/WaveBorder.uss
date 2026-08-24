@@ -1,30 +1,28 @@
+/* ============================================================
+   WaveBorder.uss — indicador animado de selección de plano.
+   La barra y las ondas siguen siendo controladas por C#.
+   ============================================================ */
+
 .main-container {
     width: 400px;
     height: 400px;
-    background-color: rgba(10, 15, 20, 0.8);
-    border-width: 2px;
-    border-color: #38a8ca;
     align-items: center;
     justify-content: center;
     overflow: hidden;
 }
 
-/* LA NUEVA BARRA DE CARGA */
 .loading-bar {
     position: absolute;
     left: 0;
     top: 0;
     height: 100%;
-    width: 0%; /* C# controlará esto */
-    background-color: rgba(32, 223, 159, 0.51); /* Azul cian semitransparente */
+    width: 0%;
 }
 
 .wave-line {
     position: absolute;
     width: 100%;
     height: 100%;
-    border-width: 3px;
-    border-color: #38a8ca;
 }
 
 .content-box {

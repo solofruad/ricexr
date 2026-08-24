@@ -1,33 +1,34 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="panel-root" style="width: 860px; height: 420px; background-color: rgba(12, 12, 16, 0.97); border-radius: 22px; flex-direction: row; overflow: hidden;">
-        <ui:VisualElement name="image-side" style="width: 380px; height: 100%; flex-shrink: 0; position: relative;">
-            <ui:VisualElement name="carousel-image" style="width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.05); -unity-background-scale-mode: scale-and-crop;"/>
-            <ui:VisualElement style="position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; background-color: rgba(12, 12, 16, 0.5);"/>
-            <ui:VisualElement style="position: absolute; top: 0; right: 0; width: 60px; height: 100%; background-color: rgba(12, 12, 16, 0.55);"/>
-            <ui:VisualElement name="carousel-dots" style="position: absolute; bottom: 14px; left: 0; right: 0; flex-direction: row; justify-content: center; align-items: center;">
-                <ui:VisualElement name="dot-0" style="width: 20px; height: 5px; background-color: rgba(255, 255, 255, 0.95); border-radius: 3px; margin-left: 3px; margin-right: 3px;"/>
-                <ui:VisualElement name="dot-1" style="width: 5px; height: 5px; background-color: rgba(255, 255, 255, 0.28); border-radius: 3px; margin-left: 3px; margin-right: 3px;"/>
-                <ui:VisualElement name="dot-2" style="width: 5px; height: 5px; background-color: rgba(255, 255, 255, 0.28); border-radius: 3px; margin-left: 3px; margin-right: 3px;"/>
-                <ui:VisualElement name="dot-3" style="width: 5px; height: 5px; background-color: rgba(255, 255, 255, 0.28); border-radius: 3px; margin-left: 3px; margin-right: 3px;"/>
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
+    <ui:VisualElement name="panel-root" class="quest-surface quest-disease-panel">
+        <ui:VisualElement name="image-side" class="quest-disease-image-side">
+            <ui:VisualElement name="carousel-image" class="quest-disease-carousel"/>
+            <ui:VisualElement class="quest-disease-image-overlay-bottom"/>
+            <ui:VisualElement class="quest-disease-image-overlay-side"/>
+            <ui:VisualElement name="carousel-dots" class="quest-disease-carousel-dots">
+                <ui:VisualElement name="dot-0" class="quest-disease-dot quest-disease-dot--active"/>
+                <ui:VisualElement name="dot-1" class="quest-disease-dot"/>
+                <ui:VisualElement name="dot-2" class="quest-disease-dot"/>
+                <ui:VisualElement name="dot-3" class="quest-disease-dot"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="content-side" style="flex-grow: 1; flex-direction: column; padding: 26px 26px 20px 22px; justify-content: space-between; padding-top: 15px; padding-bottom: 15px; padding-right: 15px; padding-left: 15px;">
+        <ui:VisualElement name="content-side" class="quest-disease-content">
             <ui:VisualElement name="header-block">
-                <ui:Label name="scientific-name" text="Tizón Tardío" style="font-size: 27px; color: rgba(255, 255, 255, 0.97); -unity-font-style: bold; margin-bottom: 2px; white-space: normal;"/>
-                <ui:Label name="disease-title" text="Phytophthora infestans" style="font-size: 15px; color: rgba(255, 255, 255, 0.3); -unity-font-style: italic; margin-top: 2px;"/>
+                <ui:Label name="scientific-name" text="Tizón Tardío" class="quest-disease-name"/>
+                <ui:Label name="disease-title" text="Phytophthora infestans" class="quest-disease-scientific"/>
             </ui:VisualElement>
-            <ui:VisualElement style="height: 1px; background-color: rgba(255, 255, 255, 0.07); margin-top: 5px; margin-bottom: 5px;"/>
-            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
-                <ui:Label name="disease-description" text="Causada por un oomycete, se propaga en condiciones de alta humedad y temperaturas frescas. Las lesiones aparecen como manchas acuosas que se tornan marrones con borde amarillento. Puede destruir un cultivo completo en pocos días sin tratamiento." style="font-size: 12px; color: rgba(255, 255, 255, 0.62); white-space: normal; flex-grow: 0; overflow: hidden; margin-top: 2px; width: 192px; -unity-text-align: middle-left;"/>
-                <ui:Image name="severity-evolution" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Pyri/Severity_evolution_pyri.png?fileID=2800000&amp;guid=5afa17f81399a034196015e9fb73ff77&amp;type=3#Severity_evolution_pyri&quot;); background-position-x: left 0; -unity-background-scale-mode: scale-to-fit;"/>
+            <ui:VisualElement class="quest-divider" style="margin-top: 5px; margin-bottom: 5px;"/>
+            <ui:VisualElement class="quest-disease-main">
+                <ui:Label name="disease-description" text="Causada por un oomycete, se propaga en condiciones de alta humedad y temperaturas frescas. Las lesiones aparecen como manchas acuosas que se tornan marrones con borde amarillento. Puede destruir un cultivo completo en pocos días sin tratamiento." class="quest-disease-description"/>
+                <ui:Image name="severity-evolution" class="quest-disease-severity-image" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Pyri/Severity_evolution_pyri.png?fileID=2800000&amp;guid=5afa17f81399a034196015e9fb73ff77&amp;type=3#Severity_evolution_pyri&quot;); background-position-x: left 0;"/>
             </ui:VisualElement>
-            <ui:VisualElement name="progress-section" style="margin-top: 7px;">
-                <ui:VisualElement style="flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                    <ui:Label name="progress-label" text="Analizando muestra..." style="font-size: 12px; color: rgba(255, 255, 255, 0.35);"/>
-                    <ui:Label name="progress-percent" text="0%" style="font-size: 12px; color: rgba(100, 210, 120, 0.85);"/>
+            <ui:VisualElement name="progress-section" class="quest-disease-progress">
+                <ui:VisualElement class="quest-disease-progress__labels">
+                    <ui:Label name="progress-label" text="Analizando muestra..." class="quest-progress-label"/>
+                    <ui:Label name="progress-percent" text="0%" class="quest-progress-percent"/>
                 </ui:VisualElement>
-                <ui:VisualElement name="progress-track" style="height: 4px; background-color: rgba(255, 255, 255, 0.08); border-radius: 2px; overflow: hidden;">
-                    <ui:VisualElement name="progress-fill" style="height: 100%; width: 0%; background-color: rgb(85, 200, 110); border-radius: 2px;"/>
+                <ui:VisualElement name="progress-track" class="quest-progress-track">
+                    <ui:VisualElement name="progress-fill" class="quest-progress-fill" style="width: 0%;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/Hojas/UI/SessionIntro/SessionIntro.uss?fileID=7433441132597879392&amp;guid=93e5e57f0999fe1479c72f6eeec1b6da&amp;type=3#SessionIntro"/>
-    <ui:VisualElement name="intro-ready-button" class="button" style="height: 100%; width: 100%; position: relative; flex-basis: auto; flex-grow: 0; align-content: flex-start; visibility: visible; opacity: 1; overflow: visible; border-top-left-radius: 51px; border-top-right-radius: 51px; border-bottom-right-radius: 51px; border-bottom-left-radius: 51px; border-top-width: 0; -unity-background-image-tint-color: rgb(0, 100, 224); background-color: rgb(0, 100, 224); background-image: none;">
-        <ui:Image class="button__icon" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandIcon.svg?fileID=7388822144124034973&amp;guid=a9ca54687a2362544b399e707dda689f&amp;type=3#HandIcon&quot;);"/>
-        <ui:Label text="Estoy listo/a" class="button__label" style="font-size: 45px; -unity-text-align: middle-center;"/>
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
+    <ui:VisualElement name="intro-ready-button" class="quest-button quest-button--full">
+        <ui:Image class="quest-button__icon" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandIcon.svg?fileID=7388822144124034973&amp;guid=a9ca54687a2362544b399e707dda689f&amp;type=3#HandIcon&quot;);"/>
+        <ui:Label text="Estoy listo/a" class="quest-button__label"/>
     </ui:VisualElement>
 </ui:UXML>

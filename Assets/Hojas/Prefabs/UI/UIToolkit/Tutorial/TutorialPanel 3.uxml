@@ -1,19 +1,20 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="panel-tutorial" style="width: 370px; height: 543px; background-color: rgb(12, 12, 16); border-radius: 22px; flex-direction: column; overflow: hidden; padding: 28px 32px 24px 32px;">
-        <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 20px; border-bottom-width: 1px; border-bottom-color: rgba(255, 255, 255, 0.08); padding-bottom: 5px;">
-            <ui:VisualElement style="width: 40px; height: 40px; background-color: rgba(80, 160, 255, 0.15); border-radius: 20px; align-items: center; justify-content: center; margin-right: 14px; flex-shrink: 0;">
-                <ui:Label text="3" style="font-size: 20px; color: rgb(80, 160, 255); -unity-font-style: bold; -unity-text-align: middle-center; width: 36px;"/>
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
+    <ui:VisualElement name="panel-tutorial" class="quest-surface quest-surface--compact quest-tutorial-panel quest-tutorial-panel--act">
+        <ui:VisualElement class="quest-tutorial-header">
+            <ui:VisualElement class="quest-tutorial-header__disc">
+                <ui:Label text="3" class="quest-tutorial-header__label"/>
             </ui:VisualElement>
-            <ui:VisualElement style="flex-direction: column;">
-                <ui:Label name="tutorial-title" text="Registra tu diagnóstico" style="font-size: 20px; color: rgba(255, 255, 255, 0.97); -unity-font-style: bold;"/>
+            <ui:VisualElement class="quest-tutorial-header__heading">
+                <ui:Label name="tutorial-title" text="Registra tu diagnóstico" class="quest-tutorial-header__title"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="steps-container" style="flex-direction: row; flex-grow: 1; flex-basis: auto; flex-shrink: 1; flex-wrap: nowrap; justify-content: flex-end; align-items: stretch;">
-            <ui:VisualElement class="tutorial-step" style="flex-direction: row; align-items: flex-start;">
-                <ui:VisualElement style="flex-direction: column; flex-grow: 1;">
-                    <ui:Image style="flex-grow: 1; height: auto; max-height: 176px; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Menu.svg?fileID=7388822144124034973&amp;guid=a372fb3b2c251f0408f4c6648d2fdea8&amp;type=3#Menu&quot;); -unity-background-scale-mode: scale-to-fit; background-repeat: no-repeat no-repeat; -unity-slice-type: sliced; -unity-slice-scale: 0; background-position-y: center; background-position-x: center;"/>
-                    <ui:Label name="tutorial-act-title" text="Usa el menu para registrar tu diagnostico" style="font-size: 19px; color: rgba(255, 255, 255, 0.92); -unity-font-style: bold; margin-bottom: 2px; white-space: normal; -unity-text-align: middle-center;"/>
-                    <ui:Label name="tutorial-act-detail" text="Selecciona la enfermedad y severidad en el panel lateral, luego presiona Confirmar." style="font-size: 12px; color: rgba(255, 255, 255, 0.52); white-space: normal; -unity-text-align: middle-center; height: 41px;"/>
+        <ui:VisualElement name="steps-container" class="quest-tutorial-steps">
+            <ui:VisualElement class="tutorial-step quest-tutorial-step">
+                <ui:VisualElement class="quest-tutorial-step__content">
+                    <ui:Image class="quest-tutorial-step__image" style="flex-grow: 1; height: auto; max-height: 176px; background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Menu.svg?fileID=7388822144124034973&amp;guid=a372fb3b2c251f0408f4c6648d2fdea8&amp;type=3#Menu&quot;); -unity-background-scale-mode: scale-to-fit; background-repeat: no-repeat no-repeat; -unity-slice-type: sliced; -unity-slice-scale: 0; background-position-y: center; background-position-x: center;"/>
+                    <ui:Label name="tutorial-act-title" text="Usa el menu para registrar tu diagnostico" class="quest-tutorial-step__title" style="font-size: 19px; -unity-text-align: middle-center;"/>
+                    <ui:Label name="tutorial-act-detail" text="Selecciona la enfermedad y severidad en el panel lateral, luego presiona Confirmar." class="quest-tutorial-step__body" style="-unity-text-align: middle-center; height: 41px;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
