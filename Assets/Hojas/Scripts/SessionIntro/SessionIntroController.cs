@@ -73,7 +73,7 @@ public class SessionIntroController : MonoBehaviour
     [Tooltip("Distancia frente a la cámara cuando todavía no hay plano.")]
     [SerializeField] private float distanceFromCamera = 1f;
 
-    // ── Estado interno ───────────────────────────────────────────────────────
+
     private readonly List<VisualElement> _stepRoots = new List<VisualElement>();
     private VisualElement _readyButtonRoot;
 
@@ -87,9 +87,7 @@ public class SessionIntroController : MonoBehaviour
     private Tween _panelFadeTween;
     private Tween _buttonFadeTween;
 
-    // ─────────────────────────────────────────────
-    // Lifecycle
-    // ─────────────────────────────────────────────
+
 
     private void Awake()
     {
@@ -103,9 +101,7 @@ public class SessionIntroController : MonoBehaviour
         KillTweens();
     }
 
-    // ─────────────────────────────────────────────
-    // API pública
-    // ─────────────────────────────────────────────
+
 
     /// <summary>Indica si la secuencia está en marcha.</summary>
     public bool IsRunning => _sequenceRunning;
@@ -175,9 +171,7 @@ public class SessionIntroController : MonoBehaviour
         HideAllPanels();
     }
 
-    // ─────────────────────────────────────────────
-    // Secuencia
-    // ─────────────────────────────────────────────
+
 
     private IEnumerator RunSequence()
     {
@@ -279,9 +273,7 @@ public class SessionIntroController : MonoBehaviour
         callback?.Invoke();
     }
 
-    // ─────────────────────────────────────────────
-    // Resolución de documentos
-    // ─────────────────────────────────────────────
+
 
     private void ResolveDocuments()
     {
@@ -359,9 +351,7 @@ public class SessionIntroController : MonoBehaviour
         if (!document.gameObject.activeSelf) document.gameObject.SetActive(true);
     }
 
-    // ─────────────────────────────────────────────
-    // Posicionamiento
-    // ─────────────────────────────────────────────
+
 
     /// <summary>
     /// Coloca el contenedor una vez al arrancar la secuencia. La orientación la resuelve
@@ -393,9 +383,8 @@ public class SessionIntroController : MonoBehaviour
         transform.position = cam.position + forward.normalized * distanceFromCamera;
     }
 
-    // ─────────────────────────────────────────────
-    // Visibilidad y fades
-    // ─────────────────────────────────────────────
+
+
 
     private static void SetVisible(VisualElement element, UIDocument document)
     {

@@ -1,192 +1,178 @@
 /* ============================================================
-   SessionIntro.uss
-   Estilos compartidos por los paneles de la introducción.
+   SessionIntro.uss — estilos de la introducción de sesión.
 
-   Los demás paneles del juego llevan el estilo escrito a mano en
-   cada UXML. Aquí se centraliza para que los cuatro paneles de la
-   intro compartan de verdad la misma paleta y se retoquen desde
-   un único sitio.
+   Referencia visual: los paneles de sistema de Horizon OS.
+   Tres reglas que se respetan en todo el archivo:
 
-   La paleta es la misma de los paneles existentes (MsgTutorialStart,
-   MsgNextLevel) para que la intro no desentone con el resto.
+   1. La jerarquía se hace con TAMAÑO y PESO, no con color.
+      Casi todo es neutro y el azul se reserva para lo pulsable.
+   2. Nada de bordes de acento, chips de icono ni barras
+      decorativas. Solo una hairline blanca muy tenue arriba,
+      que imita el reflejo de un panel físico.
+   3. Texto alineado a la izquierda y mucho aire. El centrado
+      y las cajas anidadas son justo lo que hace que una UI
+      parezca una landing web en vez de una aplicación.
    ============================================================ */
 
-/* ---------- Variables ---------- */
+/* NOTA SOBRE EL DEGRADADO
+   background-image NO acepta linear-gradient() en esta versión de Unity: solo
+   admite <resource> | <url> | none, y al rechazar el valor pinta su textura de
+   error estirada sobre el elemento (un triángulo amarillo gigante). El degradado
+   se hace con una textura: Shared/PanelSheen.png, estirada sobre el color de
+   fondo. Solo la usan los paneles: su brillo se concentra arriba y necesita
+   superficie alta para difuminarse, así que en el botón queda mal.
+
+   Lo que NO hay que tocar de esa textura: su importador lleva la compresión
+   desactivada en las tres plataformas. En Android (Quest) el ETC2/ASTC aproxima
+   el alpha por bloques y destroza las rampas sutiles: se vería bien en el editor
+   y a franjas en las gafas. Tampoco tiene mipmaps (una textura de UI estirada
+   solo se emborrona con ellos) y va en Clamp. */
+
 :root {
-    --c-panel-bg: rgba(10, 14, 22, 0.98);
-    --c-panel-border: rgba(113, 181, 255, 0.3);
+    --c-surface: rgb(20, 23, 28);
+    --c-hairline: rgba(255, 255, 255, 0.1);
+    --c-divider: rgb(38, 41, 48);
 
-    --c-accent: rgb(113, 181, 255);
-    --c-accent-soft: rgba(113, 181, 255, 0.2);
-    --c-accent-strong: rgba(113, 181, 255, 0.85);
-
-    --c-surface: rgba(255, 255, 255, 0.04);
-    --c-surface-border: rgba(255, 255, 255, 0.09);
-    --c-divider: rgba(255, 255, 255, 0.08);
-
-    --c-text-primary: rgba(255, 255, 255, 0.98);
-    --c-text-secondary: rgba(214, 232, 255, 0.72);
-    --c-text-muted: rgba(255, 255, 255, 0.66);
+    /* Grises sólidos, no blanco con alpha: sobre un fondo en degradado,
+       el alpha haría que el texto cambiara de tono de arriba a abajo. */
+    --c-text: rgb(255, 255, 255);
+    --c-text-secondary: rgb(161, 165, 173);
+    --c-text-tertiary: rgb(110, 114, 122);
 }
 
-/* ---------- Panel base ---------- */
-.intro-panel {
-    background-color: var(--c-panel-bg);
-    border-radius: 22px;
-    border-width: 1px;
-    border-color: var(--c-panel-border);
-    padding: 28px 32px 24px 32px;
-    align-items: center;
-}
-
-.intro-panel--narrow { width: 560px; }
-.intro-panel--wide { width: 800px; }
-
-/* ---------- Círculo del icono ---------- */
-.intro-icon {
-    width: 64px;
-    height: 64px;
+/* ---------- Panel ---------- */
+.panel {
+    width: 620px;
+    padding: 40px 44px 44px 44px;
     border-radius: 32px;
-    background-color: var(--c-accent-soft);
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 12px;
+    align-items: flex-start;
+
+    background-color: var(--c-surface);
+    background-image: url("project://database/Assets/Hojas/UI/Shared/PanelSheen.png");
+    -unity-background-scale-mode: stretch-to-fill;
+
+    /* Único borde del diseño: el reflejo del canto superior. */
+    border-top-width: 1px;
+    border-top-color: var(--c-hairline);
 }
 
-.intro-icon__glyph {
-    font-size: 30px;
-    color: var(--c-accent);
+/* ---------- Tipografía ---------- */
+.title {
+    font-size: 34px;
+    color: var(--c-text);
     -unity-font-style: bold;
-    -unity-text-align: middle-center;
-}
-
-/* ---------- Textos ---------- */
-.intro-title {
-    font-size: 30px;
-    color: var(--c-text-primary);
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
     white-space: normal;
-    margin-bottom: 8px;
 }
 
-.intro-subtitle {
-    font-size: 15px;
+.body {
+    font-size: 17px;
     color: var(--c-text-secondary);
-    -unity-text-align: middle-center;
     white-space: normal;
-    max-width: 460px;
-    margin-bottom: 4px;
+    margin-top: 14px;
 }
 
-/* Barra decorativa que cierra el panel. */
-.intro-rule {
-    width: 48px;
-    height: 3px;
-    background-color: var(--c-accent-strong);
-    border-radius: 2px;
-    margin-top: 18px;
+/* ---------- Lista simple (panel "qué vas a encontrar") ----------
+   Filas separadas por una línea, sin cajas ni viñetas. */
+.list {
+    width: 100%;
+    margin-top: 26px;
 }
 
-/* ---------- Lista de viñetas (panel "qué vas a encontrar") ---------- */
-.intro-list {
-    width: 480px;
-    margin-top: 6px;
+.list__row {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top-width: 1px;
+    border-top-color: var(--c-divider);
 }
 
-.intro-row {
+/* USS no tiene :first-child, así que la primera fila se marca a mano. */
+.list__row--first {
+    border-top-width: 0;
+    padding-top: 0;
+}
+
+.list__text {
+    font-size: 17px;
+    color: var(--c-text-secondary);
+    white-space: normal;
+}
+
+/* ---------- Pasos numerados ----------
+   Lista vertical con el número como prefijo tenue. Sustituye a la
+   rejilla de tres tarjetas, que es el patrón más reconocible de
+   "sección de features" de una web. */
+.steps {
+    width: 100%;
+    margin-top: 26px;
+}
+
+.step {
     flex-direction: row;
-    align-items: center;
-    background-color: var(--c-surface);
-    border-radius: 12px;
-    border-width: 1px;
-    border-color: var(--c-surface-border);
-    padding: 10px 14px;
-    margin-bottom: 8px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    border-top-width: 1px;
+    border-top-color: var(--c-divider);
 }
 
-.intro-row__bullet {
-    font-size: 10px;
-    color: var(--c-accent);
-    margin-right: 12px;
+.step--first {
+    border-top-width: 0;
+    padding-top: 0;
 }
 
-.intro-row__text {
-    font-size: 14px;
-    color: var(--c-text-muted);
-    white-space: normal;
+.step__index {
+    width: 40px;
+    flex-shrink: 0;
+    font-size: 17px;
+    color: var(--c-text-tertiary);
+    -unity-font-style: bold;
+}
+
+.step__body {
     flex-grow: 1;
 }
 
-/* ---------- Tarjetas de los tres pasos ---------- */
-.intro-steps-row {
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 8px;
-}
-
-.intro-step {
-    width: 224px;
-    background-color: var(--c-surface);
-    border-radius: 14px;
-    border-width: 1px;
-    border-color: var(--c-surface-border);
-    padding: 16px 14px 18px 14px;
-    margin-left: 6px;
-    margin-right: 6px;
-    align-items: center;
-}
-
-.intro-step__number {
-    width: 34px;
-    height: 34px;
-    border-radius: 17px;
-    background-color: var(--c-accent-soft);
-    color: var(--c-accent);
-    font-size: 17px;
+.step__name {
+    font-size: 19px;
+    color: var(--c-text);
     -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    margin-bottom: 10px;
 }
 
-.intro-step__title {
-    font-size: 17px;
-    color: var(--c-text-primary);
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-}
-
-.intro-step__detail {
-    font-size: 13px;
-    color: var(--c-text-muted);
-    -unity-text-align: middle-center;
+.step__detail {
+    font-size: 16px;
+    color: var(--c-text-secondary);
     white-space: normal;
+    margin-top: 5px;
 }
 
-/* ---------- Botón "estoy listo" ---------- */
-.intro-ready-button {
-    flex-grow: 1;
+/* ---------- Botón ----------
+   Píldora de relleno sólido. El azul solo aparece aquí: es la única
+   cosa pulsable de toda la introducción. */
+.button {
+    width: 420px;
+    height: 96px;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: rgb(52, 87, 132);
-    border-width: 10px;
-    border-color: rgb(90, 119, 125);
-    border-radius: 50px;
+    border-radius: 48px;
+
+    /* Relleno plano, sin la textura de brillo de los paneles: su degradado está
+       pensado para superficies altas y en una píldora de ~96px se comprime en una
+       línea con corte seco. Los botones de Horizon OS son planos de todos modos. */
+    background-color: rgb(0, 100, 224);
+
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.16);
 }
 
-.intro-ready-button__icon {
+.button__icon {
+    width: 46px;
+    height: 46px;
+    margin-right: 16px;
     -unity-background-scale-mode: scale-to-fit;
-    width: 191px;
-    height: 246px;
-    margin-right: 20px;
 }
 
-.intro-ready-button__label {
-    font-size: 35px;
+.button__label {
+    font-size: 27px;
     color: rgb(255, 255, 255);
     -unity-font-style: bold;
-    padding-top: 15px;
 }

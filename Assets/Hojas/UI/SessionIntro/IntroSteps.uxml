@@ -1,28 +1,32 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Hojas/UI/SessionIntro/SessionIntro.uss"/>
-    <ui:VisualElement name="intro-steps" class="intro-panel intro-panel--wide">
-        <ui:Label text="Tu trabajo, en 3 pasos" class="intro-title"/>
+    <ui:VisualElement name="intro-steps" class="panel">
+        <ui:Label text="Tu trabajo, en tres pasos" class="title"/>
 
-        <ui:VisualElement class="intro-steps-row">
-            <ui:VisualElement class="intro-step">
-                <ui:Label text="1" class="intro-step__number"/>
-                <ui:Label text="OBSERVA" class="intro-step__title"/>
-                <ui:Label text="Toma una hoja con tu mano y mírala de cerca." class="intro-step__detail"/>
+        <ui:VisualElement class="steps">
+            <ui:VisualElement class="step step--first">
+                <ui:Label text="1" class="step__index"/>
+                <ui:VisualElement class="step__body">
+                    <ui:Label text="Observa" class="step__name"/>
+                    <ui:Label text="Toma una hoja con tu mano y mírala de cerca." class="step__detail"/>
+                </ui:VisualElement>
             </ui:VisualElement>
 
-            <ui:VisualElement class="intro-step">
-                <ui:Label text="2" class="intro-step__number"/>
-                <ui:Label text="IDENTIFICA" class="intro-step__title"/>
-                <ui:Label text="Elige la enfermedad y qué tan grave es, del 1 al 5." class="intro-step__detail"/>
+            <ui:VisualElement class="step">
+                <ui:Label text="2" class="step__index"/>
+                <ui:VisualElement class="step__body">
+                    <ui:Label text="Identifica" class="step__name"/>
+                    <ui:Label text="Elige la enfermedad y qué tan grave es, del 1 al 5." class="step__detail"/>
+                </ui:VisualElement>
             </ui:VisualElement>
 
-            <ui:VisualElement class="intro-step">
-                <ui:Label text="3" class="intro-step__number"/>
-                <ui:Label text="APRENDE" class="intro-step__title"/>
-                <ui:Label text="Descubre cómo se llama, cómo se ve y cómo se combate." class="intro-step__detail"/>
+            <ui:VisualElement class="step">
+                <ui:Label text="3" class="step__index"/>
+                <ui:VisualElement class="step__body">
+                    <ui:Label text="Aprende" class="step__name"/>
+                    <ui:Label text="Descubre cómo se llama, cómo se ve y cómo se combate." class="step__detail"/>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <ui:VisualElement class="intro-rule"/>
     </ui:VisualElement>
 </ui:UXML>
