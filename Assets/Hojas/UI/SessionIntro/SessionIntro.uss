@@ -56,6 +56,64 @@
     border-top-color: var(--c-hairline);
 }
 
+/* ---------- Progreso (dots) ----------
+   Posición estática por panel: cada UXML marca su propio punto activo, así que
+   no hay ni código ni estado que mantener. Aparecen con el contenedor, sin
+   animación propia: la cascada de contenido ya marca el ritmo. */
+.dots {
+    flex-direction: row;
+    margin-bottom: 26px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--c-divider);
+    margin-right: 8px;
+}
+
+.dot--active {
+    background-color: var(--c-text);
+}
+
+/* ---------- Bloque texto + imagen ----------
+   Fila con el texto a la izquierda y una imagen ancla a la derecha. La imagen
+   rompe el muro de texto y le da a cada panel algo que mirar mientras entra. */
+.hero {
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.hero__text {
+    flex-grow: 1;
+}
+
+.hero__image {
+    width: 176px;
+    height: 176px;
+    flex-shrink: 0;
+    margin-left: 28px;
+    border-radius: 24px;
+    -unity-background-scale-mode: scale-and-crop;
+
+    /* Mismo reflejo del canto superior que los paneles. */
+    border-top-width: 1px;
+    border-top-color: var(--c-hairline);
+}
+
+/* Variante vertical (3:4) para las fotos de enfermedad, que son retrato. */
+.hero__image--portrait {
+    width: 156px;
+    height: 208px;
+}
+
+/* ---------- Clase 'reveal' ----------
+   No define estilos: SessionIntroController la busca al mostrar un panel y
+   encadena la entrada de cada elemento (fade + deslizamiento vertical) en el
+   orden en que aparecen aquí. */
+
 /* ---------- Tipografía ---------- */
 .title {
     font-size: 34px;

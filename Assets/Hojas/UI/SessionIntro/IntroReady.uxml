@@ -1,7 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Hojas/UI/SessionIntro/SessionIntro.uss"/>
     <ui:VisualElement name="intro-ready" class="panel">
-        <ui:Label text="¿Todo listo?" class="title"/>
-        <ui:Label text="Vamos a elegir dónde montar tu laboratorio." class="body"/>
+        <ui:VisualElement class="dots">
+            <ui:VisualElement class="dot"/>
+            <ui:VisualElement class="dot"/>
+            <ui:VisualElement class="dot"/>
+            <ui:VisualElement class="dot dot--active"/>
+        </ui:VisualElement>
+
+        <ui:Label text="¿Todo listo?" class="title reveal"/>
+        <ui:Label text="Vamos a elegir dónde montar tu laboratorio." class="body reveal"/>
     </ui:VisualElement>
 </ui:UXML>

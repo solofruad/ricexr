@@ -67,6 +67,16 @@ public class SessionIntroController : MonoBehaviour
     [Tooltip("Segundos máximos esperando el botón final. 0 = esperar indefinidamente.")]
     [SerializeField] private float readyTimeout = 0f;
 
+    [Header("Revelado escalonado")]
+    [Tooltip("Segundos entre el inicio de un elemento 'reveal' y el siguiente.")]
+    [SerializeField] private float revealStagger = 0.22f;
+    [Tooltip("Duración de la entrada de cada elemento 'reveal' (fade + deslizamiento).")]
+    [SerializeField] private float revealDuration = 0.45f;
+    [Tooltip("Desplazamiento vertical inicial en píxeles de cada elemento 'reveal'.")]
+    [SerializeField] private float revealOffsetY = 24f;
+    [Tooltip("Fade rápido del contenedor: el peso visual lo lleva la cascada de contenido.")]
+    [SerializeField] private float containerFadeDuration = 0.15f;
+
     [Header("Posicionamiento")]
     [Tooltip("Altura sobre el plano seleccionado, cuando ya hay uno de una sesión anterior.")]
     [SerializeField] private float surfaceHeightOffset = 0.3f;
@@ -76,6 +86,7 @@ public class SessionIntroController : MonoBehaviour
 
     private readonly List<VisualElement> _stepRoots = new List<VisualElement>();
     private VisualElement _readyButtonRoot;
+    private readonly List<Tween> _revealTweens = new List<Tween>();
 
     private bool _sequenceRunning;
     private bool _completionTriggered;
@@ -192,13 +203,18 @@ public class SessionIntroController : MonoBehaviour
             }
 
             SetVisible(root, step.document);
+            PrepareReveals(root);
 
             // UI Toolkit necesita un frame para resolver el layout antes de animar.
             yield return null;
 
             GameEventBus.PublishSessionIntroPanelShown(step.narrationLineId);
 
-            yield return FadePanel(root, 0f, 1f, fadeInDuration, Ease.OutCubic);
+            // El contenedor entra rápido; la cascada de contenido arranca a la vez
+            // y es la que marca el ritmo del panel.
+            _panelFadeTween?.Kill();
+            _panelFadeTween = BuildFadeTween(root, 0f, 1f, containerFadeDuration, Ease.OutCubic);
+            yield return RunStaggeredReveal(root);
 
             if (step.waitForPlayer)
                 yield return WaitForPlayer(step.duration);
@@ -411,6 +427,73 @@ public class SessionIntroController : MonoBehaviour
         SetHidden(_readyButtonRoot);
     }
 
+    /// <summary>
+    /// Deja cada elemento con clase 'reveal' en su estado inicial: invisible y
+    /// desplazado hacia abajo. La cascada los va trayendo a su sitio.
+    /// </summary>
+    private void PrepareReveals(VisualElement root)
+    {
+        if (root == null) return;
+
+        root.Query(className: "reveal").ForEach(element =>
+        {
+            element.style.opacity = 0f;
+            element.style.translate = new Translate(0, revealOffsetY, 0);
+        });
+    }
+
+    /// <summary>
+    /// Encadena la entrada de todos los elementos 'reveal' del panel, en el orden en
+    /// que aparecen en el UXML. Cada uno entra con fade + deslizamiento vertical y el
+    /// siguiente arranca 'revealStagger' segundos después, solapándose.
+    /// </summary>
+    private IEnumerator RunStaggeredReveal(VisualElement root)
+    {
+        if (root == null) yield break;
+
+        List<VisualElement> elements = root.Query(className: "reveal").ToList();
+        if (elements.Count == 0) yield break;
+
+        _revealTweens.Clear();
+        Tween last = null;
+
+        for (int i = 0; i < elements.Count; i++)
+        {
+            Tween tween = BuildRevealTween(elements[i], i * revealStagger);
+            _revealTweens.Add(tween);
+            last = tween;
+        }
+
+        // Misma guarda que WaitForTween: un Kill no dispara OnComplete y la
+        // corrutina se quedaría esperando para siempre.
+        while (last != null && last.IsActive() && !last.IsComplete())
+            yield return null;
+    }
+
+    /// <summary>
+    /// Un 'reveal' es un tween de progreso 0→1 que se vuelca en la opacidad y en el
+    /// desplazamiento vertical del elemento. Mismo patrón que BuildFadeTween: no hay
+    /// CanvasGroup en UI Toolkit, así que se anima una variable y se escribe el estilo.
+    /// </summary>
+    private Tween BuildRevealTween(VisualElement element, float delay)
+    {
+        float progress = 0f;
+
+        return DOTween.To(
+                () => progress,
+                value =>
+                {
+                    progress = value;
+                    element.style.opacity = value;
+                    element.style.translate = new Translate(0, (1f - value) * revealOffsetY, 0);
+                },
+                1f, revealDuration)
+            .SetUpdate(true)
+            .SetEase(Ease.OutCubic)
+            .SetDelay(delay)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+    }
+
     private IEnumerator FadePanel(VisualElement element, float from, float to, float duration, Ease ease)
     {
         _panelFadeTween?.Kill();
@@ -460,6 +543,11 @@ public class SessionIntroController : MonoBehaviour
     {
         _panelFadeTween?.Kill();
         _buttonFadeTween?.Kill();
+
+        foreach (Tween tween in _revealTweens)
+            tween?.Kill();
+        _revealTweens.Clear();
+
         _panelFadeTween = null;
         _buttonFadeTween = null;
     }

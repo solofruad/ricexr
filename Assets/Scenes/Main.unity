@@ -2485,6 +2485,10 @@ MonoBehaviour:
   fadeInDuration: 0.35
   fadeOutDuration: 0.25
   readyTimeout: 0
+  revealStagger: 0.22
+  revealDuration: 0.45
+  revealOffsetY: 24
+  containerFadeDuration: 0.15
   surfaceHeightOffset: 0.3
   distanceFromCamera: 1
 --- !u!114 &428290060
@@ -3403,6 +3407,36 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 16275535045689557, guid: cfbc95b1f69c4134da6041be31de97ea,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 16275535045689557, guid: cfbc95b1f69c4134da6041be31de97ea,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 16275535045689557, guid: cfbc95b1f69c4134da6041be31de97ea,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 16275535045689557, guid: cfbc95b1f69c4134da6041be31de97ea,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 16275535045689557, guid: cfbc95b1f69c4134da6041be31de97ea,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 16275535045689557, guid: cfbc95b1f69c4134da6041be31de97ea,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1109084551448970110, guid: cfbc95b1f69c4134da6041be31de97ea,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -3546,6 +3580,11 @@ PrefabInstance:
     - target: {fileID: 2874291229054759291, guid: cfbc95b1f69c4134da6041be31de97ea,
         type: 3}
       propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2874291229054759291, guid: cfbc95b1f69c4134da6041be31de97ea,
+        type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2874291229054759291, guid: cfbc95b1f69c4134da6041be31de97ea,
@@ -6859,7 +6898,7 @@ MonoBehaviour:
     type: 3}
   m_SortingOrder: 0
   m_Position: 1
-  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceSizeMode: 0
   m_WorldSpaceWidth: 760
   m_WorldSpaceHeight: 853.1
   m_PivotReferenceSize: 0
