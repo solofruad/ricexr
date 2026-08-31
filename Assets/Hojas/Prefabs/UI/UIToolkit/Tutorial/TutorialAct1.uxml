@@ -1,8 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
-    <ui:VisualElement name="tutorial-act-1" class="quest-surface quest-surface--compact quest-tutorial-act">
-        <ui:VisualElement class="quest-tutorial-act__image" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandHolding.png?fileID=2800000&amp;guid=be9fead753be7fc459d158eafb41a98c&amp;type=3#HandHolding&quot;); -unity-background-scale-mode: scale-and-crop; background-size: 118% auto;"/>
-        <ui:Label text="Agarra una hoja con la mano" class="quest-tutorial-act__title"/>
-        <ui:Label text="Extiende la mano y cierra el puno sobre una hoja para iniciar la inspeccion." class="quest-tutorial-act__body"/>
-    </ui:VisualElement>
-</ui:UXML>

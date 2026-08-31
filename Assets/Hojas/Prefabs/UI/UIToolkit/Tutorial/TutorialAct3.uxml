@@ -1,8 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
-    <ui:VisualElement name="tutorial-act-3" class="quest-surface quest-surface--compact quest-tutorial-act">
-        <ui:VisualElement class="quest-tutorial-act__image" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Menu.svg?fileID=7388822144124034973&amp;guid=a372fb3b2c251f0408f4c6648d2fdea8&amp;type=3#Menu&quot;); -unity-background-scale-mode: scale-to-fit; background-repeat: no-repeat no-repeat; background-position-x: center; background-position-y: center;"/>
-        <ui:Label text="Registra tu diagnostico" class="quest-tutorial-act__title"/>
-        <ui:Label text="Selecciona enfermedad y severidad en el menu lateral y confirma tu decision." class="quest-tutorial-act__body"/>
-    </ui:VisualElement>
-</ui:UXML>
