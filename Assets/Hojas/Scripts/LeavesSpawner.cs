@@ -5,26 +5,28 @@ using DG.Tweening;
 
 /// <summary>
 /// Clase que gestiona la generacion y animacion de hojas en un area definida.
-/// 
+///
 /// Funcionalidades principales:
 /// 1. Genera multiples instancias de prefabs de hojas dentro de un area rectangular personalizable
-/// 2. Implementa un sistema de spawn progresivo con animaciones de crecimiento 
+/// 2. Implementa un sistema de spawn progresivo con animaciones de crecimiento
 /// 3. Aplica variaciones aleatorias en posicion, rotacion, escala y tiempos de animacion
 /// 4. Proporciona controles de optimizacion mediante el uso de un contenedor padre organizado
 /// 5. Incluye capacidad de respawn y regeneracion de toda la vegetacion
-/// 
+///
 /// Flujo de trabajo:
+/// - SceneInteractionManager llama a ConfigureArea() con el tamano del plano y luego a Activate()
 /// - Al activarse, genera posiciones aleatorias dentro del area de spawn definida por SpawnAreaSize
 /// - Crea instancias de los prefabs de vegetacion pero las inicializa con escala cero (invisibles)
 /// - Programa un sistema de delay escalonado para el inicio de las animaciones
 /// - Ejecuta animaciones de crecimiento suaves usando DOTween con AnimationCurve como ease
 /// - Mantiene una lista interna de todas las instancias para permitir su gestion centralizada
-/// 
+///
 /// Notas importantes:
 /// - El area de spawn se rota segun la rotacion del GameObject padre
 /// - Las animaciones usan variaciones aleatorias para evitar patrones repetitivos
 /// - El sistema es eficiente al crear todas las instancias al inicio y luego solo animarlas
-/// - Incluye visualizacion del area de spawn en el editor mediante Gizmos
+/// - Con isGrassAbleToShowMarker en false las hojas nacen sin marcadores, para que el
+///   tutorial guiado los revele cuando corresponda (ver TutorialPanelController)
 /// </summary>
 public class LeavesSpawner : MonoBehaviour
 {
@@ -53,8 +55,38 @@ public class LeavesSpawner : MonoBehaviour
     [SerializeField] public Transform grassParent;
 
     private List<Transform> activeGrass = new List<Transform>();
+    private Coroutine initializationRoutine;
+    private bool activationRequested;
 
     private void Start()
+    {
+        // El manager configura el area y llama a Activate() justo despues del
+        // Instantiate, es decir antes de que corra este Start. Sin estas guardas
+        // el spawner se activaria dos veces y generaria el doble de hojas.
+        if (!activationRequested && SpawnAreaSize.sqrMagnitude > 0.0001f)
+            Activate();
+    }
+
+    /// <summary>
+    /// Permite al SceneInteractionManager aplicar el tamano del plano antes del spawn.
+    /// La misma llamada sirve despues para un ancla virtual.
+    /// </summary>
+    public void ConfigureArea(Vector2 areaSize, Transform parent)
+    {
+        SpawnAreaSize = areaSize;
+        grassParent = parent;
+    }
+
+    public void Activate()
+    {
+        if (initializationRoutine != null)
+            StopCoroutine(initializationRoutine);
+
+        activationRequested = true;
+        initializationRoutine = StartCoroutine(InitializeGrass());
+    }
+
+    private IEnumerator InitializeGrass()
     {
         if (grassParent == null)
         {
@@ -62,16 +94,7 @@ public class LeavesSpawner : MonoBehaviour
             grassParent = parent.transform;
             grassParent.SetParent(transform);
         }
-        Activate();
-    }
 
-    public void Activate()
-    {
-        StartCoroutine(InitializeGrass());
-    }
-
-    private IEnumerator InitializeGrass()
-    {
         List<Vector3> spawnPositions = GenerateSpawnPositions();
 
         int spawnCount = spawnPositions.Count;
@@ -86,8 +109,17 @@ public class LeavesSpawner : MonoBehaviour
             GameObject prefab = grassPrefabs[Random.Range(0, grassPrefabs.Length)];
             GameObject grass = Instantiate(prefab, spawnPositions[i], Quaternion.identity, grassParent);
 
-            var leaf = grass.GetComponentInChildren<Leaf>();
-            if (leaf != null) leaf.ableToShowMarkers = isGrassAbleToShowMarker;
+            // El true incluye hijos desactivados: algunos prefabs de hoja arrancan apagados.
+            var leaf = grass.GetComponentInChildren<Leaf>(true);
+            if (leaf != null)
+            {
+                leaf.ableToShowMarkers = isGrassAbleToShowMarker;
+
+                // Los markers del prefab pueden venir activos: apagarlos aqui evita
+                // el frame visible que habria antes de que corra Leaf.Start().
+                if (!isGrassAbleToShowMarker)
+                    leaf.HideMarkersImmediate();
+            }
 
             float randomYRotation = Random.Range(-rotationVariation, rotationVariation);
             float parentYRotation = transform.eulerAngles.y;
@@ -112,6 +144,7 @@ public class LeavesSpawner : MonoBehaviour
         }
 
         yield return null;
+        initializationRoutine = null;
     }
 
     private IEnumerator SpawnGrassRoutine(Transform grassTransform, Vector3 finalScale, float duration, float delay)
@@ -122,8 +155,7 @@ public class LeavesSpawner : MonoBehaviour
             grassTransform
                 .DOScale(finalScale, duration)
                 .SetEase(growCurve)
-                .SetLink(grassTransform.gameObject, LinkBehaviour.KillOnDestroy)
-                .OnComplete(() => Debug.Log("Hoja creció completamente."));
+                .SetLink(grassTransform.gameObject, LinkBehaviour.KillOnDestroy);
         }
     }
 
@@ -138,7 +170,7 @@ public class LeavesSpawner : MonoBehaviour
         {
             attempts++;
 
-            // Se calcula el �rea efectiva restando el margen a cada lado
+            // Se calcula el area efectiva restando el margen a cada lado
             float effectiveWidthX = Mathf.Max(0, SpawnAreaSize.x - (safeMargin * 2));
             float effectiveWidthZ = Mathf.Max(0, SpawnAreaSize.y - (safeMargin * 2));
 
@@ -157,6 +189,8 @@ public class LeavesSpawner : MonoBehaviour
     public void RespawnGrass()
     {
         StopAllCoroutines();
+        initializationRoutine = null;
+
         foreach (var t in activeGrass)
         {
             if (t != null)
@@ -167,12 +201,13 @@ public class LeavesSpawner : MonoBehaviour
         }
 
         activeGrass.Clear();
-        StartCoroutine(InitializeGrass());
+        Activate();
     }
 
     private void OnDisable()
     {
         StopAllCoroutines();
+        initializationRoutine = null;
     }
 
     private void OnDestroy()

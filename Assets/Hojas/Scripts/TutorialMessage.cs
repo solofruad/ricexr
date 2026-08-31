@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 /// <summary>
 /// Un mensaje de guia del tutorial. Se muestran de a uno, frente al jugador,

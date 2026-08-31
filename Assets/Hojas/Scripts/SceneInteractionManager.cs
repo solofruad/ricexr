@@ -156,32 +156,22 @@ public class SceneInteractionManager : MonoBehaviour
 
         DiseaseSelectionSystem.Instance?.Hide();
 
-        TutorialLeavesSpawner tutorialSpawner = currentLevelInstance.GetComponent<TutorialLeavesSpawner>();
-        if (tutorialSpawner != null)
+        LeavesSpawner leafSpawner = currentLevelInstance.GetComponent<LeavesSpawner>();
+        if (leafSpawner == null)
         {
-            tutorialSpawner.ConfigureArea(new Vector2(targetScale.x, ResolveDepth(targetScale)), currentLevelInstance.transform);
-            tutorialSpawner.Activate();
+            Debug.LogWarning($"{prefabToSpawn.name} no tiene LeavesSpawner");
+            return;
         }
-        else
-        {
-            LeavesSpawner leafSpawner = currentLevelInstance.GetComponent<LeavesSpawner>();
-            if (leafSpawner == null)
-            {
-                Debug.LogWarning($"{prefabToSpawn.name} no tiene LeavesSpawner ni TutorialLeavesSpawner");
-                return;
-            }
 
-            leafSpawner.SpawnAreaSize = new Vector2(targetScale.x, ResolveDepth(targetScale));
+        // FIX: hojas hijas del nivel actual -> se destruyen con el
+        // contenedor cuando el nivel termina.
+        Vector2 spawnArea = new Vector2(targetScale.x, ResolveDepth(targetScale));
+        leafSpawner.ConfigureArea(spawnArea, currentLevelInstance.transform);
 
-            // FIX: hojas hijas del nivel actual -> se destruyen con el
-            // contenedor cuando el nivel termina.
-            leafSpawner.grassParent = currentLevelInstance.transform;
+        if (leafSpawner.grassCount == -1)
+            leafSpawner.grassCount = Mathf.Max((int)(spawnArea.x * spawnArea.y * 0.7f), 20);
 
-            if (leafSpawner.grassCount == -1)
-                leafSpawner.grassCount = Mathf.Max((int)(targetScale.x * ResolveDepth(targetScale) * 0.7f), 20);
-
-            leafSpawner.Activate();
-        }
+        leafSpawner.Activate();
     }
 
     /// <summary>
