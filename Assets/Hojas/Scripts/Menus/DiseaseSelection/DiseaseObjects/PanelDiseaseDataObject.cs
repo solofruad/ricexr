@@ -14,6 +14,11 @@ public class PanelDiseaseData
     public string      description;
     public Texture2D   severityEvolutionImage;
     public Texture2D[] images;
+
+    [Tooltip("Textos de los 3 paneles que se muestran antes del nivel: portada, la " +
+             "enfermedad y el daño. Si se deja vacio, el nivel muestra directamente " +
+             "la ficha de consulta.")]
+    public DiseaseIntroContent intro;
 }
 
 /// <summary>

@@ -14,22 +14,17 @@
         </ui:VisualElement>
         <ui:VisualElement name="content-side" class="quest-disease-content">
             <ui:VisualElement name="header-block">
-                <ui:Label name="scientific-name" text="Tizón Tardío" class="quest-disease-name"/>
-                <ui:Label name="disease-title" text="Phytophthora infestans" class="quest-disease-scientific"/>
+                <!-- disease-title lleva el nombre comun (grande) y scientific-name el
+                     binomial (pequeño, italica). Estaban cruzados: el codigo asigna
+                     data.title a disease-title y data.scientificName a scientific-name,
+                     asi que salia el binomial en grande y el nombre comun en italica. -->
+                <ui:Label name="disease-title" text="Añublo del arroz" class="quest-disease-name"/>
+                <ui:Label name="scientific-name" text="Pyricularia oryzae" class="quest-disease-scientific"/>
             </ui:VisualElement>
             <ui:VisualElement class="quest-divider" style="margin-top: 5px; margin-bottom: 5px;"/>
             <ui:VisualElement class="quest-disease-main">
                 <ui:Label name="disease-description" text="Causada por un oomycete, se propaga en condiciones de alta humedad y temperaturas frescas. Las lesiones aparecen como manchas acuosas que se tornan marrones con borde amarillento. Puede destruir un cultivo completo en pocos días sin tratamiento." class="quest-disease-description"/>
                 <ui:Image name="severity-evolution" class="quest-disease-severity-image" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Pyri/Severity_evolution_pyri.png?fileID=2800000&amp;guid=5afa17f81399a034196015e9fb73ff77&amp;type=3#Severity_evolution_pyri&quot;); background-position-x: left 0;"/>
-            </ui:VisualElement>
-            <ui:VisualElement name="progress-section" class="quest-disease-progress">
-                <ui:VisualElement class="quest-disease-progress__labels">
-                    <ui:Label name="progress-label" text="Analizando muestra..." class="quest-progress-label"/>
-                    <ui:Label name="progress-percent" text="0%" class="quest-progress-percent"/>
-                </ui:VisualElement>
-                <ui:VisualElement name="progress-track" class="quest-progress-track">
-                    <ui:VisualElement name="progress-fill" class="quest-progress-fill" style="width: 0%;"/>
-                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

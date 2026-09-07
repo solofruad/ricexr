@@ -28,3 +28,28 @@ MonoBehaviour:
     - {fileID: 2800000, guid: 644d790b01ad40c43ae155c47b8dcfa4, type: 3}
     - {fileID: 2800000, guid: 46e954fd2c96c2e4eb72fa5ba8b36719, type: 3}
     - {fileID: 2800000, guid: a664a83dd1fda6b43b77e2e21b530ca6, type: 3}
+    intro:
+      coverTagline: "Manchas en forma de ojo que pueden avanzar hasta el cuello de la espiga."
+      coverImage: {fileID: 0}
+      coverNarrationLineId:
+      infoHeadline: "Reconoce el a\xF1ublo del arroz"
+      infoBody: "Es una enfermedad causada por el hongo Pyricularia oryzae. Las lesiones aparecen en las hojas y, si avanzan al cuello, pueden impedir el llenado del grano."
+      infoRows:
+      - title: "Causa"
+        detail: "El hongo Pyricularia oryzae."
+      - title: "Propagaci\xF3n"
+        detail: "Las esporas viajan con el viento, la lluvia y el roc\xEDo."
+      - title: "Qu\xE9 observar"
+        detail: "Manchas alargadas o en diamante, con centro gris y borde marr\xF3n."
+      infoImage: {fileID: 0}
+      infoNarrationLineId:
+      severityHeadline: "Mide cu\xE1nto da\xF1o hay"
+      severityBody: "La severidad va de 1 a 5. Compara el tama\xF1o y la cantidad de manchas antes de elegir."
+      severityRows:
+      - title: "Niveles 1 y 2"
+        detail: "Pocas lesiones y una peque\xF1a parte de la hoja afectada."
+      - title: "Nivel 3"
+        detail: "Hay varias lesiones y el da\xF1o ocupa una zona visible de la hoja."
+      - title: "Niveles 4 y 5"
+        detail: "La mayor parte de la hoja est\xE1 afectada o el tejido empieza a morir."
+      severityNarrationLineId:

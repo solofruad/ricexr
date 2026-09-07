@@ -22,6 +22,16 @@ public static class GameNarrationLineIds
     public const string TutorialFreePractice = "TUTORIAL_FREE_PRACTICE";
     public const string TutorialDone = "TUTORIAL_DONE";
 
+    // Los 3 paneles que presentan la enfermedad antes de que crezcan las hojas.
+    // Se escriben en el asset de cada enfermedad (PanelDiseaseDataObject), no en
+    // codigo: la presentacion solo publica el id que trae el asset.
+    public const string DiseaseIntroPyriculariaCover = "DISEASE_INTRO_PYRICULARIA_COVER";
+    public const string DiseaseIntroPyriculariaInfo = "DISEASE_INTRO_PYRICULARIA_INFO";
+    public const string DiseaseIntroPyriculariaSeverity = "DISEASE_INTRO_PYRICULARIA_SEVERITY";
+    public const string DiseaseIntroRynchosporiumCover = "DISEASE_INTRO_RYNCHOSPORIUM_COVER";
+    public const string DiseaseIntroRynchosporiumInfo = "DISEASE_INTRO_RYNCHOSPORIUM_INFO";
+    public const string DiseaseIntroRynchosporiumSeverity = "DISEASE_INTRO_RYNCHOSPORIUM_SEVERITY";
+
     public const string Level2Intro = "LEVEL2_INTRO";
     public const string Level2Explain = "LEVEL2_EXPLAIN";
     public const string Level3Intro = "LEVEL3_INTRO";

@@ -1,0 +1,52 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <!-- ============================================================
+         Panel 1 de 3 — PORTADA
+
+         Que enfermedad toca en este nivel. Es la caratula: nombre
+         grande, nombre cientifico debajo, categoria en una pastilla y
+         una foto que le quede grabada al jugador antes de entrar en
+         detalle. Todavia no hay nada que estudiar.
+
+         Lo llena DiseaseIntroStepPanel:
+           disease-intro-category   ← PanelDiseaseData.category
+           message-title            ← PanelDiseaseData.title
+           disease-intro-scientific ← PanelDiseaseData.scientificName
+           message-body             ← DiseaseIntroContent.coverTagline
+           disease-intro-image      ← coverImage, o la 1a del carrusel
+
+         El orden de los elementos con clase 'reveal' es el orden en
+         que entran.
+         ============================================================ -->
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss" />
+    <Style src="project://database/Assets/Hojas/UI/DiseaseIntro/DiseaseIntro.uss" />
+
+    <ui:VisualElement name="message-panel" class="disease-intro">
+
+        <ui:VisualElement class="disease-intro__dots">
+            <ui:VisualElement class="disease-intro__dot disease-intro__dot--active" />
+            <ui:VisualElement class="disease-intro__dot" />
+            <ui:VisualElement class="disease-intro__dot" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="disease-intro__split">
+
+            <ui:VisualElement class="disease-intro__col">
+                <ui:Label name="disease-intro-category" text="Enfermedad fúngica"
+                          class="disease-intro__eyebrow reveal" />
+                <ui:Label name="message-title" text="Añublo del arroz"
+                          class="disease-intro__title reveal" />
+                <ui:Label name="disease-intro-scientific" text="Pyricularia oryzae"
+                          class="disease-intro__scientific reveal" />
+                <ui:VisualElement class="disease-intro__rule reveal" />
+                <ui:Label name="message-body"
+                          text="La enfermedad más destructiva del arroz en el mundo. Vas a aprender a reconocerla."
+                          class="disease-intro__body reveal" />
+            </ui:VisualElement>
+
+            <ui:Image name="disease-intro-image" scale-mode="ScaleAndCrop"
+                      class="disease-intro__hero reveal" />
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

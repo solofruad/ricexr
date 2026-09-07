@@ -1,0 +1,244 @@
+/* ============================================================
+   DiseaseIntro.uss — los tres paneles que presentan la enfermedad.
+
+   Portada → la enfermedad → el daño. Un panel a la vez, frente al
+   jugador, avanzando con el boton "Continuar".
+
+   Mismo lenguaje visual que SessionIntro.uss y TutorialMessage.uss
+   (paleta oscura, textura de panel, linea fina superior, jerarquia
+   por tamano y peso, texto a la izquierda), pero a la escala de un
+   panel que SI se lee con calma: hay imagen, lista y escala.
+
+   IMPORTANTE — colores y medidas:
+   Esta hoja NO declara variables propias. Usa las --quest-* de
+   UI/Shared/RiceXRUI.uss, que cada UXML carga ademas de esta (igual
+   que hace DiseaseMarker.uxml). El proyecto ya arrastra tres juegos
+   de variables casi identicos; no se añade un cuarto.
+
+   IMPORTANTE — limites de USS en Unity 6:
+   - No existe linear-gradient() en background-image. El degradado
+     del panel es PanelSheen.png estirado, como en el resto de la UI.
+   - No hay transition-* ni @keyframes. Toda la animacion se hace con
+     DOTween desde C# (ver la clase 'reveal' al final del archivo).
+   ============================================================ */
+
+/* ---------- Panel ----------
+   Rellena el quad world-space del UIDocument, que se configura en la
+   escena: World Space Size Mode = Fixed y el ancho/alto en PIXELES.
+   El tamano fisico sale de ahi mas la escala del Transform (metros =
+   px / 100 con el PanelSettings del proyecto). Este UXML esta pensado
+   para un lienzo de ~900 x 600 px, que a ~0.75 x 0.50 m da sitio a la
+   imagen y la lista; el ~600 x 360 del tutorial se queda corto. */
+.disease-intro {
+    width: 100%;
+    height: 100%;
+    padding: 40px 44px 36px 44px;
+    border-radius: 32px;
+    justify-content: flex-start;
+
+    background-color: var(--quest-surface);
+    background-image: url("project://database/Assets/Hojas/UI/Shared/PanelSheen.png");
+    -unity-background-scale-mode: stretch-to-fill;
+
+    /* Reflejo del canto superior, como los paneles de la introduccion. */
+    border-top-width: 1px;
+    border-top-color: var(--quest-hairline);
+}
+
+/* ---------- Por donde va el jugador ----------
+   Tres puntos, el actual alargado. Va escrito en cada UXML: el panel
+   1 marca el primero, el 2 el segundo y el 3 el tercero, igual que
+   los paneles de la introduccion de sesion. No hay codigo detras. */
+.disease-intro__dots {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+}
+
+.disease-intro__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    margin-right: 8px;
+    background-color: rgba(255, 255, 255, 0.28);
+}
+
+.disease-intro__dot--active {
+    width: 24px;
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* ---------- Cabeceras ---------- */
+
+/* Rotulo pequeño sobre el titulo: la categoria de la enfermedad. Se
+   pinta como pastilla para separarlo del titulo sin usar un borde de
+   color. */
+.disease-intro__eyebrow {
+    align-self: flex-start;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+
+    font-size: 14px;
+    color: var(--quest-blue);
+    -unity-font-style: bold;
+    background-color: var(--quest-blue-soft);
+}
+
+.disease-intro__title {
+    font-size: 34px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.disease-intro__scientific {
+    font-size: 19px;
+    color: var(--quest-text-secondary);
+    -unity-font-style: italic;
+    white-space: normal;
+    margin-top: 4px;
+}
+
+.disease-intro__body {
+    font-size: 17px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+    margin-top: 14px;
+}
+
+.disease-intro__rule {
+    width: 48px;
+    height: 3px;
+    border-radius: 2px;
+    margin-top: 18px;
+    margin-bottom: 4px;
+    background-color: var(--quest-blue);
+    flex-shrink: 0;
+}
+
+/* ---------- Dos columnas ----------
+   La portada y el panel de la enfermedad comparten estructura: texto
+   a la izquierda, imagen a la derecha. La columna de texto crece; la
+   imagen tiene tamano fijo para que un texto largo no la deforme. */
+.disease-intro__split {
+    flex-direction: row;
+    align-items: flex-start;
+    flex-grow: 1;
+}
+
+.disease-intro__col {
+    flex-grow: 1;
+    flex-shrink: 1;
+    justify-content: center;
+}
+
+.disease-intro__hero {
+    width: 260px;
+    height: 260px;
+    flex-shrink: 0;
+    margin-left: 32px;
+    border-radius: 24px;
+}
+
+.disease-intro__image {
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+    margin-left: 28px;
+    border-radius: 16px;
+}
+
+/* ---------- Lista de filas ----------
+   Panel 2: agente causal / como se propaga / que buscar.
+   Panel 3: que separa un nivel de daño del siguiente.
+   Las filas sin datos las oculta DiseaseIntroStepPanel. */
+.disease-intro__rows {
+    margin-top: 18px;
+}
+
+.disease-intro__row {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-top-width: 1px;
+    border-top-color: var(--quest-divider);
+}
+
+.disease-intro__row--first {
+    border-top-width: 0;
+    padding-top: 0;
+}
+
+.disease-intro__row-title {
+    font-size: 17px;
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.disease-intro__row-detail {
+    font-size: 15px;
+    color: var(--quest-text-secondary);
+    white-space: normal;
+    margin-top: 3px;
+}
+
+/* ---------- Panel 3 — el daño ---------- */
+
+/* La lamina que muestra como avanza la enfermedad, a lo ancho del
+   panel. Cabe entera y no se recorta: es material de estudio, y un
+   recorte se comeria niveles de la escala. */
+.disease-intro__severity-image {
+    width: 100%;
+    height: 190px;
+    margin-top: 16px;
+    flex-shrink: 0;
+}
+
+/* Escala del 1 al 5. Usa los mismos bloques que el marcador que sale
+   sobre la hoja (DiseaseMarker.uss), para que el jugador reconozca la
+   escala cuando le toque elegir en el menu de diagnostico. Los tonos
+   van en rgba escrito a mano porque USS no deja cambiarle la
+   transparencia a una var(). */
+.disease-intro__scale {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-top: 16px;
+    flex-shrink: 0;
+}
+
+.disease-intro__seg {
+    flex-grow: 1;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 6px;
+    background-color: rgba(118, 158, 255, 0.2);
+}
+
+.disease-intro__seg--2 { background-color: rgba(118, 158, 255, 0.4); }
+.disease-intro__seg--3 { background-color: rgba(118, 158, 255, 0.6); }
+.disease-intro__seg--4 { background-color: rgba(118, 158, 255, 0.8); }
+.disease-intro__seg--5 {
+    background-color: rgb(118, 158, 255);
+    margin-right: 0;
+}
+
+.disease-intro__scale-labels {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.disease-intro__scale-label {
+    font-size: 13px;
+    color: var(--quest-text-tertiary);
+}
+
+/* ---------- Clase 'reveal' ----------
+   No define estilos. UIRevealSequence la busca al mostrar un panel y
+   encadena la entrada de cada elemento (aparece y sube un poco) EN EL
+   ORDEN EN QUE ESTAN ESCRITOS EN EL UXML. Mover un elemento en el
+   UXML cambia cuando entra. */
+.reveal {
+}

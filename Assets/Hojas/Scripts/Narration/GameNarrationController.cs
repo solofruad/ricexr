@@ -122,6 +122,7 @@ public class GameNarrationController : MonoBehaviour
     {
         GameEventBus.OnSessionStartRequested += HandleStartFlowRequested;
         GameEventBus.OnSessionIntroPanelShown += HandleSessionIntroPanelShown;
+        GameEventBus.OnDiseaseIntroPanelShown += HandleDiseaseIntroPanelShown;
         GameEventBus.OnFlowStateChanged += HandleFlowStateChanged;
         GameEventBus.OnLevelIntroStarted += HandleLevelIntroStarted;
         GameEventBus.OnTutorialStarted += HandleTutorialStarted;
@@ -143,6 +144,7 @@ public class GameNarrationController : MonoBehaviour
     {
         GameEventBus.OnSessionStartRequested -= HandleStartFlowRequested;
         GameEventBus.OnSessionIntroPanelShown -= HandleSessionIntroPanelShown;
+        GameEventBus.OnDiseaseIntroPanelShown -= HandleDiseaseIntroPanelShown;
         GameEventBus.OnFlowStateChanged -= HandleFlowStateChanged;
         GameEventBus.OnLevelIntroStarted -= HandleLevelIntroStarted;
         GameEventBus.OnTutorialStarted -= HandleTutorialStarted;
@@ -232,6 +234,20 @@ public class GameNarrationController : MonoBehaviour
     /// Así la intro no necesita conocer clips, reglas de repetición ni el reproductor.
     /// </summary>
     private void HandleSessionIntroPanelShown(string narrationLineId)
+    {
+        if (string.IsNullOrWhiteSpace(narrationLineId)) return;
+        SpeakLine(narrationLineId, true);
+    }
+
+    /// <summary>
+    /// Cada uno de los 3 paneles de la enfermedad publica su id de línea; aquí
+    /// solo se reproduce. Igual que la introducción de sesión.
+    ///
+    /// A diferencia de esa intro, aquí _currentLevelIndex ya tiene valor (lo pone
+    /// HandleLevelStarted, que corre antes), así que las reglas oncePerLevel de
+    /// NarrationLineLibrary sí filtran en estas líneas.
+    /// </summary>
+    private void HandleDiseaseIntroPanelShown(string narrationLineId)
     {
         if (string.IsNullOrWhiteSpace(narrationLineId)) return;
         SpeakLine(narrationLineId, true);

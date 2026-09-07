@@ -29,3 +29,28 @@ MonoBehaviour:
     - {fileID: 2800000, guid: ab28e94ca4c149b4480002ffe8eff867, type: 3}
     - {fileID: 2800000, guid: d3b4ba71e9475d24b863b036d8ec896d, type: 3}
     - {fileID: 2800000, guid: 4f6f429e44fd00e4cb9de5f46af1d2e6, type: 3}
+    intro:
+      coverTagline: "El da\xF1o comienza en la punta y avanza hacia la base en bandas."
+      coverImage: {fileID: 0}
+      coverNarrationLineId:
+      infoHeadline: "Reconoce el escaldado del arroz"
+      infoBody: "Es una enfermedad f\xFAngica que seca la hoja desde el \xE1pice. El da\xF1o avanza hacia la base formando bandas onduladas."
+      infoRows:
+      - title: "Causa"
+        detail: "El hongo Rhynchosporium oryzae."
+      - title: "Patr\xF3n"
+        detail: "El tejido se seca desde la punta hacia la base."
+      - title: "Qu\xE9 observar"
+        detail: "Bandas conc\xE9ntricas de color paja y marr\xF3n en la hoja."
+      infoImage: {fileID: 0}
+      infoNarrationLineId:
+      severityHeadline: "Observa hasta d\xF3nde avanz\xF3"
+      severityBody: "La severidad depende de la parte de la hoja que ya est\xE1 seca. Sigue el avance desde la punta hacia la base."
+      severityRows:
+      - title: "Niveles 1 y 2"
+        detail: "El da\xF1o se concentra en la punta y ocupa una zona peque\xF1a."
+      - title: "Nivel 3"
+        detail: "Las bandas secas avanzan y alcanzan una parte intermedia."
+      - title: "Niveles 4 y 5"
+        detail: "El secado ocupa gran parte de la hoja y se acerca a la base."
+      severityNarrationLineId:

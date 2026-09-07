@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <!-- ============================================================
+         Boton de continuar de los tres paneles. Va en su propio
+         documento porque es el mismo boton para los tres, y
+         DiseaseIntroController lo muestra y lo oculta entre uno y otro.
+
+         NO es un ui:Button y no hay 'clicked +='. En este proyecto UI
+         Toolkit solo dibuja: el toque llega por un PokeInteractable +
+         InteractableUnityEventWrapper cableado en el Inspector a
+         DiseaseIntroController.HandleContinueClicked.
+         ============================================================ -->
+    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss" />
+    <ui:VisualElement name="disease-intro-continue-button" class="quest-button quest-button--full">
+        <ui:Image class="quest-button__icon" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/HandIcon.svg?fileID=7388822144124034973&amp;guid=a9ca54687a2362544b399e707dda689f&amp;type=3#HandIcon&quot;);" />
+        <ui:Label text="CONTINUAR" class="quest-button__label" />
+    </ui:VisualElement>
+</ui:UXML>

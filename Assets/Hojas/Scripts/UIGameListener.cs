@@ -11,8 +11,11 @@ using UnityEngine;
 ///   → GameFlowController arranca primer nivel
 ///
 /// [Niveles de aprendizaje (no tutorial, no final)]
-///   OnLevelStarted → diseasePanel.Show(asset del índice) + StartProgressBar()
-///   OnDiseaseAnalysisCompleted → panel sube solo (SlideUp interno), cultivo aparece
+///   OnLevelStarted → 3 paneles que presentan la enfermedad (portada → qué es →
+///                    cuánto ha avanzado), cada uno esperando "Continuar"
+///   Al continuar en el último → diseasePanel.Show(asset del índice)
+///                    + PublishDiseaseAnalysisCompleted (diferido un frame)
+///   OnDiseaseAnalysisCompleted → las hojas crecen
 ///   OnPlantSelected(correcto)  → MsgCorrect → MsgProgress
 ///   OnPlantSelected(incorrecto)→ MsgIncorrect → MsgProgress
 ///   OnAllPlantsSelected        → MsgCongrats(nivel)
@@ -30,10 +33,18 @@ using UnityEngine;
 /// son ahora responsabilidad de LevelIntroController y se muestran ANTES
 /// de que OnLevelStarted se emita. Este listener ya no las muestra.
 ///
+/// ⚠ ORDEN CRÍTICO: PublishLevelStarted es síncrono, así que HandleLevelStarted
+/// corre ANTES de que GameFlowController arme _waitingAnalysisToSpawnLevel. Por
+/// eso DiseaseAnalysisCompleted se publica siempre desde una corrutina que
+/// espera al menos un frame: publicarlo síncrono pierde el evento y cuelga el
+/// flujo en FlowState.WaitingForDiseaseAnalysis.
+///
 /// CONFIGURACIÓN EN INSPECTOR:
 ///   - diseaseDataPerLevel: un PlantDiseaseDataAsset por nivel de aprendizaje,
 ///     en el mismo orden que levelConfigs en SceneInteractionManager.
 ///     El nivel final no necesita entrada (puede dejarse vacío o ser más corto).
+///   - diseaseIntroController: el controlador de los 3 paneles. Si se deja
+///     vacío, el nivel muestra directamente la ficha de consulta.
 ///   - levelFinalIndex: índice base-0 del nivel de evaluación en levelConfigs.
 /// </summary>
 public class UIGameListener : MonoBehaviour
@@ -42,6 +53,10 @@ public class UIGameListener : MonoBehaviour
     [SerializeField] private UIMessagesController messagesController;
     [SerializeField] private PlantDiseasePanelController diseasePanelController;
     [SerializeField] private TutorialPanelController tutorialPanelController;
+
+    [Tooltip("Los 3 paneles que presentan la enfermedad antes de que crezcan las hojas. " +
+             "Vacío = solo la ficha de consulta.")]
+    [SerializeField] private DiseaseIntroController diseaseIntroController;
 
     [Header("Datos de enfermedad por nivel")]
     [Tooltip("Un PlantDiseaseDataAsset por cada nivel de aprendizaje, en el mismo " +
@@ -100,6 +115,7 @@ public class UIGameListener : MonoBehaviour
 
         messagesController.HideAll();
         diseasePanelController?.Hide();
+        diseaseIntroController?.ResetState();
 
         int  finalLevelIndex         = GetFinalLevelIndex(totalLevels);
         bool isFinalLevel            = levelIndex == finalLevelIndex;
@@ -107,8 +123,9 @@ public class UIGameListener : MonoBehaviour
 
         if (isFinalLevel || isTutorialGameplayLevel)
         {
-            // Las miniguias (FinalLevel, Tutorial) ya las mostró LevelIntroController antes de este evento.
-            // Aquí solo iniciamos el progreso o esperamos DiseaseAnalysis.
+            // Las miniguias (FinalLevel, Tutorial) ya las mostró LevelIntroController
+            // antes de este evento. Aquí solo se enciende el contador de progreso,
+            // o se deja pasar el tiempo del mensaje en el nivel final.
             if (!isFinalLevel)
                 messagesController.ShowProgress(0, _currentPlantsRequired);
             else
@@ -117,7 +134,7 @@ public class UIGameListener : MonoBehaviour
         else
         {
             // Nivel normal: mostrar panel de enfermedad.
-            ShowDiseasePanelForLevel(levelIndex, _currentPlantsRequired);
+            ShowDiseasePanelForLevel(levelIndex);
         }
     }
 
@@ -126,6 +143,7 @@ public class UIGameListener : MonoBehaviour
         CancelFlowCoroutine();
         messagesController.HideAll();
         diseasePanelController?.Hide();
+        diseaseIntroController?.ResetState();
 
         if (levelIndex == tutorialLevelIndex)
             tutorialPanelController?.Hide();
@@ -136,6 +154,7 @@ public class UIGameListener : MonoBehaviour
         CancelFlowCoroutine();
         messagesController.HideAll();
         diseasePanelController?.Hide();
+        diseaseIntroController?.ResetState();
     }
 
     private void HandlePlantSelected(bool isCorrect, int plantsSelected, int plantsRequired)
@@ -156,8 +175,9 @@ public class UIGameListener : MonoBehaviour
     }
 
     /// <summary>
-    /// La barra del panel terminó — el panel ya subió internamente (SlideUp en controller).
-    /// GameFlowController escucha este mismo evento para spawnear el cultivo.
+    /// La enfermedad ya está presentada y la ficha de consulta a la vista.
+    /// GameFlowController escucha este mismo evento para hacer crecer las hojas;
+    /// aquí solo se enciende el contador de progreso del nivel.
     /// </summary>
     private void HandleDiseaseAnalysisCompleted()
     {
@@ -208,32 +228,74 @@ public class UIGameListener : MonoBehaviour
     }
 
     /// <summary>
-    /// Obtiene los datos del asset configurado para el nivel indicado
-    /// y los muestra en el panel de enfermedad. Si no hay asset configurado
-    /// para ese índice, el panel no se muestra (falla silenciosamente con warning).
+    /// Presenta la enfermedad del nivel en 3 paneles y, al continuar en el
+    /// último, deja la ficha de consulta y hace crecer las hojas.
     /// </summary>
-    private void ShowDiseasePanelForLevel(int levelIndex, int plantsRequired)
+    private void ShowDiseasePanelForLevel(int levelIndex)
     {
-        if (diseasePanelController == null) return;
+        PanelDiseaseData data = ResolveDiseaseData(levelIndex);
 
+        // Sin datos no hay nada que enseñar, pero el nivel tiene que arrancar
+        // igual: GameFlowController está esperando este evento, y sin él la
+        // sesión se queda colgada para siempre.
+        if (data == null)
+        {
+            _flowCoroutine = StartCoroutine(PublishAnalysisNextFrame());
+            return;
+        }
+
+        if (diseaseIntroController == null)
+        {
+            ShowDiseaseCard(data);
+            return;
+        }
+
+        diseaseIntroController.ShowIntro(data, () => ShowDiseaseCard(data));
+    }
+
+    /// <summary>
+    /// Deja la ficha de la enfermedad a mano para el resto del nivel y libera el
+    /// flujo para que las hojas crezcan.
+    /// </summary>
+    private void ShowDiseaseCard(PanelDiseaseData data)
+    {
+        diseasePanelController?.SetSeverityEvolutionImage(data.severityEvolutionImage);
+        diseasePanelController?.Show(data);
+
+        _flowCoroutine = StartCoroutine(PublishAnalysisNextFrame());
+    }
+
+    /// <summary>
+    /// Publica DiseaseAnalysisCompleted un frame más tarde. Ver la nota de ORDEN
+    /// CRÍTICO en la cabecera de la clase: síncrono, el evento se pierde.
+    /// </summary>
+    private IEnumerator PublishAnalysisNextFrame()
+    {
+        yield return null;
+        _flowCoroutine = null;
+        GameEventBus.PublishDiseaseAnalysisCompleted();
+    }
+
+    /// <summary>
+    /// Datos del asset configurado para el nivel indicado, o null con un warning
+    /// si el índice no tiene asset asignado.
+    /// </summary>
+    private PanelDiseaseData ResolveDiseaseData(int levelIndex)
+    {
         if (diseaseDataPerLevel == null
+            || levelIndex < 0
             || levelIndex >= diseaseDataPerLevel.Length
             || diseaseDataPerLevel[levelIndex] == null)
         {
             Debug.LogWarning($"[UIGameListener] No hay PlantDiseaseDataAsset para el nivel {levelIndex}. " +
                              "Asigna uno en el array 'Disease Data Per Level' del Inspector.");
-            return;
+            return null;
         }
 
         PanelDiseaseData data = diseaseDataPerLevel[levelIndex].data;
         if (data == null)
-        {
             Debug.LogWarning($"[UIGameListener] El asset del nivel {levelIndex} existe pero 'data' está vacío.");
-            return;
-        }
 
-        diseasePanelController.SetSeverityEvolutionImage(data.severityEvolutionImage);
-        diseasePanelController.Show(data);
-        diseasePanelController.StartProgressBar();
+        return data;
     }
 }

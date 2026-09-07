@@ -8,21 +8,49 @@ using UnityEngine.UIElements;
 /// PANEL DE MENSAJE FRENTE AL JUGADOR
 ///
 /// Componente reutilizable para mostrar UN mensaje a la vez anclado frente a la
-/// cabeza del jugador, en vez de paneles apilados sobre la mesa. Es la pieza de
-/// guia del tutorial reformado, pero no sabe nada del tutorial: solo conoce un
-/// UXML con un titulo (message-title), un cuerpo (message-body) y una lista de
-/// iconos opcionales (elementos con la clase message-icon, mostrados por nombre).
+/// cabeza del jugador. Es la pieza de guia del tutorial y la base de los paneles
+/// de la presentacion de enfermedad, pero no sabe nada de ninguno de los dos:
+/// solo conoce un UXML con un titulo (message-title), un cuerpo (message-body) y
+/// una lista de iconos opcionales (elementos con la clase message-icon, mostrados
+/// por nombre).
+///
+/// EL DOCUMENTO SE PONE EN LA ESCENA, NO SE CREA POR CODIGO.
+/// El UIDocument, su UXML, su PanelSettings y su tamaño se configuran a mano en el
+/// Inspector, igual que en SessionIntroController y en el resto de paneles del
+/// proyecto. Este componente solo lo referencia. Antes se creaba en runtime y eso
+/// escondia el tamaño dentro de codigo que no lo aplicaba, ademas de dejar el
+/// GameObject invisible en el Editor: no habia forma de ajustarlo ni de verlo.
+///
+/// COMO SE CONTROLA EL TAMAÑO (importante):
+///   metros = pixeles / PanelSettings.pixelsPerUnit * escala mundial del Transform
+/// Con el PanelSettings compartido del proyecto (pixelsPerUnit = 100), eso es
+/// 100 px ≈ 1 m. En el UIDocument se fija el quad en pixeles
+/// (World Space Size Mode = Fixed, ancho y alto) y con la escala del Transform se
+/// lleva a los metros que toquen. El gizmo del quad en la vista de escena enseña
+/// el resultado sin necesidad de darle a Play.
 ///
 /// Reglas del proyecto que respeta:
 /// - Nunca desactiva su propio GameObject: sin UIDocument activo no hay
 ///   rootVisualElement. Se oculta con display/opacity.
 /// - Los fades animan una variable local que se vuelca en style.opacity.
 /// - Espera un frame tras hacer visible el panel antes de animar.
-/// - La rotacion continua la resuelve un BillboardUI en Y-lock del mismo GameObject.
+/// - La rotacion continua la resuelve el BillboardUI en Y-lock del mismo GameObject.
 /// </summary>
 [DisallowMultipleComponent]
+[RequireComponent(typeof(UIDocument), typeof(BillboardUI))]
 public class PlayerFacingMessagePanel : MonoBehaviour
 {
+    [Header("Documento")]
+    [Tooltip("UIDocument de este panel, con su UXML y su tamaño ya configurados en la " +
+             "escena. Vacio = se usa el del propio GameObject.")]
+    [SerializeField] private UIDocument document;
+
+    [Tooltip("Nombre del VisualElement raiz dentro del UXML.")]
+    [SerializeField] private string rootElementName = "message-panel";
+
+    [Tooltip("Clase USS que marcan los elementos de icono opcionales dentro del UXML.")]
+    [SerializeField] private string iconClassName = "message-icon";
+
     [Header("Anclaje frente al jugador")]
     [Tooltip("Distancia en metros entre la cabeza del jugador y el panel.")]
     [SerializeField] private float distance = 1.2f;
@@ -30,50 +58,43 @@ public class PlayerFacingMessagePanel : MonoBehaviour
     [Tooltip("Desplazamiento vertical respecto a la altura de la cabeza. Negativo = un poco debajo de la linea de los ojos.")]
     [SerializeField] private float heightOffset = -0.15f;
 
-    [Header("Tamano del panel (metros)")]
-    [Tooltip("Tamano del quad world-space del UIDocument. El contenido del UXML se escala a este tamano.")]
-    [SerializeField] private Vector2 worldSize = new Vector2(0.45f, 0.3f);
-
     [Header("Animacion")]
     [SerializeField] private float fadeInDuration = 0.3f;
     [SerializeField] private float fadeOutDuration = 0.25f;
 
-    [Header("Documentos (para auto-creacion)")]
-    [Tooltip("PanelSettings compartido del proyecto. Solo se usa si el panel crea su propio UIDocument.")]
-    [SerializeField] private PanelSettings panelSettings;
-
-    [Tooltip("UXML del mensaje. Solo se usa si el panel crea su propio UIDocument.")]
-    [SerializeField] private VisualTreeAsset messageUxml;
-
-    [Tooltip("Clase USS que marcan los elementos de icono opcionales dentro del UXML.")]
-    [SerializeField] private string iconClassName = "message-icon";
-
     public bool IsVisible => _visible;
 
-    private UIDocument _document;
+    /// <summary>
+    /// Raiz del UXML ('message-panel'). Expuesta para que una subclase pueda
+    /// bindear elementos propios ademas del titulo y el cuerpo. Es null hasta
+    /// que el UIDocument resuelve su arbol (ver EnsureElements).
+    /// </summary>
+    protected VisualElement Root => _root;
+
     private VisualElement _root;
     private Label _titleLabel;
     private Label _bodyLabel;
     private readonly List<VisualElement> _icons = new List<VisualElement>();
-    private BillboardUI _billboard;
 
     private Tween _fadeTween;
     private Coroutine _showRoutine;
     private Coroutine _hideRoutine;
     private float _currentOpacity;
     private bool _visible;
+    private bool _warned;
 
-    // ─── Configuracion ────────────────────────────────────────────────────────
+    // ─── Lifecycle ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Asigna los assets del panel y crea el UIDocument si hace falta. Lo llama
-    /// quien crea este panel por codigo (p. ej. TutorialPanelController).
+    /// Deja el panel oculto antes del primer frame visible. Va en Start y no en
+    /// Awake porque el rootVisualElement de un UIDocument no existe hasta su
+    /// OnEnable, y el orden entre GameObjects no esta garantizado. Para cuando
+    /// corre Start ya han corrido todos los OnEnable, y todavia no se ha dibujado
+    /// nada, asi que el contenido nunca parpadea.
     /// </summary>
-    public void Initialize(PanelSettings settings, VisualTreeAsset uxml)
+    protected virtual void Start()
     {
-        panelSettings = settings;
-        messageUxml = uxml;
-        EnsureDocument();
+        if (!_visible) HideImmediate();
     }
 
     // ─── API publica ──────────────────────────────────────────────────────────
@@ -85,12 +106,7 @@ public class PlayerFacingMessagePanel : MonoBehaviour
     /// </summary>
     public void Show(string title, string body, string iconElementName = null)
     {
-        EnsureDocument();
-        if (_root == null)
-        {
-            Debug.LogWarning("[MessagePanel] No se pudo resolver el root del UXML; el mensaje no se muestra.");
-            return;
-        }
+        if (!EnsureElements()) return;
 
         ApplyContent(title, body, iconElementName);
         PlaceInFrontOfPlayer();
@@ -155,11 +171,11 @@ public class PlayerFacingMessagePanel : MonoBehaviour
         _fadeTween?.Kill();
         _visible = false;
         _currentOpacity = 0f;
-        if (_root != null)
-        {
-            _root.style.display = DisplayStyle.None;
-            _root.style.opacity = 0f;
-        }
+
+        if (!EnsureElements()) return;
+
+        _root.style.display = DisplayStyle.None;
+        _root.style.opacity = 0f;
     }
 
     // ─── Colocacion ───────────────────────────────────────────────────────────
@@ -201,49 +217,28 @@ public class PlayerFacingMessagePanel : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(-toHead, Vector3.up);
     }
 
-    // ─── Construccion del documento ───────────────────────────────────────────
-
-    private void EnsureDocument()
-    {
-        if (_document == null) _document = GetComponent<UIDocument>();
-
-        if (_document == null)
-        {
-            _document = gameObject.AddComponent<UIDocument>();
-            _document.panelSettings = panelSettings;
-            _document.visualTreeAsset = messageUxml;
-
-            // Misma configuracion que el resto de paneles world-space del proyecto.
-            _document.position = Position.Relative;
-            _document.worldSpaceSizeMode = UIDocument.WorldSpaceSizeMode.Fixed;
-            _document.worldSpaceSize = worldSize;
-        }
-
-        if (_root == null) TryCacheElements();
-
-        if (_billboard == null)
-        {
-            _billboard = GetComponent<BillboardUI>();
-            if (_billboard == null) _billboard = gameObject.AddComponent<BillboardUI>();
-        }
-    }
+    // ─── Resolucion del documento ─────────────────────────────────────────────
 
     /// <summary>
-    /// El rootVisualElement puede no estar listo en el mismo frame en que se crea
-    /// el UIDocument, asi que el cacheo reintenta desde Update hasta que exista.
-    /// Importante: tambien oculta el panel apenas lo encuentra, para que el
-    /// contenido nunca parpadee visible antes de su primer Show.
+    /// Resuelve el UIDocument de la escena y cachea los elementos del UXML.
+    /// Devuelve false, con un aviso una sola vez, si falta algo por cablear: sin
+    /// panel el juego sigue, pero en silencio no se entenderia por que.
     /// </summary>
-    private void TryCacheElements()
+    private bool EnsureElements()
     {
-        if (_document == null || _document.rootVisualElement == null) return;
+        if (_root != null) return true;
 
-        _root = _document.rootVisualElement.Q<VisualElement>("message-panel");
+        if (document == null) document = GetComponent<UIDocument>();
+
+        if (document == null)
+            return Warn("Falta el UIDocument del panel. Asignalo en el Inspector o ponlo en el mismo GameObject.");
+
+        if (document.rootVisualElement == null)
+            return false; // Todavia no ha corrido su OnEnable; se reintenta en la siguiente llamada.
+
+        _root = document.rootVisualElement.Q<VisualElement>(rootElementName);
         if (_root == null)
-        {
-            Debug.LogWarning("[MessagePanel] El UXML no contiene un elemento llamado 'message-panel'.");
-            return;
-        }
+            return Warn($"El UXML de '{document.name}' no contiene un elemento llamado '{rootElementName}'.");
 
         _titleLabel = _root.Q<Label>("message-title");
         _bodyLabel = _root.Q<Label>("message-body");
@@ -253,15 +248,15 @@ public class PlayerFacingMessagePanel : MonoBehaviour
         foreach (VisualElement icon in _icons)
             icon.style.display = DisplayStyle.None;
 
-        // Estado inicial: presente en la jerarquia pero fuera del layout.
-        _root.style.display = DisplayStyle.None;
-        _root.style.opacity = 0f;
+        return true;
     }
 
-    private void Update()
+    private bool Warn(string message)
     {
-        // Reintento de cacheo hasta que el rootVisualElement exista (ver TryCacheElements).
-        if (_root == null && _document != null) TryCacheElements();
+        if (_warned) return false;
+        _warned = true;
+        Debug.LogWarning($"[MessagePanel] {name}: {message}", this);
+        return false;
     }
 
     // ─── Contenido ────────────────────────────────────────────────────────────
@@ -276,7 +271,16 @@ public class PlayerFacingMessagePanel : MonoBehaviour
             bool showIcon = !string.IsNullOrEmpty(iconElementName) && icon.name == iconElementName;
             icon.style.display = showIcon ? DisplayStyle.Flex : DisplayStyle.None;
         }
+
+        ApplyExtraContent();
     }
+
+    /// <summary>
+    /// Hook para subclases: se llama tras aplicar titulo, cuerpo e iconos, y antes
+    /// de anclar el panel. Aqui una subclase bindea los elementos propios de su
+    /// UXML (imagenes, filas, etiquetas extra). La base no hace nada.
+    /// </summary>
+    protected virtual void ApplyExtraContent() { }
 
     // ─── Animacion ────────────────────────────────────────────────────────────
 
@@ -322,14 +326,16 @@ public class PlayerFacingMessagePanel : MonoBehaviour
         _hideRoutine = null;
     }
 
-    private void OnDisable()
+    // Virtuales a proposito: si una subclase declarara su propio OnDisable privado,
+    // Unity despacharia solo el de la subclase y el fade se quedaria vivo.
+    protected virtual void OnDisable()
     {
         _fadeTween?.Kill();
         _showRoutine = null;
         _hideRoutine = null;
     }
 
-    private void OnDestroy()
+    protected virtual void OnDestroy()
     {
         _fadeTween?.Kill();
     }
