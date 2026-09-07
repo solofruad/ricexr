@@ -77,7 +77,6 @@ public class SessionMetricsTracker : MonoBehaviour
         GameEventBus.OnLevelStarted += HandleLevelStarted;
         GameEventBus.OnDiagnosisAttemptEvaluated += HandleDiagnosisAttemptEvaluated;
         GameEventBus.OnLevelCompleted += HandleLevelCompleted;
-        GameEventBus.OnSessionEndRequested += HandleSessionEndRequested;
     }
 
     private void OnDisable()
@@ -85,7 +84,6 @@ public class SessionMetricsTracker : MonoBehaviour
         GameEventBus.OnLevelStarted -= HandleLevelStarted;
         GameEventBus.OnDiagnosisAttemptEvaluated -= HandleDiagnosisAttemptEvaluated;
         GameEventBus.OnLevelCompleted -= HandleLevelCompleted;
-        GameEventBus.OnSessionEndRequested -= HandleSessionEndRequested;
     }
 
     // ── API publica ──────────────────────────────────────────────────────────
@@ -169,13 +167,6 @@ public class SessionMetricsTracker : MonoBehaviour
         Debug.Log($"[Metrics] Nivel {levelIndex} completado en {completedTime:F1}s");
     }
 
-    private void HandleSessionEndRequested()
-    {
-        // Hook de extensibilidad (intencionalmente vacío).
-        // EndSessionController llama EndSession() directamente con el nickname; este
-        // handler queda como punto de enganche por si algún día se necesita cerrar la
-        // sesión de forma autónoma desde el bus.
-    }
 
     // ── Getters para mostrar en la UI de resultados ──────────────────────────
     public float GetCurrentSessionTime() => _sessionRunning ? Time.unscaledTime - _sessionStartTime : 0f;

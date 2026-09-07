@@ -15,9 +15,9 @@ using RiceXR.Core;
 /// 4. Proporciona feedback visual inmediato (correcto/incorrecto)
 /// 5. Permite un margen de error configurable para la severidad
 /// 6. Integra con el sistema de progreso de niveles por GameEventBus
-/// 7. Se mantiene oculto hasta que SceneInteractionManager llama a Show()
+/// 7. Aparece y desaparece solo, según haya o no una hoja agarrada
 /// Flujo de trabajo:
-/// 1. SceneInteractionManager.WaitForStartSignal() → ShowAnimated()
+/// 1. El jugador agarra una hoja → SyncPanelWithSelection() en LateUpdate lo muestra
 /// 2. Usuario selecciona enfermedad y severidad mediante Toggles
 /// 3. Usuario presiona boton de submit
 /// 4. Sistema verifica hoja agarrada y compara con TODOS sus DiseaseSpots
@@ -111,7 +111,9 @@ public class DiseaseSelectionSystem : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    // Atajo temporal de desarrollo: eliminar este bloque al volver a probar solo en VR.
+    // Atajo de desarrollo: la tecla C diagnostica la hoja agarrada, para poder
+    // recorrer el flujo entero en el editor sin ponerse el casco. Solo compila en
+    // editor, nunca llega a la build.
     void Update()
     {
         if (Keyboard.current?.cKey.wasPressedThisFrame != true || !_panelAvailable)

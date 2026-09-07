@@ -75,17 +75,8 @@ public static class GameEventBus
     /// <summary>Emitido cuando el tutorial se completa (todas las hojas identificadas).</summary>
     public static event Action OnTutorialCompleted;
 
-    /// <summary>Emitido cuando se solicita spawnear un nivel.</summary>
-    public static event Action<int> OnLevelSpawnRequested;
-
     /// <summary>Emitido cuando un nivel fue spawneado.</summary>
     public static event Action<int> OnLevelSpawned;
-
-    /// <summary>Emitido cuando se solicita terminar la sesión.</summary>
-    public static event Action OnSessionEndRequested;
-
-    /// <summary>Emitido cuando se solicita guardar datos de sesión.</summary>
-    public static event Action OnSessionSaveRequested;
 
     /// <summary>Emitido cuando se solicita volver al menú principal.</summary>
     public static event Action OnReturnToMenuRequested;
@@ -117,15 +108,26 @@ public static class GameEventBus
     /// <summary>Emitido cuando el jugador completa la selección de todas las plantas del nivel.</summary>
     public static event Action OnAllPlantsSelected;
 
-    // ── Enfermedad detectada ─────────────────────────────────────────────────
+    // ── Presentación de la enfermedad ────────────────────────────────────────
 
-    /// <summary>Emitido cuando se identifica una enfermedad y hay datos para mostrar en el panel.</summary>
-    public static event Action<PanelDiseaseData> OnDiseaseIdentified;
+    /// <summary>
+    /// Emitido cada vez que aparece uno de los 3 paneles que presentan la
+    /// enfermedad. Lleva el id de línea de narración del panel, para que la
+    /// narración pueda reaccionar sin que la presentación conozca clips ni
+    /// reglas de reproducción. Igual que OnSessionIntroPanelShown.
+    /// </summary>
+    public static event Action<string> OnDiseaseIntroPanelShown;
 
-    /// <summary>Emitido cuando el panel de enfermedad termina su análisis visual.</summary>
+    /// <summary>
+    /// Emitido cuando lo que GameFlowController estaba esperando ya terminó, y
+    /// puede seguir. Tiene dos usos según qué esté esperando:
+    ///   - Tras presentar la enfermedad → spawnea el nivel (las hojas crecen)
+    ///   - Tras el mensaje de felicitación → avanza al siguiente nivel
+    /// GameFlowController distingue con sus flags internos.
+    /// </summary>
     public static event Action OnDiseaseAnalysisCompleted;
 
-    // ── Sesión (legacy + nuevos) ─────────────────────────────────────────────
+    // ── Sesión ───────────────────────────────────────────────────────────────
 
     /// <summary>Emitido cuando la sesión completa termina.</summary>
     public static event Action OnSessionEnded;
@@ -210,28 +212,10 @@ public static class GameEventBus
         OnTutorialCompleted?.Invoke();
     }
 
-    public static void PublishLevelSpawnRequested(int levelIndex)
-    {
-        Debug.Log($"[GameEventBus] LevelSpawnRequested → {levelIndex}");
-        OnLevelSpawnRequested?.Invoke(levelIndex);
-    }
-
     public static void PublishLevelSpawned(int levelIndex)
     {
         Debug.Log($"[GameEventBus] LevelSpawned → {levelIndex}");
         OnLevelSpawned?.Invoke(levelIndex);
-    }
-
-    public static void PublishSessionEndRequested()
-    {
-        Debug.Log("[GameEventBus] SessionEndRequested");
-        OnSessionEndRequested?.Invoke();
-    }
-
-    public static void PublishSessionSaveRequested()
-    {
-        Debug.Log("[GameEventBus] SessionSaveRequested");
-        OnSessionSaveRequested?.Invoke();
     }
 
     public static void PublishReturnToMenuRequested()
@@ -298,10 +282,10 @@ public static class GameEventBus
         OnAllPlantsSelected?.Invoke();
     }
 
-    public static void PublishDiseaseIdentified(PanelDiseaseData data)
+    public static void PublishDiseaseIntroPanelShown(string narrationLineId)
     {
-        Debug.Log($"[GameEventBus] DiseaseIdentified → {data?.title}");
-        OnDiseaseIdentified?.Invoke(data);
+        Debug.Log($"[GameEventBus] DiseaseIntroPanelShown → {narrationLineId}");
+        OnDiseaseIntroPanelShown?.Invoke(narrationLineId);
     }
 
     public static void PublishDiseaseAnalysisCompleted()
@@ -340,10 +324,7 @@ public static class GameEventBus
         OnLevelIntroCompleted = null;
         OnTutorialStarted = null;
         OnTutorialCompleted = null;
-        OnLevelSpawnRequested = null;
         OnLevelSpawned = null;
-        OnSessionEndRequested = null;
-        OnSessionSaveRequested = null;
         OnReturnToMenuRequested = null;
 
         // End Session UI
@@ -358,7 +339,7 @@ public static class GameEventBus
         OnPlantSelected = null;
         OnDiagnosisAttemptEvaluated = null;
         OnAllPlantsSelected = null;
-        OnDiseaseIdentified = null;
+        OnDiseaseIntroPanelShown = null;
         OnDiseaseAnalysisCompleted = null;
         OnSessionEnded = null;
         OnFlowStateChanged = null;

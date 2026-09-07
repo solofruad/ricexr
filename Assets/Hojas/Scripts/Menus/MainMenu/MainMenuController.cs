@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -16,12 +15,6 @@ using DG.Tweening;
 /// </summary>
 public class MainMenuController : MonoBehaviour
 {
-    /// <summary>
-    /// Evento legacy — mantenido para compatibilidad con GameNarrationController.
-    /// Se emite junto con GameEventBus.PublishSessionStartRequested().
-    /// </summary>
-    public static event Action StartFlowRequested;
-
     [Header("Paneles")]
     [SerializeField] private Transform mainMenuPanel;
 
@@ -102,9 +95,6 @@ public class MainMenuController : MonoBehaviour
                 .SetEase(Ease.InBack)
                 .OnComplete(() => mainMenuPanel.gameObject.SetActive(false));
         }
-
-        // Legacy: mantener evento estático para GameNarrationController
-        StartFlowRequested?.Invoke();
     }
 
     private void HandleReturnToMenuRequested()

@@ -12,9 +12,6 @@ using DG.Tweening;
 ///   - Expone helpers de consulta (índice actual, progreso, etc.).
 ///   - Cachea el transform del plano seleccionado.
 ///
-/// Ya NO orquesta el flujo del juego. Esa responsabilidad es de GameFlowController.
-/// Los métodos legacy (WaitForStartSignal, etc.) se mantienen como wrappers
-/// que delegan al GameFlowController para no romper referencias existentes en Unity.
 /// </summary>
 public class SceneInteractionManager : MonoBehaviour
 {
@@ -99,16 +96,6 @@ public class SceneInteractionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Arranca el primer nivel (índice 0). Wrapper legacy.
-    /// GameFlowController llama esto para iniciar el flujo de niveles.
-    /// </summary>
-    public void StartFirstLevel()
-    {
-        if (currentLevelIndex != 0) return;
-        StartCurrentLevelFlow();
-    }
-
-    /// <summary>
     /// Prepara el manager para una nueva sesión y comienza en el nivel indicado.
     /// Si el índice queda fuera de la lista, se ajusta al primer o último nivel válido.
     /// preserveSelectedPlane mantiene el transform MR actual para una sesión que
@@ -172,17 +159,6 @@ public class SceneInteractionManager : MonoBehaviour
             leafSpawner.grassCount = Mathf.Max((int)(spawnArea.x * spawnArea.y * 0.7f), 20);
 
         leafSpawner.Activate();
-    }
-
-    /// <summary>
-    /// Wrapper legacy: inicia el flujo del nivel actual publicando el evento
-    /// de LevelStarted y delegando al GameFlowController la decisión de spawn.
-    /// Esto se mantiene para que GameFlowController.StartFirstLevel() siga funcionando.
-    /// </summary>
-    private void StartCurrentLevelFlow()
-    {
-        // Publicar nivel iniciado - GameFlowController y UIGameListener escuchan esto
-        GameEventBus.PublishLevelStarted(currentLevelIndex, _runtimeLevels.Count, GetCurrentPlantsRequired());
     }
 
     /// <summary>
