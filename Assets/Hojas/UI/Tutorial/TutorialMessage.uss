@@ -17,10 +17,13 @@
 }
 
 /* ---------- Panel ----------
-   Rellena el quad world-space del UIDocument (0.45 x 0.30 m por
-   defecto, ver PlayerFacingMessagePanel.worldSize). El contenido
-   se centra para que el bloque icono+texto respire igual con o
-   sin icono. */
+   Rellena el quad world-space del UIDocument, que se configura en
+   la escena: World Space Size Mode = Fixed y el ancho/alto en
+   PIXELES. El tamano fisico sale de ahi mas la escala del
+   Transform (metros = px / 100 con el PanelSettings del proyecto).
+   Este UXML esta pensado para un lienzo de ~600 x 360 px. El
+   contenido se centra para que el bloque icono+texto respire
+   igual con o sin icono. */
 .message {
     width: 100%;
     height: 100%;

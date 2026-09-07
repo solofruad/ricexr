@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public enum TutorialGuidanceAct
 {
@@ -26,6 +25,10 @@ public enum TutorialGuidanceAct
 /// en VR el jugador ya carga con las gafas, la voz y la accion; la guia visual
 /// tiene que ser una sola cosa clara que mirar.
 ///
+/// El panel se pone en la escena y se asigna aqui por Inspector: su UIDocument,
+/// su UXML y su tamaño se configuran a mano, como el resto de paneles del
+/// proyecto. Este controlador solo le pide que muestre un titulo y un cuerpo.
+///
 /// Lo que NO cambia: la maquina de actos y sus eventos (TutorialActChanged,
 /// GuidedPhaseCompleted, ...) que consumen GameNarrationController y
 /// GameFlowController, la gestion de marcadores de las hojas y el bloqueo del
@@ -40,11 +43,9 @@ public class TutorialPanelController : MonoBehaviour
     public event Action TutorialCompleted;
 
     [Header("Panel de mensajes")]
-    [Tooltip("PanelSettings compartido del proyecto para el UIDocument del mensaje.")]
-    [SerializeField] private PanelSettings panelSettings;
-
-    [Tooltip("UXML del mensaje (Assets/Hojas/UI/Tutorial/TutorialMessage.uxml).")]
-    [SerializeField] private VisualTreeAsset messageUxml;
+    [Tooltip("Panel de mensaje puesto en la escena, con su UIDocument, su UXML " +
+             "(UI/Tutorial/TutorialMessage.uxml) y su tamaño ya configurados.")]
+    [SerializeField] private PlayerFacingMessagePanel messagePanel;
 
     [Header("Mensajes (en orden de acto)")]
     [Tooltip("Un mensaje por acto guiado, en orden: tomar hoja, observar, revelar pista, diagnosticar, practica libre.")]
@@ -88,7 +89,6 @@ public class TutorialPanelController : MonoBehaviour
     [Tooltip("Tiempo en segundos que la pista permanece visible antes de abrir el menu.")]
     [SerializeField] private float hintToDiagnoseDelay = 3f;
 
-    private PlayerFacingMessagePanel _messagePanel;
     private Coroutine _actTimerRoutine;
 
     private bool _isVisible;
@@ -102,7 +102,9 @@ public class TutorialPanelController : MonoBehaviour
 
     private void Awake()
     {
-        EnsureMessagePanel();
+        if (messagePanel == null)
+            Debug.LogWarning("[Tutorial] Falta asignar messagePanel; los mensajes del tutorial no se mostraran.", this);
+
         HideImmediate();
     }
 
@@ -133,7 +135,6 @@ public class TutorialPanelController : MonoBehaviour
     /// </summary>
     public void ShowAndStart()
     {
-        EnsureMessagePanel();
         StopActTimer();
         ResetSessionState();
         DiseaseSelectionSystem.Instance?.SetPanelAvailability(false);
@@ -155,7 +156,7 @@ public class TutorialPanelController : MonoBehaviour
         _isVisible = false;
         _currentAct = TutorialGuidanceAct.NONE;
         DiseaseSelectionSystem.Instance?.SetPanelAvailability(true);
-        _messagePanel?.Hide();
+        messagePanel?.Hide();
     }
 
     // ─── Handlers de eventos ──────────────────────────────────────────────────
@@ -334,7 +335,7 @@ public class TutorialPanelController : MonoBehaviour
         {
             // COMPLETED (o NONE): sin mensaje. La felicitacion final la muestra
             // UIMessagesController al completar el nivel.
-            _messagePanel?.Hide();
+            messagePanel?.Hide();
             return;
         }
 
@@ -360,13 +361,13 @@ public class TutorialPanelController : MonoBehaviour
             ? messages[index]
             : null;
 
-        if (message == null || _messagePanel == null)
+        if (message == null)
         {
             Debug.LogWarning($"[Tutorial] No hay mensaje configurado para el indice {index}.");
             return;
         }
 
-        _messagePanel.Show(message.title, message.body, message.iconElement);
+        messagePanel?.Show(message.title, message.body, message.iconElement);
     }
 
     // ─── Timers de actos ──────────────────────────────────────────────────────
@@ -416,7 +417,7 @@ public class TutorialPanelController : MonoBehaviour
         DiseaseSelectionSystem.Instance?.SetPanelAvailability(true);
         TutorialCompleted?.Invoke();
         GameEventBus.PublishTutorialCompleted();
-        _messagePanel?.Hide();
+        messagePanel?.Hide();
     }
 
     /// <summary>
@@ -426,7 +427,7 @@ public class TutorialPanelController : MonoBehaviour
     {
         _isVisible = false;
         _currentAct = TutorialGuidanceAct.NONE;
-        _messagePanel?.HideImmediate();
+        messagePanel?.HideImmediate();
     }
 
     /// <summary>
@@ -442,37 +443,5 @@ public class TutorialPanelController : MonoBehaviour
         _currentAct = TutorialGuidanceAct.NONE;
         _resumeActAfterGrab = TutorialGuidanceAct.NONE;
         _guidedLeaf = null;
-    }
-
-    /// <summary>
-    /// Crea el panel de mensajes como hijo de este controller. El panel se
-    /// autogestiona (UIDocument + billboard + fades); aqui solo se le pasan los
-    /// assets y se compensa la escala heredada de UIManager/TutorialController
-    /// para que su tamano de mundo sea siempre el configurado.
-    /// </summary>
-    private void EnsureMessagePanel()
-    {
-        if (_messagePanel != null) return;
-
-        if (panelSettings == null || messageUxml == null)
-        {
-            Debug.LogWarning("[Tutorial] Falta asignar panelSettings o messageUxml; los mensajes del tutorial no se mostraran.");
-            return;
-        }
-
-        GameObject panelObject = new GameObject("TutorialMessagePanel");
-        panelObject.transform.SetParent(transform, false);
-
-        Vector3 inherited = transform.lossyScale;
-        if (Mathf.Abs(inherited.x) > 0.0001f
-            && Mathf.Abs(inherited.y) > 0.0001f
-            && Mathf.Abs(inherited.z) > 0.0001f)
-        {
-            panelObject.transform.localScale = new Vector3(
-                1f / inherited.x, 1f / inherited.y, 1f / inherited.z);
-        }
-
-        _messagePanel = panelObject.AddComponent<PlayerFacingMessagePanel>();
-        _messagePanel.Initialize(panelSettings, messageUxml);
     }
 }

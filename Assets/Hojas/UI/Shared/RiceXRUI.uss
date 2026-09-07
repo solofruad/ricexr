@@ -77,16 +77,6 @@
     font-size: 24px;
 }
 
-.quest-body {
-    font-size: 16px;
-    color: var(--quest-text-secondary);
-    white-space: normal;
-}
-
-.quest-body--small {
-    font-size: 14px;
-}
-
 .quest-caption {
     font-size: 12px;
     color: var(--quest-text-tertiary);
@@ -385,7 +375,7 @@
     -unity-text-align: middle-center;
 }
 
-/* ---------- Feedback y progreso ---------- */
+/* ---------- Feedback ---------- */
 .quest-feedback__header {
     flex-direction: row;
     align-items: center;
@@ -471,206 +461,7 @@
     margin-bottom: 54px;
 }
 
-.quest-progress-track {
-    height: 4px;
-    background-color: rgba(255, 255, 255, 0.08);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.quest-progress-fill {
-    height: 100%;
-    background-color: var(--quest-success);
-    border-radius: 2px;
-}
-
-.quest-progress-label {
-    font-size: 12px;
-    color: var(--quest-text-tertiary);
-}
-
-.quest-progress-percent {
-    font-size: 12px;
-    color: var(--quest-success);
-}
-
-/* ---------- Tutorial ---------- */
-.quest-tutorial-header {
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom-width: 1px;
-    border-bottom-color: var(--quest-divider);
-}
-
-.quest-tutorial-step {
-    flex-direction: column;
-    align-items: stretch;
-}
-
-.quest-tutorial-step__image {
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.quest-tutorial-step__title {
-    font-size: 16px;
-    color: var(--quest-text);
-    -unity-font-style: bold;
-    white-space: normal;
-}
-
-.quest-tutorial-step__body {
-    font-size: 13px;
-    color: var(--quest-text-secondary);
-    white-space: normal;
-}
-
-.quest-tutorial-panel {
-    width: 700px;
-    height: 543px;
-    flex-direction: column;
-    padding: 28px 32px 24px 32px;
-}
-
-.quest-tutorial-panel--act {
-    width: 370px;
-}
-
-.quest-tutorial-header__disc {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    background-color: var(--quest-blue-soft);
-    align-items: center;
-    justify-content: center;
-    margin-right: 14px;
-    flex-shrink: 0;
-}
-
-.quest-tutorial-header__label {
-    width: 36px;
-    font-size: 20px;
-    color: var(--quest-severity);
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-}
-
-.quest-tutorial-header__heading {
-    flex-direction: column;
-}
-
-.quest-tutorial-header__title {
-    font-size: 22px;
-    color: var(--quest-text);
-    -unity-font-style: bold;
-    white-space: normal;
-}
-
-.quest-tutorial-steps {
-    flex-direction: row;
-    flex-grow: 1;
-    flex-basis: auto;
-    flex-shrink: 1;
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-    align-items: stretch;
-}
-
-.quest-tutorial-step--divider {
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-left: 3px;
-    margin-right: 3px;
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-left-color: var(--quest-divider);
-    border-right-color: var(--quest-divider);
-}
-
-.quest-tutorial-step__content {
-    flex-direction: column;
-    flex-grow: 1;
-}
-
-.quest-tutorial-progress {
-    margin-top: 5px;
-    padding-top: 10px;
-    border-top-width: 1px;
-    border-top-color: var(--quest-divider);
-}
-
-.quest-tutorial-progress__labels {
-    flex-direction: row;
-    justify-content: space-between;
-    margin-bottom: 6px;
-}
-
-.quest-tutorial-light-panel {
-    display: none;
-    flex-grow: 1;
-    border-width: 1px;
-    border-color: var(--quest-border);
-    border-radius: 20px;
-    background-color: var(--quest-surface-raised);
-    padding: 22px 24px 18px 24px;
-    justify-content: center;
-}
-
-.quest-tutorial-light-title {
-    font-size: 24px;
-    color: var(--quest-text);
-    -unity-font-style: bold;
-    margin-bottom: 8px;
-    -unity-text-align: upper-left;
-}
-
-.quest-tutorial-light-body {
-    font-size: 14px;
-    color: var(--quest-text-secondary);
-    white-space: normal;
-    -unity-text-align: upper-left;
-}
-
-.quest-tutorial-act {
-    flex-grow: 1;
-    flex-direction: column;
-    padding: 14px;
-    align-items: stretch;
-}
-
-.quest-tutorial-act__image {
-    width: 100%;
-    height: 214px;
-    min-height: 214px;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-
-.quest-tutorial-act__title {
-    font-size: 19px;
-    color: var(--quest-text);
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    white-space: normal;
-    margin-bottom: 4px;
-}
-
-.quest-tutorial-act__body {
-    font-size: 13px;
-    color: var(--quest-text-secondary);
-    white-space: normal;
-    -unity-text-align: middle-center;
-}
-
 /* ---------- Panel informativo de enfermedad ---------- */
-.quest-disease-image {
-    background-color: rgba(255, 255, 255, 0.04);
-    overflow: hidden;
-}
-
 .quest-disease-panel {
     width: 860px;
     height: 420px;
@@ -758,100 +549,22 @@
     -unity-font-style: italic;
 }
 
+/* El ancho iba fijo a 192px con overflow oculto, asi que cualquier
+   descripcion algo larga se recortaba en silencio. Ahora que el panel
+   es material de consulta durante todo el nivel, crece con su columna. */
 .quest-disease-description {
     font-size: 14px;
     color: var(--quest-text-secondary);
     white-space: normal;
-    flex-grow: 0;
-    overflow: hidden;
+    flex-grow: 1;
+    flex-shrink: 1;
     margin-top: 2px;
-    width: 192px;
     -unity-text-align: middle-left;
 }
 
 .quest-disease-severity-image {
     flex-grow: 1;
     -unity-background-scale-mode: scale-to-fit;
-}
-
-.quest-disease-progress {
-    margin-top: 7px;
-}
-
-.quest-disease-progress__labels {
-    flex-direction: row;
-    justify-content: space-between;
-    margin-bottom: 5px;
-}
-
-/* ---------- Marcador sobre la hoja ---------- */
-.quest-marker-header {
-    flex-direction: row;
-    align-items: center;
-    padding: 10px 16px 8px 16px;
-}
-
-.quest-marker-header__label {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--quest-text-secondary);
-    -unity-font-style: bold;
-}
-
-.quest-marker-body {
-    padding: 12px 16px 14px 16px;
-}
-
-.quest-marker-disease {
-    background-color: rgba(239, 111, 119, 0.14);
-    border-bottom-width: 1px;
-    border-bottom-color: rgba(239, 111, 119, 0.42);
-}
-
-.quest-marker-severity {
-    background-color: rgba(118, 158, 255, 0.14);
-    border-bottom-width: 1px;
-    border-bottom-color: rgba(118, 158, 255, 0.42);
-}
-
-.quest-marker-disease__name {
-    font-size: 20px;
-    color: var(--quest-disease);
-    white-space: normal;
-    -unity-font-style: bold;
-}
-
-.quest-marker-severity__number {
-    font-size: 36px;
-    color: var(--quest-severity);
-    -unity-font-style: bold;
-    width: 48px;
-    margin-right: 14px;
-    -unity-text-align: middle-center;
-}
-
-.quest-marker-severity__bar {
-    flex-direction: row;
-    flex-grow: 1;
-    height: 14px;
-    align-items: center;
-}
-
-.quest-marker-segment {
-    flex-grow: 1;
-    height: 10px;
-    border-radius: 5px;
-    margin-right: 5px;
-}
-
-.quest-marker-segment.active {
-    background-color: var(--quest-severity);
-}
-
-.quest-marker-segment.inactive {
-    background-color: rgba(118, 158, 255, 0.16);
-    border-width: 1px;
-    border-color: rgba(118, 158, 255, 0.48);
 }
 
 /* ---------- Selección de plano ---------- */
