@@ -23,6 +23,8 @@ using DG.Tweening;
 ///
 /// Notas importantes:
 /// - El area de spawn se rota segun la rotacion del GameObject padre
+/// - SpawnAreaSize se expresa en metros del mundo y se convierte a coordenadas
+///   locales para que la escala de la jerarquia no reduzca el area cubierta
 /// - Las animaciones usan variaciones aleatorias para evitar patrones repetitivos
 /// - El sistema es eficiente al crear todas las instancias al inicio y luego solo animarlas
 /// - Con isGrassAbleToShowMarker en false las hojas nacen sin marcadores, para que el
@@ -38,7 +40,7 @@ public class LeavesSpawner : MonoBehaviour
 
 
     [Tooltip("Margen de seguridad para evitar que las hojas se salgan del borde (en metros).")]
-    [SerializeField] private float safeMargin = 0.1f;
+    [SerializeField] private float safeMargin = 0.15f;
 
     [Header("Animation Settings")]
     [SerializeField] private float totalSpawnDuration = 10f;
@@ -68,7 +70,7 @@ public class LeavesSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Permite al SceneInteractionManager aplicar el tamano del plano antes del spawn.
+    /// Permite al SceneInteractionManager aplicar el tamano mundial del plano antes del spawn.
     /// La misma llamada sirve despues para un ancla virtual.
     /// </summary>
     public void ConfigureArea(Vector2 areaSize, Transform parent)
@@ -107,7 +109,10 @@ public class LeavesSpawner : MonoBehaviour
         for (int i = 0; i < spawnCount; i++)
         {
             GameObject prefab = grassPrefabs[Random.Range(0, grassPrefabs.Length)];
-            GameObject grass = Instantiate(prefab, spawnPositions[i], Quaternion.identity, grassParent);
+            float randomYRotation = Random.Range(-rotationVariation, rotationVariation);
+            float parentYRotation = transform.eulerAngles.y;
+            Quaternion spawnRotation = Quaternion.Euler(0, parentYRotation + randomYRotation, 0);
+            GameObject grass = Instantiate(prefab, spawnPositions[i], spawnRotation, grassParent);
 
             // El true incluye hijos desactivados: algunos prefabs de hoja arrancan apagados.
             var leaf = grass.GetComponentInChildren<Leaf>(true);
@@ -120,10 +125,6 @@ public class LeavesSpawner : MonoBehaviour
                 if (!isGrassAbleToShowMarker)
                     leaf.HideMarkersImmediate();
             }
-
-            float randomYRotation = Random.Range(-rotationVariation, rotationVariation);
-            float parentYRotation = transform.eulerAngles.y;
-            grass.transform.rotation = Quaternion.Euler(0, parentYRotation + randomYRotation, 0);
 
             Vector3 baseScale = grass.transform.localScale;
             float scaleMultiplier = 1f + Random.Range(-scaleVariation, scaleVariation);
@@ -170,12 +171,21 @@ public class LeavesSpawner : MonoBehaviour
         {
             attempts++;
 
-            // Se calcula el area efectiva restando el margen a cada lado
+            // SpawnAreaSize llega en metros del mundo, pero TransformPoint aplica
+            // la escala de toda la jerarquia. Convertimos el area a coordenadas
+            // locales para que, por ejemplo, un padre con escala 0.6 no reduzca
+            // el rectangulo de spawn al 60% de la superficie seleccionada.
+            Vector3 worldScale = transform.lossyScale;
+            float localScaleX = Mathf.Max(Mathf.Abs(worldScale.x), 0.0001f);
+            float localScaleZ = Mathf.Max(Mathf.Abs(worldScale.z), 0.0001f);
+
             float effectiveWidthX = Mathf.Max(0, SpawnAreaSize.x - (safeMargin * 2));
             float effectiveWidthZ = Mathf.Max(0, SpawnAreaSize.y - (safeMargin * 2));
 
-            float randomX = Random.Range(-effectiveWidthX / 2f, effectiveWidthX / 2f);
-            float randomZ = Random.Range(-effectiveWidthZ / 2f, effectiveWidthZ / 2f);
+            float randomX = Random.Range(-effectiveWidthX / localScaleX / 2f,
+                effectiveWidthX / localScaleX / 2f);
+            float randomZ = Random.Range(-effectiveWidthZ / localScaleZ / 2f,
+                effectiveWidthZ / localScaleZ / 2f);
 
             Vector3 localPos = new Vector3(randomX, 0, randomZ);
             Vector3 rotatedPos = transform.TransformPoint(localPos);

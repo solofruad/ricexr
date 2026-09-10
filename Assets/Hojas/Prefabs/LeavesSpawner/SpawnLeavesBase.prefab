@@ -49,7 +49,7 @@ MonoBehaviour:
   grassCount: 1
   isGrassAbleToShowMarker: 1
   SpawnAreaSize: {x: 0, y: 0}
-  safeMargin: 0
+  safeMargin: 0.1
   totalSpawnDuration: 4
   growDuration: 1.4
   growCurve:
