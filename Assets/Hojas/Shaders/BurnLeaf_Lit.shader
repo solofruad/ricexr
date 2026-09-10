@@ -15,6 +15,15 @@ Shader "Custom/BurnLeaf_VR"
         [HDR] _EdgeColorA("Burn Edge Color A (Outer)", Color) = (1, 0.45, 0.05, 1)
         [HDR] _EdgeColorB("Burn Edge Color B (Inner)", Color) = (1, 0.9, 0.2, 1)
         _EdgeIntensity("Burn Edge Intensity", Range(0, 10)) = 2.0
+
+        [Header(Wind)]
+        _WindAmplitude("Wind Amplitude (m)", Range(0, 0.15)) = 0.02
+        _WindSpeed("Wind Speed", Range(0, 5)) = 1.4
+        _WindFrequency("Wind Frequency", Range(0, 10)) = 2.0
+        _WindDirection("Wind Direction", Vector) = (1, 0, 0, 0)
+        _WindMaskPower("Wind Mask Power", Range(0.1, 5)) = 2.0
+        _WindWeight("Wind Weight", Range(0, 1)) = 1.0
+        _WindPhase("Wind Phase", Float) = 0.0
     }
 
     SubShader
@@ -57,13 +66,23 @@ Shader "Custom/BurnLeaf_VR"
                 half4 _EdgeColorA;
                 half4 _EdgeColorB;
                 float _EdgeIntensity;
+                float _WindAmplitude;
+                float _WindSpeed;
+                float _WindFrequency;
+                float4 _WindDirection;
+                float _WindMaskPower;
+                float _WindWeight;
+                float _WindPhase;
             CBUFFER_END
+
+            #include "Assets/Hojas/Shaders/LeafWind.hlsl"
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
                 float3 normalOS   : NORMAL;
                 float2 uv         : TEXCOORD0;
+                float4 color      : COLOR;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -85,7 +104,8 @@ Shader "Custom/BurnLeaf_VR"
                 UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
-                VertexPositionInputs posInputs = GetVertexPositionInputs(IN.positionOS.xyz);
+                float3 positionOS = ApplyLeafWind(IN.positionOS.xyz, IN.color);
+                VertexPositionInputs posInputs = GetVertexPositionInputs(positionOS);
 
                 OUT.positionHCS = posInputs.positionCS;
                 OUT.positionWS  = posInputs.positionWS;
@@ -173,13 +193,23 @@ Shader "Custom/BurnLeaf_VR"
                 half4 _EdgeColorA;
                 half4 _EdgeColorB;
                 float _EdgeIntensity;
+                float _WindAmplitude;
+                float _WindSpeed;
+                float _WindFrequency;
+                float4 _WindDirection;
+                float _WindMaskPower;
+                float _WindWeight;
+                float _WindPhase;
             CBUFFER_END
+
+            #include "Assets/Hojas/Shaders/LeafWind.hlsl"
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
                 float3 normalOS   : NORMAL;
                 float2 uv         : TEXCOORD0;
+                float4 color      : COLOR;
             };
 
             struct Varyings
@@ -191,7 +221,8 @@ Shader "Custom/BurnLeaf_VR"
             Varyings ShadowPassVertex(Attributes input)
             {
                 Varyings output;
-                float3 posWS    = TransformObjectToWorld(input.positionOS.xyz);
+                float3 positionOS = ApplyLeafWind(input.positionOS.xyz, input.color);
+                float3 posWS      = TransformObjectToWorld(positionOS);
                 float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
                 float4 posCS    = TransformWorldToHClip(ApplyShadowBias(posWS, normalWS, _MainLightPosition.xyz));
                 #if UNITY_REVERSED_Z
@@ -240,12 +271,22 @@ Shader "Custom/BurnLeaf_VR"
                 half4 _EdgeColorA;
                 half4 _EdgeColorB;
                 float _EdgeIntensity;
+                float _WindAmplitude;
+                float _WindSpeed;
+                float _WindFrequency;
+                float4 _WindDirection;
+                float _WindMaskPower;
+                float _WindWeight;
+                float _WindPhase;
             CBUFFER_END
+
+            #include "Assets/Hojas/Shaders/LeafWind.hlsl"
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
                 float2 uv         : TEXCOORD0;
+                float4 color      : COLOR;
             };
 
             struct Varyings
@@ -257,7 +298,8 @@ Shader "Custom/BurnLeaf_VR"
             Varyings DepthOnlyVertex(Attributes input)
             {
                 Varyings output;
-                output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
+                float3 positionOS = ApplyLeafWind(input.positionOS.xyz, input.color);
+                output.positionHCS = TransformObjectToHClip(positionOS);
                 output.uv          = input.uv;
                 return output;
             }

@@ -47,6 +47,9 @@ public class Leaf : MonoBehaviour
     [Tooltip("Referencia al BurnLeafRenderer que vive en el GameObject del mesh de la hoja")]
     [SerializeField] private BurnLeafRenderer burnLeafRenderer;
 
+    [Tooltip("Controlador visual opcional del viento de la hoja")]
+    [SerializeField] private LeafWindController leafWindController;
+
     [SerializeField] private PointableUnityEventWrapper pointableWrapper;
 
     private bool _isBurning = false;
@@ -57,6 +60,9 @@ public class Leaf : MonoBehaviour
 
     void Start()
     {
+        if (leafWindController == null)
+            leafWindController = GetComponentInParent<LeafWindController>();
+
         PopulateAndShowMarkers();
 
         if (pointableWrapper != null)
@@ -90,6 +96,8 @@ public class Leaf : MonoBehaviour
             spot.markerObject.SetActive(showMarkers && ableToShowMarkers);
             _pendingSpots.Add(spot);
         }
+
+        leafWindController?.SetMarkersVisible(showMarkers && ableToShowMarkers);
     }
 
     /// <summary>
@@ -155,12 +163,15 @@ public class Leaf : MonoBehaviour
     /// </summary>
     public void SetMarkersVisibility(bool visible)
     {
+        bool actualVisibility = visible && ableToShowMarkers;
+        leafWindController?.SetMarkersVisible(actualVisibility);
+
         if (!ableToShowMarkers) return;
 
         foreach (DiseaseSpot spot in diseaseSpots)
         {
             if (spot.markerObject != null)
-                spot.markerObject.SetActive(visible);
+                spot.markerObject.SetActive(actualVisibility);
         }
     }
 
@@ -170,6 +181,8 @@ public class Leaf : MonoBehaviour
     /// </summary>
     public void HideMarkersImmediate()
     {
+        leafWindController?.SetMarkersVisible(false);
+
         foreach (DiseaseSpot spot in diseaseSpots)
         {
             if (spot.markerObject != null)
