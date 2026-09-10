@@ -246,16 +246,6 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.965
       objectReference: {fileID: 0}
-    - target: {fileID: 5207361169786461324, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
-        type: 3}
-      propertyPath: m_UseGravity
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207361169786461324, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
-        type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: showMarkers
