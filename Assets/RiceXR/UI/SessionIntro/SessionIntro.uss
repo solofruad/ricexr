@@ -1,0 +1,236 @@
+/* ============================================================
+   SessionIntro.uss — estilos de la introducción de sesión.
+
+   Referencia visual: los paneles de sistema de Horizon OS.
+   Tres reglas que se respetan en todo el archivo:
+
+   1. La jerarquía se hace con TAMAÑO y PESO, no con color.
+      Casi todo es neutro y el azul se reserva para lo pulsable.
+   2. Nada de bordes de acento, chips de icono ni barras
+      decorativas. Solo una hairline blanca muy tenue arriba,
+      que imita el reflejo de un panel físico.
+   3. Texto alineado a la izquierda y mucho aire. El centrado
+      y las cajas anidadas son justo lo que hace que una UI
+      parezca una landing web en vez de una aplicación.
+   ============================================================ */
+
+/* NOTA SOBRE EL DEGRADADO
+   background-image NO acepta linear-gradient() en esta versión de Unity: solo
+   admite <resource> | <url> | none, y al rechazar el valor pinta su textura de
+   error estirada sobre el elemento (un triángulo amarillo gigante). El degradado
+   se hace con una textura: Shared/PanelSheen.png, estirada sobre el color de
+   fondo. Solo la usan los paneles: su brillo se concentra arriba y necesita
+   superficie alta para difuminarse, así que en el botón queda mal.
+
+   Lo que NO hay que tocar de esa textura: su importador lleva la compresión
+   desactivada en las tres plataformas. En Android (Quest) el ETC2/ASTC aproxima
+   el alpha por bloques y destroza las rampas sutiles: se vería bien en el editor
+   y a franjas en las gafas. Tampoco tiene mipmaps (una textura de UI estirada
+   solo se emborrona con ellos) y va en Clamp. */
+
+:root {
+    --c-surface: rgb(20, 23, 28);
+    --c-hairline: rgba(255, 255, 255, 0.1);
+    --c-divider: rgb(38, 41, 48);
+
+    /* Grises sólidos, no blanco con alpha: sobre un fondo en degradado,
+       el alpha haría que el texto cambiara de tono de arriba a abajo. */
+    --c-text: rgb(255, 255, 255);
+    --c-text-secondary: rgb(161, 165, 173);
+    --c-text-tertiary: rgb(110, 114, 122);
+}
+
+/* ---------- Panel ---------- */
+.panel {
+    width: 620px;
+    padding: 40px 44px 44px 44px;
+    border-radius: 32px;
+    align-items: flex-start;
+
+    background-color: var(--c-surface);
+    background-image: url("project://database/Assets/RiceXR/UI/Shared/PanelSheen.png");
+    -unity-background-scale-mode: stretch-to-fill;
+
+    /* Único borde del diseño: el reflejo del canto superior. */
+    border-top-width: 1px;
+    border-top-color: var(--c-hairline);
+}
+
+/* ---------- Progreso (dots) ----------
+   Posición estática por panel: cada UXML marca su propio punto activo, así que
+   no hay ni código ni estado que mantener. Aparecen con el contenedor, sin
+   animación propia: la cascada de contenido ya marca el ritmo. */
+.dots {
+    flex-direction: row;
+    margin-bottom: 26px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--c-divider);
+    margin-right: 8px;
+}
+
+.dot--active {
+    background-color: var(--c-text);
+}
+
+/* ---------- Bloque texto + imagen ----------
+   Fila con el texto a la izquierda y una imagen ancla a la derecha. La imagen
+   rompe el muro de texto y le da a cada panel algo que mirar mientras entra. */
+.hero {
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.hero__text {
+    flex-grow: 1;
+}
+
+.hero__image {
+    width: 176px;
+    height: 176px;
+    flex-shrink: 0;
+    margin-left: 28px;
+    border-radius: 24px;
+    -unity-background-scale-mode: scale-and-crop;
+
+    /* Mismo reflejo del canto superior que los paneles. */
+    border-top-width: 1px;
+    border-top-color: var(--c-hairline);
+}
+
+/* Variante vertical (3:4) para las fotos de enfermedad, que son retrato. */
+.hero__image--portrait {
+    width: 156px;
+    height: 208px;
+}
+
+/* ---------- Clase 'reveal' ----------
+   No define estilos: SessionIntroController la busca al mostrar un panel y
+   encadena la entrada de cada elemento (fade + deslizamiento vertical) en el
+   orden en que aparecen aquí. */
+
+/* ---------- Tipografía ---------- */
+.title {
+    font-size: 34px;
+    color: var(--c-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.body {
+    font-size: 17px;
+    color: var(--c-text-secondary);
+    white-space: normal;
+    margin-top: 14px;
+}
+
+/* ---------- Lista simple (panel "qué vas a encontrar") ----------
+   Filas separadas por una línea, sin cajas ni viñetas. */
+.list {
+    width: 100%;
+    margin-top: 26px;
+}
+
+.list__row {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top-width: 1px;
+    border-top-color: var(--c-divider);
+}
+
+/* USS no tiene :first-child, así que la primera fila se marca a mano. */
+.list__row--first {
+    border-top-width: 0;
+    padding-top: 0;
+}
+
+.list__text {
+    font-size: 17px;
+    color: var(--c-text-secondary);
+    white-space: normal;
+}
+
+/* ---------- Pasos numerados ----------
+   Lista vertical con el número como prefijo tenue. Sustituye a la
+   rejilla de tres tarjetas, que es el patrón más reconocible de
+   "sección de features" de una web. */
+.steps {
+    width: 100%;
+    margin-top: 26px;
+}
+
+.step {
+    flex-direction: row;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    border-top-width: 1px;
+    border-top-color: var(--c-divider);
+}
+
+.step--first {
+    border-top-width: 0;
+    padding-top: 0;
+}
+
+.step__index {
+    width: 40px;
+    flex-shrink: 0;
+    font-size: 17px;
+    color: var(--c-text-tertiary);
+    -unity-font-style: bold;
+}
+
+.step__body {
+    flex-grow: 1;
+}
+
+.step__name {
+    font-size: 19px;
+    color: var(--c-text);
+    -unity-font-style: bold;
+}
+
+.step__detail {
+    font-size: 16px;
+    color: var(--c-text-secondary);
+    white-space: normal;
+    margin-top: 5px;
+}
+
+/* ---------- Botón ----------
+   Píldora de relleno sólido. El azul solo aparece aquí: es la única
+   cosa pulsable de toda la introducción. */
+.button {
+    width: 420px;
+    height: 96px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: 48px;
+
+    /* Relleno plano, sin la textura de brillo de los paneles: su degradado está
+       pensado para superficies altas y en una píldora de ~96px se comprime en una
+       línea con corte seco. Los botones de Horizon OS son planos de todos modos. */
+    background-color: rgb(0, 100, 224);
+
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.16);
+}
+
+.button__icon {
+    width: 46px;
+    height: 46px;
+    margin-right: 16px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.button__label {
+    font-size: 27px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+}

@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss"/>
+    <ui:VisualElement name="msg-incorrect" class="quest-surface quest-feedback" style="position: relative; bottom: 120px;">
+        <ui:VisualElement class="quest-feedback__header">
+            <ui:Label text="?" name="Label" class="quest-feedback__icon quest-feedback__icon--error quest-feedback__icon-label quest-feedback__icon-label--error"/>
+            <ui:Label name="incorrect-title" text="Incorrecto" class="quest-feedback__title quest-feedback__title--error"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="VisualElement" class="quest-feedback__message">
+            <ui:Label name="incorrect-sub" text="La enfermedad o severidad seleccionada son incorrectas." class="quest-feedback__body" style="-unity-text-align: middle-center;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

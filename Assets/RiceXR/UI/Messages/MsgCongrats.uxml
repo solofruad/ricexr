@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss"/>
+    <ui:VisualElement name="msg-congrats" class="quest-surface quest-surface--compact quest-panel quest-panel--centered quest-message">
+        <ui:Label text="🏆" class="quest-message__icon quest-message__icon--large quest-accent--warning"/>
+
+        <ui:Label name="congrats-title" text="¡Excelente trabajo!" class="quest-message__title"/>
+        <ui:Label name="congrats-subtitle" text="Identificaste correctamente todas las plantas enfermas." class="quest-message__subtitle"/>
+
+        <ui:VisualElement class="quest-message__rule quest-message__rule--success" style="margin-top: 20px;"/>
+    </ui:VisualElement>
+</ui:UXML>

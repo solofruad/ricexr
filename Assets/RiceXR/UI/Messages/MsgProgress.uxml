@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss"/>
+    <!--
+        MsgProgress.uxml
+        IMPORTANTE: el VisualElement name="progress-dots" es requerido por UIMessagesController.
+        Los dots reales se generan dinámicamente en runtime según plantsRequired del nivel.
+        Este contenedor solo actúa como padre — no pongas dots hardcodeados aquí.
+    -->
+    <ui:VisualElement name="msg-progress" class="quest-surface quest-surface--compact quest-panel quest-panel--centered quest-message">
+        <ui:Label text="🌿" class="quest-message__progress-icon"/>
+
+        <ui:Label name="progress-main" text="0 de 1 plantas" class="quest-message__progress-title"/>
+
+        <ui:Label name="progress-sub" text="Te falta 1 planta por seleccionar." class="quest-message__progress-subtitle"/>
+
+        <!--
+            progress-dots: contenedor de dots generados dinámicamente por UIMessagesController.
+            EnsureProgressDots() añade aquí los VisualElements de cada planta.
+        -->
+        <ui:VisualElement name="progress-dots" class="quest-list" style="flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap;"/>
+
+    </ui:VisualElement>
+</ui:UXML>

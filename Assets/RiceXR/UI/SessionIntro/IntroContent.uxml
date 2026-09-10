@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/RiceXR/UI/SessionIntro/SessionIntro.uss"/>
+    <ui:VisualElement name="intro-content" class="panel">
+        <ui:VisualElement class="dots">
+            <ui:VisualElement class="dot"/>
+            <ui:VisualElement class="dot dot--active"/>
+            <ui:VisualElement class="dot"/>
+            <ui:VisualElement class="dot"/>
+        </ui:VisualElement>
+
+        <ui:Label text="Qué vas a encontrar" class="title reveal"/>
+
+        <ui:VisualElement class="hero">
+            <ui:VisualElement class="list hero__text">
+                <ui:VisualElement class="list__row list__row--first reveal">
+                    <ui:Label text="Hojas de arroz reales, sobre tu propia mesa." class="list__text"/>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="list__row reveal">
+                    <ui:Label text="Manchas y lesiones que aprenderás a leer." class="list__text"/>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="list__row reveal">
+                    <ui:Label text="Una ficha por enfermedad, con fotos de verdad." class="list__text"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:Image class="hero__image hero__image--portrait reveal" style="background-image: url(&quot;project://database/Assets/RiceXR/UI/Images/Pyri/IMG_8360.JPEG?fileID=2800000&amp;guid=9eb29fab2d4560443a8121c624f33552&amp;type=3#IMG_8360&quot;);"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

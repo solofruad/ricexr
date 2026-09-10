@@ -1,9 +1,0 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/Hojas/UI/Shared/RiceXRUI.uss"/>
-    <ui:VisualElement class="quest-plane-guide">
-        <ui:VisualElement class="quest-plane-guide__card">
-            <ui:Label text="Mantén tu mano encima &#10;para seleccionar&#10;" class="quest-plane-guide__label"/>
-            <ui:Image class="quest-plane-guide__arrow" style="background-image: url(&quot;project://database/Assets/Hojas/Prefabs/UI/UIToolkit/Images/Arrow.svg?fileID=7388822144124034973&amp;guid=a844d924cfb9d9840a3424526ecfd266&amp;type=3#Arrow&quot;);"/>
-        </ui:VisualElement>
-    </ui:VisualElement>
-</ui:UXML>

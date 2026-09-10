@@ -1,0 +1,81 @@
+/* ============================================================
+   TutorialMessage.uss — mensaje de guia del tutorial.
+
+   Un mensaje a la vez, frente al jugador. Mismo lenguaje visual
+   que SessionIntro.uss (paleta, textura de panel, hairline):
+   jerarquia por tamano y peso, texto a la izquierda, sin bordes
+   de acento. La unica diferencia es la escala: este panel se lee
+   de un vistazo, no se estudia.
+   ============================================================ */
+
+:root {
+    --c-surface: rgb(20, 23, 28);
+    --c-hairline: rgba(255, 255, 255, 0.1);
+    --c-divider: rgb(38, 41, 48);
+    --c-text: rgb(255, 255, 255);
+    --c-text-secondary: rgb(161, 165, 173);
+}
+
+/* ---------- Panel ----------
+   Rellena el quad world-space del UIDocument, que se configura en
+   la escena: World Space Size Mode = Fixed y el ancho/alto en
+   PIXELES. El tamano fisico sale de ahi mas la escala del
+   Transform (metros = px / 100 con el PanelSettings del proyecto).
+   Este UXML esta pensado para un lienzo de ~600 x 360 px. El
+   contenido se centra para que el bloque icono+texto respire
+   igual con o sin icono. */
+.message {
+    width: 100%;
+    height: 100%;
+    padding: 36px 40px;
+    border-radius: 32px;
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--c-surface);
+    background-image: url("project://database/Assets/RiceXR/UI/Shared/PanelSheen.png");
+    -unity-background-scale-mode: stretch-to-fill;
+
+    /* Reflejo del canto superior, como los paneles de la intro. */
+    border-top-width: 1px;
+    border-top-color: var(--c-hairline);
+}
+
+/* ---------- Bloque icono + texto ---------- */
+.message__content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Iconos opcionales. Estan ocultos por defecto: el codigo
+   (PlayerFacingMessagePanel) muestra por nombre el que pida cada
+   mensaje, y si un mensaje no pide ninguno, el texto queda
+   centrado solo. */
+.message-icon {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    margin-right: 32px;
+    display: none;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.message__text {
+    flex-grow: 1;
+}
+
+/* ---------- Tipografia ---------- */
+.message__title {
+    font-size: 34px;
+    color: var(--c-text);
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.message__body {
+    font-size: 18px;
+    color: var(--c-text-secondary);
+    white-space: normal;
+    margin-top: 12px;
+}

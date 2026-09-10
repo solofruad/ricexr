@@ -1,0 +1,71 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <!-- ============================================================
+         Panel 2 de 3 — LA ENFERMEDAD
+
+         Que es y como se reconoce. Aqui la descripcion cabe entera,
+         sin recortes.
+
+         Las tres filas son lo que hay que llevarse en la cabeza
+         —agente causal, como se propaga, que buscar en la hoja— para
+         que el jugador llegue a las hojas sabiendo QUE mirar.
+
+         Lo llena DiseaseIntroStepPanel:
+           message-title           ← infoHeadline
+           message-body            ← infoBody (o data.description si falta)
+           disease-intro-row-0..2  ← infoRows (las vacias se ocultan)
+           disease-intro-image     ← infoImage
+
+         El orden de los elementos con clase 'reveal' es el orden en
+         que entran.
+         ============================================================ -->
+    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss" />
+    <Style src="project://database/Assets/RiceXR/UI/DiseaseIntro/DiseaseIntro.uss" />
+
+    <ui:VisualElement name="message-panel" class="disease-intro">
+
+        <ui:VisualElement class="disease-intro__dots">
+            <ui:VisualElement class="disease-intro__dot" />
+            <ui:VisualElement class="disease-intro__dot disease-intro__dot--active" />
+            <ui:VisualElement class="disease-intro__dot" />
+        </ui:VisualElement>
+
+        <ui:Label name="message-title" text="¿Qué es esta enfermedad?"
+                  class="disease-intro__title reveal" />
+        <ui:Label name="message-body"
+                  text="Un hongo que ataca hojas, cuello y panícula. Prospera con humedad alta y noches frescas."
+                  class="disease-intro__body reveal" />
+
+        <ui:VisualElement class="disease-intro__split">
+
+            <ui:VisualElement class="disease-intro__col">
+                <ui:VisualElement class="disease-intro__rows">
+
+                    <ui:VisualElement name="disease-intro-row-0"
+                                      class="disease-intro__row disease-intro__row--first reveal">
+                        <ui:Label text="Qué la causa" class="disease-intro__row-title" />
+                        <ui:Label text="Un hongo que sobrevive en los restos del cultivo anterior."
+                                  class="disease-intro__row-detail" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement name="disease-intro-row-1" class="disease-intro__row reveal">
+                        <ui:Label text="Cómo se contagia" class="disease-intro__row-title" />
+                        <ui:Label text="Por esporas que viajan con el viento y el rocío."
+                                  class="disease-intro__row-detail" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement name="disease-intro-row-2" class="disease-intro__row reveal">
+                        <ui:Label text="Qué buscar en la hoja" class="disease-intro__row-title" />
+                        <ui:Label text="Manchas alargadas, con centro gris y borde marrón."
+                                  class="disease-intro__row-detail" />
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:Image name="disease-intro-image" scale-mode="ScaleAndCrop"
+                      class="disease-intro__image reveal" />
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>
