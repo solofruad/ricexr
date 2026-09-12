@@ -213,6 +213,13 @@ public class DiseaseSelectionSystem : MonoBehaviour
     }
 
     /// <summary>
+    /// Estado actual de la disponibilidad del selector. Quien lo bloquee de forma
+    /// temporal debe leerlo antes y restaurarlo despues, en vez de asumir que estaba
+    /// habilitado: durante los actos guiados del tutorial no lo esta.
+    /// </summary>
+    public bool PanelAvailable => _panelAvailable;
+
+    /// <summary>
     /// Controla si el selector puede abrirse automaticamente al agarrar una hoja.
     /// El tutorial lo desactiva durante agarrar/observar/pista y lo habilita solo
     /// al entrar en el acto de diagnostico.

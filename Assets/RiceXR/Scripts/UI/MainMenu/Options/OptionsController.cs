@@ -22,7 +22,15 @@ public class OptionsController : MonoBehaviour
     [SerializeField] private NarrationReproductor narrationReproductor;
     [SerializeField] private MainMenuController mainMenuController;
 
+    [Tooltip("Ancla el panel a la mano cuando se abre en partida. Vacío = el panel se " +
+             "queda en el sitio fijo que tiene junto al menú principal.")]
+    [SerializeField] private HandAnchoredPanel handAnchoredPanel;
+
     private OptionsContext _context = OptionsContext.MainMenu;
+
+    // El tutorial también bloquea el menú de diagnóstico durante sus actos guiados, así
+    // que al cerrar hay que devolverlo a como estaba y no darlo por habilitado.
+    private bool _diagnosisAvailableBeforeOpen = true;
 
     private void Awake()
     {
@@ -67,6 +75,9 @@ public class OptionsController : MonoBehaviour
         }
 
         _context = OptionsContext.MainMenu;
+        // En el menú principal el panel vive en su sitio fijo del prefab, como panel
+        // lateral del menú, no colgado de la mano.
+        HandPanel?.Detach();
         Open();
     }
 
@@ -77,13 +88,48 @@ public class OptionsController : MonoBehaviour
     {
         _context = OptionsContext.InGame;
         Open();
+
+        // El panel se abre donde esté el jugador, no donde quedó el menú principal.
+        HandPanel?.Attach();
+
+        // La partida sigue corriendo detrás del panel: no se congela nada. Solo se
+        // suspende lo que competiría con él — el menú de diagnóstico usa el mismo rayo
+        // y el mismo espacio — y la narración en curso, que hablaría sola.
+        DiseaseSelectionSystem diseaseSelection = DiseaseSelectionSystem.Instance;
+        _diagnosisAvailableBeforeOpen = diseaseSelection == null || diseaseSelection.PanelAvailable;
+        diseaseSelection?.SetPanelAvailability(false);
+
+        narrationReproductor?.Stop();
     }
 
     /// <summary>Cierra el panel sin modificar el estado de la partida.</summary>
     public void Close()
     {
-        if (gameObject.activeSelf)
-            gameObject.SetActive(false);
+        if (!gameObject.activeSelf) return;
+
+        if (_context == OptionsContext.InGame)
+        {
+            // Detach antes de desactivar: si no, el panel se guardaría en la mano y
+            // reaparecería ahí la próxima vez que se abriera desde el menú principal.
+            HandPanel?.Detach();
+            DiseaseSelectionSystem.Instance?.SetPanelAvailability(_diagnosisAvailableBeforeOpen);
+        }
+
+        gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// El componente de anclaje vive en este mismo GameObject, que arranca desactivado:
+    /// se resuelve de forma perezosa porque Awake no ha corrido en la primera apertura.
+    /// </summary>
+    private HandAnchoredPanel HandPanel
+    {
+        get
+        {
+            if (handAnchoredPanel == null)
+                handAnchoredPanel = GetComponent<HandAnchoredPanel>();
+            return handAnchoredPanel;
+        }
     }
 
     private void Open()
