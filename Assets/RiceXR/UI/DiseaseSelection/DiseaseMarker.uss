@@ -88,19 +88,15 @@
     align-items: center;
 }
 
-.seg {
+.severity-tick {
     flex-grow: 1;
-    height: 10px;
-    border-radius: 5px;
-    margin-right: 5px;
+    font-size: 13px;
+    -unity-text-align: middle-center;
+    color: var(--quest-text-secondary);
 }
-
-.seg.active {
-    background-color: var(--marker-severity);
-}
-
-.seg.inactive {
-    background-color: var(--marker-severity-soft);
-    border-width: 1px;
-    border-color: var(--marker-severity-mid);
+.severity-tick.active {
+    color: var(--quest-text);
+    -unity-font-style: bold;
+    border-bottom-width: 2px;
+    border-bottom-color: var(--quest-success);
 }
