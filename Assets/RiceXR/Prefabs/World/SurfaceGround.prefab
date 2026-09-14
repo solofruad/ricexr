@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4718203946512730181
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4718203946512730182}
+  - component: {fileID: 4718203946512730183}
+  m_Layer: 0
+  m_Name: SurfaceGround
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4718203946512730182
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4718203946512730181}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4718203946512730183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4718203946512730181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6e2c4f8b1d4a3e7c5f9b2d6e0a8c17, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  grassMaterial: {fileID: 2100000, guid: 5f3a9c1e7b2d4f6a8c0e2b4d6f8a1c35, type: 2}
+  rootMaterial: {fileID: 2100000, guid: 2b7d4f9a1c3e4b5d7f9a1c3e5b7d9f02, type: 2}
+  sharpness: 5
+  rimInset: 0.03
+  topLift: 0.008
+  lipDrop: 0.015
+  rootDepthRatio: 0.35
+  rootDepthRange: {x: 0.12, y: 0.25}
+  segments: 56
+  surfaceJitter: 0.003
+  rootJitter: 0.02
+  decorations:
+  - label: Matitas
+    models:
+    - {fileID: 919132149155446097, guid: 3ff07b6d0e7e40e408460d0dac269021, type: 3}
+    materialOverride: {fileID: 2100000, guid: 93fc4eb0cd10c0c47bb2bf464074229b, type: 2}
+    densityPerSquareMeter: 20
+    clusterSize: {x: 3, y: 6}
+    clusterRadius: 0.02
+    heightRange: {x: 0.07, y: 0.14}
+    tiltRange: {x: 5, y: 25}
+    maxRadius: 0.85
+    sinkDepth: 0.004
+  - label: Piedras
+    models:
+    - {fileID: 919132149155446097, guid: 780133e7336254b4d9cface8d1e16916, type: 3}
+    - {fileID: 919132149155446097, guid: 96ce15910f8d41046829227416f01379, type: 3}
+    materialOverride: {fileID: 2100000, guid: 24c9ba10901355740aad456697cb7a52, type: 2}
+    densityPerSquareMeter: 3
+    clusterSize: {x: 1, y: 2}
+    clusterRadius: 0.05
+    heightRange: {x: 0.03, y: 0.07}
+    tiltRange: {x: 0, y: 8}
+    maxRadius: 0.8
+    sinkDepth: 0.01
+  maxDecorations: 180
+  spreadDuration: 0.7
+  rootDelay: 0.15
+  rootDuration: 0.6
+  decorationDelay: 0.35
+  decorationWaveDuration: 1
+  decorationPopDuration: 0.35
+  retractDuration: 0.35

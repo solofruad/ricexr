@@ -31,6 +31,10 @@ public class SceneInteractionManager : MonoBehaviour
     [SerializeField] private Transform spawnParent;
     [SerializeField] private int currentLevelIndex = 0;
 
+    [Tooltip("Distancia bajo el plano azul donde nacen las hojas y se apoya el terreno (m). " +
+             "El plano flota SeparacionVertical sobre la superficie real.")]
+    [SerializeField] private float surfaceOffset = 0.03f;
+
 
     private readonly List<LevelConfig> _runtimeLevels = new List<LevelConfig>();
 
@@ -138,7 +142,8 @@ public class SceneInteractionManager : MonoBehaviour
 
         // currentLevelInstance es el contenedor raíz. Las hojas van dentro de él.
         currentLevelInstance = Instantiate(prefabToSpawn, Vector3.zero, Quaternion.identity, parent);
-        currentLevelInstance.transform.position = targetPosition - targetRotation * Vector3.up * 0.03f;
+        // Mismo origen que SurfaceGroundController: las hojas nacen justo bajo la tapa del terreno.
+        currentLevelInstance.transform.position = SelectedSurfacePosition;
         currentLevelInstance.transform.rotation = targetRotation;
 
         DiseaseSelectionSystem.Instance?.Hide();
@@ -252,4 +257,10 @@ public class SceneInteractionManager : MonoBehaviour
     public Quaternion SelectedPlaneRotation => targetRotation;
     public Vector3 SelectedPlaneScale => targetScale;
     public bool HasSelectedPlane => hasBeenActivated;
+
+    /// <summary>Origen donde nacen las hojas y se apoya el terreno: surfaceOffset bajo el plano azul.</summary>
+    public Vector3 SelectedSurfacePosition => targetPosition - targetRotation * Vector3.up * surfaceOffset;
+
+    /// <summary>Tamaño mundial del plano seleccionado en metros (ancho X, fondo Z).</summary>
+    public Vector2 SelectedSurfaceSize => new Vector2(Mathf.Abs(targetScale.x), Mathf.Abs(targetScale.z));
 }
