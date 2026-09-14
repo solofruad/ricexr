@@ -1,12 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss"/>
-    <ui:VisualElement name="msg-incorrect" class="quest-surface quest-feedback" style="position: relative; bottom: 120px;">
+    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss?fileID=7433441132597879392&amp;guid=aa710d7cc42d420895fc62535ed1a2c5&amp;type=3#RiceXRUI"/>
+    <ui:VisualElement name="msg-incorrect" class="quest-surface quest-feedback" style="position: relative; bottom: 0; -unity-background-image-tint-color: rgb(214, 0, 0); border-left-color: rgb(255, 0, 0); border-right-color: rgb(255, 0, 0); border-top-color: rgb(255, 0, 0); border-bottom-color: rgb(255, 0, 0); border-top-width: 2px; -unity-text-align: middle-center;">
         <ui:VisualElement class="quest-feedback__header">
             <ui:Label text="?" name="Label" class="quest-feedback__icon quest-feedback__icon--error quest-feedback__icon-label quest-feedback__icon-label--error"/>
             <ui:Label name="incorrect-title" text="Incorrecto" class="quest-feedback__title quest-feedback__title--error"/>
         </ui:VisualElement>
-        <ui:VisualElement name="VisualElement" class="quest-feedback__message">
-            <ui:Label name="incorrect-sub" text="La enfermedad o severidad seleccionada son incorrectas." class="quest-feedback__body" style="-unity-text-align: middle-center;"/>
-        </ui:VisualElement>
+        <ui:Label name="incorrect-sub" text="La enfermedad o severidad seleccionada son incorrectas." class="quest-feedback__body" style="-unity-text-align: middle-center;"/>
     </ui:VisualElement>
 </ui:UXML>

@@ -1,501 +1,541 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
+using System.Linq;
 using DG.Tweening;
 using RiceXR.Core;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
-/// <summary>
-/// Es el menu UI con su sistema para la seleccion de enfermedades.
-/// Funcionalidades principales:
-/// 1. Gestiona dos grupos de seleccion: Enfermedades y Niveles de Severidad
-/// 2. Valida las selecciones del usuario contra TODOS los DiseaseSpots de la hoja
-/// 3. Si un spot tiene severity == -1, solo se valida la enfermedad (severidad ignorada)
-/// 4. Proporciona feedback visual inmediato (correcto/incorrecto)
-/// 5. Permite un margen de error configurable para la severidad
-/// 6. Integra con el sistema de progreso de niveles por GameEventBus
-/// 7. Aparece y desaparece solo, según haya o no una hoja agarrada
-/// Flujo de trabajo:
-/// 1. El jugador agarra una hoja → SyncPanelWithSelection() en LateUpdate lo muestra
-/// 2. Usuario selecciona enfermedad y severidad mediante Toggles
-/// 3. Usuario presiona boton de submit
-/// 4. Sistema verifica hoja agarrada y compara con TODOS sus DiseaseSpots
-/// 5. Muestra feedback visual, registra eventos y publica al GameEventBus
-/// 6. Si correcto: muestra marcadores y publica progreso de plantas
-/// </summary>
 public class DiseaseSelectionSystem : MonoBehaviour
 {
     public static DiseaseSelectionSystem Instance { get; private set; }
 
-    // ── Panel raiz ───────────────────────────────────────────────────────────
-    [Header("Panel raiz")]
-    [Tooltip("Raiz de toda la UI del selector. Se oculta al inicio y se activa al iniciar pruebas.")]
+    public DiseaseCatalog catalog;
+    public DiseaseSelectionView view;
     public GameObject diseaseSelectionPanel;
+    public BodyLeashedPanel panelPlacement;
 
-    [Header("Posicionamiento en mundo")]
-    [Tooltip("Desplazamiento relativo al ancla de la mano/hoja. X = lateral, Y = altura, Z = profundidad")]
-    public Vector3 positionOffset = new Vector3(0.6f, 0.1f, 0f);
+    public AudioClip correctSelectionSound, incorrectSelectionSound;
 
-    [Header("Sonidos de feedback")]
-    public AudioClip correctSelectionSound;
-    public AudioClip incorrectSelectionSound;
+    [Header("Feedback UI Toolkit")]
+    [SerializeField] private UIDocument correctFeedbackDocument;
+    [SerializeField] private UIDocument incorrectFeedbackDocument;
+    [Min(0f)] public float feedbackDuration = 3f;
+    [Min(0f)] [SerializeField] private float feedbackFadeInDuration = 0.25f;
+    [Min(0f)] [SerializeField] private float feedbackFadeOutDuration = 0.2f;
+    [Min(0f)] [SerializeField] private float feedbackLiftPixels = 12f;
 
-    [Header("Toggle Groups")]
-    [Tooltip("ToggleGroup para las enfermedades")]
-    public ToggleGroup diseaseToggleGroup;
-    [Tooltip("ToggleGroup para la severidad")]
-    public ToggleGroup severityToggleGroup;
+    [Min(0)] public int MarginOfError;
+    public float animDuration = 0.25f;
+    public bool PanelAvailable => _panelAvailable;
 
-    [Header("Mapeo de Enfermedades")]
-    [Tooltip("Toggles de enfermedades en orden")]
-    public List<Toggle> diseaseToggles = new List<Toggle>();
-    [Tooltip("Nombres correspondientes a cada toggle")]
-    public List<string> diseaseNames = new List<string>
-    {
-        "Pyricularia oryzae",
-        "Rhynchosporium oryzae",
-    };
+    private bool _panelAvailable = true;
+    private bool _panelVisible;
+    private bool _submitting;
+    private bool _ready;
+    private bool _feedbackInProgress;
+    private bool _feedbackSuspended;
+    private bool _feedbackWasCorrect;
+    private bool _warnedCorrectFeedback;
+    private bool _warnedIncorrectFeedback;
 
-    [Header("Mapeo de Severidad")]
-    [Tooltip("Toggles de severidad en orden (1-5)")]
-    public List<Toggle> severityToggles = new List<Toggle>();
-
-    [Header("Boton de Submit")]
-    public Button submitButton;
-
-    [Header("Objetos de Feedback")]
-    [Tooltip("GameObject que se mostrara cuando sea correcto")]
-    public GameObject correctFeedbackObject;
-    [Tooltip("GameObject que se mostrara cuando sea incorrecto")]
-    public GameObject incorrectFeedbackObject;
-    [Tooltip("GameObject que se mostrara cuando no hay hoja seleccionada")]
-    public GameObject noLeafSelectedFeedbackObject;
-    [Tooltip("Duracion que el feedback estara visible")]
-    public float feedbackDuration = 3f;
-    [Tooltip("Margen de error permitido en la severidad")]
-    public int MarginOfError = 0;
-
-    [Header("Animacion de aparicion")]
-    [Tooltip("Duracion en segundos del agrandar/achicar al mostrar u ocultar")]
-    public float animDuration = 0.3f;
-
-    private int _correctSelectionsThisLevel = 0;
+    private Leaf _leaf;
+    private GrabbableLeafListener.SelectionHand _hand;
+    private DiseaseDefinition _disease;
+    private int _severity = -1;
+    private int _correctSelectionsThisLevel;
     private int _plantsRequiredThisLevel = 1;
+    private Vector3 _originalScale;
+
+    private VisualElement _correctFeedbackRoot;
+    private VisualElement _incorrectFeedbackRoot;
+    private Coroutine _feedbackRoutine;
+    private Tween _feedbackTween;
 
     private readonly HashSet<int> _identifiedLeavesThisLevel = new HashSet<int>();
 
-    private Vector3 _originalScale = Vector3.one;
-    private bool _panelVisible = false;
-    private bool _panelAvailable = true;
-    private Coroutine _feedbackCoroutine;
-
-    void Awake()
+    private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
+
+        Instance = this;
+        if (panelPlacement == null)
+            panelPlacement = GetComponent<BodyLeashedPanel>();
+        if (diseaseSelectionPanel != null)
+            _originalScale = diseaseSelectionPanel.transform.localScale;
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         GameEventBus.OnLevelStarted += HandleLevelStarted;
+        GameEventBus.OnReturningToMenu += HandleReturningToMenu;
+
+        if (view == null) return;
+        view.DiseaseChosen += ChooseDisease;
+        view.SeverityChosen += ChooseSeverity;
+        view.BackRequested += HandleBackRequested;
+        view.ConfirmRequested += OnSubmit;
     }
 
-    void LateUpdate()
+    private void Start()
     {
-        SyncPanelWithSelection();
+        string error = "Falta el catálogo o la vista del selector.";
+        _ready = catalog != null
+            && view != null
+            && diseaseSelectionPanel != null
+            && panelPlacement != null
+            && catalog.IsValid(out error);
+        if (!_ready) Debug.LogError($"[DiseaseSelection] {error}", this);
+
+        CacheFeedbackRoots(false);
+        HideFeedbackImmediate();
+        Hide();
+
+        if (_ready) ResetSelectionState();
     }
 
-#if UNITY_EDITOR
-    // Atajo de desarrollo: la tecla C diagnostica la hoja agarrada, para poder
-    // recorrer el flujo entero en el editor sin ponerse el casco. Solo compila en
-    // editor, nunca llega a la build.
-    void Update()
-    {
-        if (Keyboard.current?.cKey.wasPressedThisFrame != true || !_panelAvailable)
-            return;
-
-        Leaf currentLeaf = GrabbableLeafListener.Instance?.ActualLeafGrabbed
-            ?? FindFirstObjectByType<Leaf>();
-        if (currentLeaf == null || currentLeaf.diseaseSpots == null
-            || currentLeaf.diseaseSpots.Count == 0 || currentLeaf.diseaseSpots[0] == null)
-            return;
-
-        DiseaseSpot spot = currentLeaf.diseaseSpots[0];
-        int diseaseIndex = diseaseNames.IndexOf(spot.diseaseName);
-        int severityIndex = Mathf.Clamp(spot.severity, 1, 5) - 1;
-        if (diseaseIndex < 0 || diseaseIndex >= diseaseToggles.Count || severityIndex >= severityToggles.Count)
-            return;
-
-        GrabbableLeafListener.Instance?.SetActiveSelection(
-            currentLeaf, GrabbableLeafListener.SelectionHand.Unknown, currentLeaf.transform);
-        diseaseToggles[diseaseIndex].isOn = true;
-        severityToggles[severityIndex].isOn = true;
-        OnSubmit();
-    }
-#endif
-
-    void Start()
-    {
-        if (diseaseSelectionPanel != null)
-        {
-            _originalScale = diseaseSelectionPanel.transform.localScale;
-            diseaseSelectionPanel.SetActive(false);
-        }
-
-        if (correctFeedbackObject != null) correctFeedbackObject.SetActive(false);
-        if (incorrectFeedbackObject != null) incorrectFeedbackObject.SetActive(false);
-        if (noLeafSelectedFeedbackObject != null) noLeafSelectedFeedbackObject.SetActive(false);
-
-        if (submitButton != null)
-            submitButton.onClick.AddListener(OnSubmit);
-    }
-
-    void OnDisable()
+    private void OnDisable()
     {
         GameEventBus.OnLevelStarted -= HandleLevelStarted;
-        if (_feedbackCoroutine != null)
+        GameEventBus.OnReturningToMenu -= HandleReturningToMenu;
+
+        if (view != null)
         {
-            StopCoroutine(_feedbackCoroutine);
-            _feedbackCoroutine = null;
+            view.DiseaseChosen -= ChooseDisease;
+            view.SeverityChosen -= ChooseSeverity;
+            view.BackRequested -= HandleBackRequested;
+            view.ConfirmRequested -= OnSubmit;
+        }
+
+        CancelFeedback();
+        Hide();
+    }
+
+    private void LateUpdate()
+    {
+        if (!_ready) return;
+
+        var listener = GrabbableLeafListener.Instance;
+        Leaf selected = listener != null ? listener.ActualLeafGrabbed : null;
+
+        if (_feedbackInProgress)
+        {
+            if (!_feedbackWasCorrect && selected != _leaf)
+                FinishFeedbackNow();
+            else
+                return;
+        }
+
+        if (_feedbackSuspended) return;
+
+        if (selected != _leaf)
+        {
+            _leaf = selected;
+            ResetSelectionState();
+            _submitting = false;
+            if (_leaf != null) AttachPanel();
+        }
+
+        if (selected == null || !_panelAvailable)
+        {
+            if (_panelVisible) Hide();
+            return;
+        }
+
+        if (listener.ActiveSelectionHand != _hand) AttachPanel();
+        if (!_panelVisible)
+        {
+            AttachPanel();
+            ShowAnimated();
         }
     }
 
-    /// <summary>Muestra el panel con animacion de escala.</summary>
+    private void AttachPanel()
+    {
+        var listener = GrabbableLeafListener.Instance;
+        if (listener == null || _leaf == null) return;
+
+        _hand = listener.ActiveSelectionHand;
+        panelPlacement?.Attach(_hand);
+    }
+
     public void ShowAnimated()
     {
-        if (diseaseSelectionPanel == null) return;
-        diseaseSelectionPanel.transform.DOKill();
-        diseaseSelectionPanel.transform.localScale = new Vector3(0f, _originalScale.y, _originalScale.z);
+        if (diseaseSelectionPanel == null || _feedbackInProgress || _feedbackSuspended) return;
+
+        Transform panel = diseaseSelectionPanel.transform;
+        panel.DOKill();
+        panel.localScale = _originalScale * 0.92f;
         diseaseSelectionPanel.SetActive(true);
-        diseaseSelectionPanel.transform
-            .DOScale(new Vector3(_originalScale.x, _originalScale.y, _originalScale.z), animDuration)
-            .SetEase(Ease.InOutQuart);
+        panel.DOScale(_originalScale, animDuration)
+            .SetEase(Ease.OutCubic)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable);
         _panelVisible = true;
     }
 
-    /// <summary>Oculta el panel con animacion de escala.</summary>
-    public void HideAnimated()
-    {
-        if (diseaseSelectionPanel == null) return;
-        diseaseSelectionPanel.transform.DOKill();
-        diseaseSelectionPanel.transform
-            .DOScale(new Vector3(0f, _originalScale.y, _originalScale.z), animDuration)
-            .SetEase(Ease.InOutQuart)
-            .OnComplete(() =>
-            {
-                if (diseaseSelectionPanel != null)
-                    diseaseSelectionPanel.SetActive(false);
-            });
-        _panelVisible = false;
-    }
+    public void HideAnimated() => Hide();
 
-    /// <summary>Muestra instantaneamente (sin animacion).</summary>
     public void Show()
     {
-        if (diseaseSelectionPanel == null) return;
+        if (diseaseSelectionPanel == null || _feedbackInProgress || _feedbackSuspended) return;
+
+        diseaseSelectionPanel.transform.DOKill();
         diseaseSelectionPanel.transform.localScale = _originalScale;
         diseaseSelectionPanel.SetActive(true);
         _panelVisible = true;
     }
 
-    /// <summary>Oculta instantaneamente (sin animacion).</summary>
     public void Hide()
     {
+        panelPlacement?.Detach();
         if (diseaseSelectionPanel == null) return;
+
         diseaseSelectionPanel.transform.DOKill();
         diseaseSelectionPanel.SetActive(false);
         _panelVisible = false;
     }
 
-    /// <summary>
-    /// Estado actual de la disponibilidad del selector. Quien lo bloquee de forma
-    /// temporal debe leerlo antes y restaurarlo despues, en vez de asumir que estaba
-    /// habilitado: durante los actos guiados del tutorial no lo esta.
-    /// </summary>
-    public bool PanelAvailable => _panelAvailable;
-
-    /// <summary>
-    /// Controla si el selector puede abrirse automaticamente al agarrar una hoja.
-    /// El tutorial lo desactiva durante agarrar/observar/pista y lo habilita solo
-    /// al entrar en el acto de diagnostico.
-    /// </summary>
     public void SetPanelAvailability(bool available)
     {
         _panelAvailable = available;
+
         if (!available)
+        {
+            SuspendFeedback();
             Hide();
-    }
-
-
-    private void SyncPanelWithSelection()
-    {
-        if (diseaseSelectionPanel == null)
-            return;
-
-        if (!_panelAvailable)
-        {
-            if (_panelVisible) HideAnimated();
             return;
         }
 
-        if (GrabbableLeafListener.Instance == null)
+        if (_feedbackSuspended)
         {
-            if (_panelVisible) HideAnimated();
-            return;
-        }
-
-        Leaf selectedLeaf = GrabbableLeafListener.Instance.ActualLeafGrabbed;
-        if (selectedLeaf == null)
-        {
-            if (_panelVisible) HideAnimated();
-            return;
-        }
-
-        UpdateFollowPosition();
-        if (!_panelVisible)
-            ShowAnimated();
-    }
-
-    private void UpdateFollowPosition()
-    {
-        // Aseguramos que tenemos la hoja (nuestro plan de respaldo)
-        Leaf currentLeaf = GrabbableLeafListener.Instance.ActualLeafGrabbed;
-        if (currentLeaf == null) return;
-
-        // Obtenemos el ancla (mano o controlador)
-        Transform anchor = GrabbableLeafListener.Instance.ActiveSelectionAnchor;
-
-        // FIX PARA HAND TRACKING:
-        // Si el ancla es nula o está atorada en el origen (0,0,0), usamos la hoja
-        if (anchor == null || anchor.position.sqrMagnitude < 0.001f)
-        {
-            anchor = currentLeaf.transform;
-        }
-
-        // Si por alguna razón extrema sigue siendo nulo, salimos
-        if (anchor == null) return;
-
-        // Determinamos el signo lateral para ponerlo a la izquierda o derecha
-        float lateralSign = 1f;
-        GrabbableLeafListener.SelectionHand hand = GrabbableLeafListener.Instance.ActiveSelectionHand;
-        if (hand == GrabbableLeafListener.SelectionHand.Right)
-            lateralSign = -1f;
-
-        // Movemos el objeto base (este script) exactamente a la posición de la mano/hoja
-        transform.position = anchor.position;
-
-        // Como usas Billboard, solo nos importa el desplazamiento local
-        diseaseSelectionPanel.transform.localPosition = positionOffset * lateralSign;
-    }
-
-    // ── Logica de submit ─────────────────────────────────────────────────────
-    void OnSubmit()
-    {
-        if (!_panelAvailable)
-            return;
-
-        Leaf currentLeaf = GrabbableLeafListener.Instance != null
-            ? GrabbableLeafListener.Instance.ActualLeafGrabbed
-            : null;
-
-        if (currentLeaf == null)
-        {
-            Debug.LogWarning("No hay ninguna hoja agarrada");
-            ShowFeedbackObject(noLeafSelectedFeedbackObject);
-            return;
-        }
-
-        string selectedDisease = GetSelectedDisease();
-        int selectedSeverity = GetSelectedSeverity();
-
-        if (string.IsNullOrEmpty(selectedDisease))
-        {
-            Debug.LogWarning("Debes seleccionar una enfermedad");
-            return;
-        }
-        if (selectedSeverity <= 0)
-        {
-            Debug.LogWarning("Debes seleccionar una severidad");
-            return;
-        }
-
-        int leafId = currentLeaf.GetInstanceID();
-
-        bool isCorrect = ValidateSelection(currentLeaf, selectedDisease, selectedSeverity, out _);
-
-        // Re-diagnosticar una hoja ya resuelta en este nivel no debe contar como fallo
-        // ni como acierto: no se publica el intento (para no distorsionar las métricas)
-        // y se muestra feedback positivo, ya que el diagnóstico en sí era correcto.
-        if (isCorrect && _identifiedLeavesThisLevel.Contains(leafId))
-        {
-            Debug.Log("[DiseaseSelection] Esta hoja ya fue contabilizada en este nivel; no se registra el intento.");
-            ShowFeedback(true);
-            return;
-        }
-
-        GameEventBus.PublishDiagnosisAttemptEvaluated(selectedDisease, selectedSeverity, isCorrect);
-        ShowFeedback(isCorrect);
-
-        if (isCorrect)
-        {
-            _identifiedLeavesThisLevel.Add(leafId);
-
-            currentLeaf.ableToShowMarkers = true;
-            currentLeaf.showMarkers = true;
-            currentLeaf.SetMarkersVisibility(true);
-
-            _correctSelectionsThisLevel++;
-
-            GameEventBus.PublishPlantSelected(true, _correctSelectionsThisLevel, _plantsRequiredThisLevel);
-
-            if (_correctSelectionsThisLevel >= _plantsRequiredThisLevel)
-                GameEventBus.PublishAllPlantsSelected();
-
-            ResetSelection();
-
-            // Reproducir sonido
-            if (correctSelectionSound != null)
-            {
-                AudioSource.PlayClipAtPoint(correctSelectionSound, currentLeaf.transform.position);
-            }
-
-            // Quema y desactiva la hoja solo si la evaluación fue correcta
-            currentLeaf.BurnAndDisable();
-        }
-        else
-        {
-            // Reproducir sonido
-            if (incorrectSelectionSound != null)
-            {
-                AudioSource.PlayClipAtPoint(incorrectSelectionSound, currentLeaf.transform.position);
-            }
-            GameEventBus.PublishPlantSelected(false, _correctSelectionsThisLevel, _plantsRequiredThisLevel);
+            bool wasCorrect = _feedbackWasCorrect;
+            _feedbackSuspended = false;
+            CompleteFeedback(wasCorrect);
         }
     }
 
-    // ── Helpers de seleccion ─────────────────────────────────────────────────
-    string GetSelectedDisease()
+    private void ChooseDisease(DiseaseDefinition disease)
     {
-        if (diseaseToggleGroup == null)
-        {
-            Debug.LogError("No se ha asignado el ToggleGroup de enfermedades");
-            return null;
-        }
-        Toggle activeToggle = diseaseToggleGroup.GetFirstActiveToggle();
-        if (activeToggle == null) return null;
-        int index = diseaseToggles.IndexOf(activeToggle);
-        if (index >= 0 && index < diseaseNames.Count)
-            return diseaseNames[index];
-        Debug.LogWarning("Toggle activo no encontrado en la lista de disease toggles");
-        return null;
+        if (_submitting || !_panelAvailable || !catalog.Contains(disease)) return;
+
+        _disease = disease;
+        _severity = -1;
+        view.ShowSeverities(disease);
     }
 
-    int GetSelectedSeverity()
+    private void ChooseSeverity(int severity)
     {
-        if (severityToggleGroup == null)
-        {
-            Debug.LogError("No se ha asignado el ToggleGroup de severidad");
-            return -1;
-        }
-        Toggle activeToggle = severityToggleGroup.GetFirstActiveToggle();
-        if (activeToggle == null) return -1;
-        int index = severityToggles.IndexOf(activeToggle);
-        if (index >= 0) return index + 1;
-        Debug.LogWarning("Toggle activo no encontrado en la lista de severity toggles");
-        return -1;
+        if (_submitting || !_panelAvailable || _disease == null || !_disease.AllowsSeverity(severity)) return;
+
+        _severity = severity;
+        view.ShowSeverities(_disease, severity);
     }
 
-    /// <summary>
-    /// Devuelve true si la seleccion coincide con CUALQUIERA de los DiseaseSpots de la hoja.
-    /// Si un spot tiene severity == -1, la severidad se ignora y solo se valida la enfermedad.
-    /// El spot que coincidio se devuelve en matchedSpot.
-    /// </summary>
-    bool  ValidateSelection(Leaf leaf, string selectedDisease, int selectedSeverity, out DiseaseSpot matchedSpot)
+    private void HandleBackRequested()
     {
-        matchedSpot = null;
-        if (leaf.diseaseSpots == null || leaf.diseaseSpots.Count == 0)
-        {
-            Debug.LogWarning("La hoja no tiene manchas configuradas");
-            return false;
-        }
-
-        foreach (DiseaseSpot spot in leaf.diseaseSpots)
-        {
-            var candidate = new DiagnosisEvaluator.Spot(spot.diseaseName, spot.severity);
-            if (DiagnosisEvaluator.Matches(candidate, selectedDisease, selectedSeverity, MarginOfError))
-            {
-                matchedSpot = spot;
-                Debug.Log($"CORRECTO! Enfermedad: {selectedDisease}, Severidad: {selectedSeverity}");
-                return true;
-            }
-        }
-
-        var sb = new StringBuilder("INCORRECTO. Seleccionaste: ");
-        sb.Append($"{selectedDisease} Sev:{selectedSeverity}. Validos: ");
-        foreach (DiseaseSpot spot in leaf.diseaseSpots)
-        {
-            string sevStr = spot.severity == -1 ? "cualquiera" : spot.severity.ToString();
-            sb.Append($"[{spot.diseaseName} Sev:{sevStr}] ");
-        }
-        Debug.Log(sb.ToString());
-        return false;
-    }
-
-
-    void ShowFeedback(bool isCorrect)
-    {
-        if (correctFeedbackObject != null) correctFeedbackObject.SetActive(false);
-        if (incorrectFeedbackObject != null) incorrectFeedbackObject.SetActive(false);
-        GameObject target = isCorrect ? correctFeedbackObject : incorrectFeedbackObject;
-        ShowFeedbackObject(target);
-    }
-
-    void ShowFeedbackObject(GameObject feedbackObject)
-    {
-        if (feedbackObject == null)
-        {
-            return;
-        }
-
-        if (_feedbackCoroutine != null) StopCoroutine(_feedbackCoroutine);
-
-        feedbackObject.SetActive(true);
-        _feedbackCoroutine = StartCoroutine(HideFeedbackRoutine(feedbackObject, feedbackDuration));
-    }
-
-    private System.Collections.IEnumerator HideFeedbackRoutine(GameObject feedbackObject, float duration)
-    {
-        yield return new WaitForSeconds(duration);
-        if (feedbackObject != null)
-            feedbackObject.SetActive(false);
+        if (_submitting || !_panelAvailable) return;
+        ResetSelectionState();
     }
 
     public void ResetSelection()
     {
-        if (diseaseToggleGroup != null) diseaseToggleGroup.SetAllTogglesOff();
-        if (severityToggleGroup != null) severityToggleGroup.SetAllTogglesOff();
+        CancelFeedback();
+        ResetSelectionState();
     }
 
-    private void HandleLevelStarted(int levelIndex, int totalLevels, int plantsRequired)
+    private void ResetSelectionState()
     {
+        _disease = null;
+        _severity = -1;
+        if (view != null && catalog != null)
+            view.ShowDiseases(catalog);
+    }
+
+    public void OnSubmit()
+    {
+        if (!_ready || !_panelAvailable || _submitting) return;
+
+        Leaf leaf = GrabbableLeafListener.Instance?.ActualLeafGrabbed;
+        if (leaf == null || leaf != _leaf || _disease == null || !_disease.AllowsSeverity(_severity)) return;
+
+        int leafId = leaf.GetInstanceID();
+        if (_identifiedLeavesThisLevel.Contains(leafId)) return;
+
+        _submitting = true;
+        view.SetInteractionEnabled(false);
+
+        bool correct = leaf.diseaseSpots != null && leaf.diseaseSpots.Any(spot =>
+            spot != null
+            && spot.disease != null
+            && DiagnosisEvaluator.MatchesAvailable(
+                new DiagnosisEvaluator.Spot(spot.disease.id, spot.severity),
+                _disease.id,
+                _severity,
+                MarginOfError,
+                _disease.AvailableSeverities.Select(s => s.value)));
+
+        GameEventBus.PublishDiagnosisAttemptEvaluated(_disease.id, _severity, correct);
+
+        AudioClip clip = correct ? correctSelectionSound : incorrectSelectionSound;
+        if (clip != null) AudioSource.PlayClipAtPoint(clip, leaf.transform.position);
+
+        if (correct)
+        {
+            _identifiedLeavesThisLevel.Add(leafId);
+            _correctSelectionsThisLevel++;
+            leaf.BurnAndDisable();
+        }
+        else
+        {
+            GameEventBus.PublishPlantSelected(false, _correctSelectionsThisLevel, _plantsRequiredThisLevel);
+        }
+
+        if (!BeginFeedback(correct))
+            CompleteFeedback(correct);
+    }
+
+    private bool BeginFeedback(bool correct)
+    {
+        VisualElement root = ResolveFeedbackRoot(correct, true);
+        if (root == null) return false;
+
+        HideFeedbackImmediate();
+        _feedbackWasCorrect = correct;
+        _feedbackInProgress = true;
+        _feedbackSuspended = false;
+
+        root.style.display = DisplayStyle.Flex;
+        root.style.opacity = 0f;
+        root.style.translate = new StyleTranslate(new Translate(0, feedbackLiftPixels, 0));
+
+        _feedbackRoutine = StartCoroutine(FeedbackRoutine(root, correct));
+        return true;
+    }
+
+    private IEnumerator FeedbackRoutine(VisualElement root, bool correct)
+    {
+        yield return null;
+        if (!_feedbackInProgress) yield break;
+
+        float opacity = 0f;
+        _feedbackTween = DOTween.To(
+                () => opacity,
+                value =>
+                {
+                    opacity = value;
+                    root.style.opacity = value;
+                    root.style.translate = new StyleTranslate(new Translate(
+                        0,
+                        Mathf.Lerp(feedbackLiftPixels, 0f, value),
+                        0));
+                },
+                1f,
+                feedbackFadeInDuration)
+            .SetEase(Ease.OutCubic)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+
+        yield return new WaitForSeconds(feedbackDuration);
+        if (!_feedbackInProgress) yield break;
+
+        _feedbackTween?.Kill();
+        float from = root.resolvedStyle.opacity;
+        Tween fadeOut = DOTween.To(
+                () => from,
+                value =>
+                {
+                    from = value;
+                    root.style.opacity = value;
+                },
+                0f,
+                feedbackFadeOutDuration)
+            .SetEase(Ease.InQuad)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable);
+        _feedbackTween = fadeOut;
+
+        while (fadeOut.IsActive() && !fadeOut.IsComplete())
+            yield return null;
+
+        root.style.display = DisplayStyle.None;
+        _feedbackTween = null;
+        _feedbackRoutine = null;
+        _feedbackInProgress = false;
+        CompleteFeedback(correct);
+    }
+
+    private void CompleteFeedback(bool correct)
+    {
+        _submitting = false;
+        view?.SetInteractionEnabled(true);
+
+        if (!correct)
+        {
+            ResetSelectionState();
+            return;
+        }
+
+        Hide();
+        GameEventBus.PublishPlantSelected(true, _correctSelectionsThisLevel, _plantsRequiredThisLevel);
+
+        if (_correctSelectionsThisLevel >= _plantsRequiredThisLevel)
+            GameEventBus.PublishAllPlantsSelected();
+    }
+
+    private void FinishFeedbackNow()
+    {
+        if (!_feedbackInProgress) return;
+
+        bool wasCorrect = _feedbackWasCorrect;
+        StopFeedbackAnimation();
+        HideFeedbackImmediate();
+        _feedbackInProgress = false;
+        CompleteFeedback(wasCorrect);
+    }
+
+    private void SuspendFeedback()
+    {
+        if (!_feedbackInProgress) return;
+
+        StopFeedbackAnimation();
+        HideFeedbackImmediate();
+        _feedbackInProgress = false;
+        _feedbackSuspended = true;
+    }
+
+    private void CancelFeedback()
+    {
+        StopFeedbackAnimation();
+        HideFeedbackImmediate();
+        _feedbackInProgress = false;
+        _feedbackSuspended = false;
+        _submitting = false;
+        view?.SetInteractionEnabled(true);
+    }
+
+    private void StopFeedbackAnimation()
+    {
+        if (_feedbackRoutine != null)
+        {
+            StopCoroutine(_feedbackRoutine);
+            _feedbackRoutine = null;
+        }
+
+        _feedbackTween?.Kill();
+        _feedbackTween = null;
+    }
+
+    private void CacheFeedbackRoots(bool warn)
+    {
+        if (_correctFeedbackRoot == null || _correctFeedbackRoot.panel == null)
+            _correctFeedbackRoot = ResolveFeedbackRoot(correctFeedbackDocument, "msg-correct", warn, ref _warnedCorrectFeedback);
+
+        if (_incorrectFeedbackRoot == null || _incorrectFeedbackRoot.panel == null)
+            _incorrectFeedbackRoot = ResolveFeedbackRoot(incorrectFeedbackDocument, "msg-incorrect", warn, ref _warnedIncorrectFeedback);
+    }
+
+    private VisualElement ResolveFeedbackRoot(bool correct, bool warn)
+    {
+        CacheFeedbackRoots(warn);
+        return correct ? _correctFeedbackRoot : _incorrectFeedbackRoot;
+    }
+
+    private VisualElement ResolveFeedbackRoot(
+        UIDocument document,
+        string rootName,
+        bool warn,
+        ref bool warned)
+    {
+        if (document == null)
+        {
+            if (warn && !warned)
+            {
+                warned = true;
+                Debug.LogWarning($"[DiseaseSelection] Falta asignar el UIDocument '{rootName}'.", this);
+            }
+            return null;
+        }
+
+        if (!document.gameObject.activeSelf)
+            document.gameObject.SetActive(true);
+
+        VisualElement root = document.rootVisualElement?.Q<VisualElement>(rootName);
+        if (root != null) return root;
+
+        if (warn && !warned)
+        {
+            warned = true;
+            Debug.LogWarning(
+                $"[DiseaseSelection] El UIDocument '{document.name}' no contiene la raíz '{rootName}' o todavía no está activo.",
+                this);
+        }
+
+        return null;
+    }
+
+    private void HideFeedbackImmediate()
+    {
+        SetFeedbackHidden(_correctFeedbackRoot);
+        SetFeedbackHidden(_incorrectFeedbackRoot);
+    }
+
+    private static void SetFeedbackHidden(VisualElement root)
+    {
+        if (root == null) return;
+        root.style.display = DisplayStyle.None;
+        root.style.opacity = 0f;
+    }
+
+    private void HandleLevelStarted(int index, int total, int required)
+    {
+        CancelFeedback();
         _correctSelectionsThisLevel = 0;
-        _plantsRequiredThisLevel = Mathf.Max(1, plantsRequired);
+        _plantsRequiredThisLevel = Mathf.Max(1, required);
         _identifiedLeavesThisLevel.Clear();
+        _leaf = null;
         _panelAvailable = true;
-        ResetSelection();
+        ResetSelectionState();
         Hide();
     }
 
-    void OnDestroy()
+    private void HandleReturningToMenu()
     {
-        if (submitButton != null)
-            submitButton.onClick.RemoveListener(OnSubmit);
+        CancelFeedback();
+        _leaf = null;
+        ResetSelectionState();
+        Hide();
+    }
+
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (!_ready || !_panelAvailable || _submitting || Keyboard.current?.cKey.wasPressedThisFrame != true)
+            return;
+
+        Leaf leaf = GrabbableLeafListener.Instance?.ActualLeafGrabbed;
+        if (leaf == null || !leaf.IsDiagnosable(catalog)) return;
+
+        _leaf = leaf;
+        DiseaseSpot spot = leaf.diseaseSpots.First(s =>
+            s != null
+            && catalog.Contains(s.disease)
+            && (s.severity == -1 || s.disease.AllowsSeverity(s.severity)));
+        ChooseDisease(spot.disease);
+        ChooseSeverity(spot.severity == -1
+            ? spot.disease.AvailableSeverities.First().value
+            : spot.severity);
+        OnSubmit();
+    }
+#endif
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+        panelPlacement?.Detach();
         diseaseSelectionPanel?.transform.DOKill();
-        if (_feedbackCoroutine != null) StopCoroutine(_feedbackCoroutine);
+        _feedbackTween?.Kill();
     }
 }

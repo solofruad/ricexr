@@ -183,6 +183,8 @@ public class TutorialPanelController : MonoBehaviour
                   || _currentAct == TutorialGuidanceAct.DIAGNOSE_FIRST_LEAF)
                  && _guidedLeaf != leaf)
         {
+            if (_guidedLeaf != null && _guidedLeaf.IsBurning) return;
+
             // Blindaje para hand/controller tracking que cambie de hoja sin
             // emitir primero el release de la anterior.
             _guidedLeaf?.SetMarkersAvailability(false);
@@ -200,6 +202,9 @@ public class TutorialPanelController : MonoBehaviour
     private void HandleLeafReleased(Leaf leaf)
     {
         if (!_isVisible || _tutorialFullyCompleted || _guidedPhaseCompleted) return;
+
+        if (leaf == null || leaf.IsBurning) return;
+        if (_guidedLeaf != null && leaf != _guidedLeaf) return;
 
         if (_currentAct == TutorialGuidanceAct.OBSERVE_LEAF
             || _currentAct == TutorialGuidanceAct.REVEAL_HINT
@@ -322,6 +327,10 @@ public class TutorialPanelController : MonoBehaviour
         else if (act == TutorialGuidanceAct.GRAB_LEAF)
         {
             DiseaseSelectionSystem.Instance?.SetPanelAvailability(false);
+        }
+        else if (act == TutorialGuidanceAct.FREE_PRACTICE_SECOND_LEAF)
+        {
+            DiseaseSelectionSystem.Instance?.SetPanelAvailability(true);
         }
     }
 
