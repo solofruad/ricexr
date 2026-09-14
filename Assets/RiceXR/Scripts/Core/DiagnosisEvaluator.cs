@@ -33,10 +33,26 @@ namespace RiceXR.Core
         /// </summary>
         public static bool Matches(Spot spot, string selectedDisease, int selectedSeverity, int marginOfError)
         {
-            bool diseaseMatch = selectedDisease == spot.DiseaseName;
+            bool diseaseMatch = !string.IsNullOrWhiteSpace(selectedDisease) && selectedDisease == spot.DiseaseName;
+            if (selectedSeverity < 1 || selectedSeverity > 9 || marginOfError < 0
+                || (spot.Severity != -1 && (spot.Severity < 1 || spot.Severity > 9))) return false;
             bool severityMatch = spot.Severity == -1
                 || Math.Abs(selectedSeverity - spot.Severity) <= marginOfError;
             return diseaseMatch && severityMatch;
+        }
+
+        public static bool MatchesAvailable(Spot spot, string selectedDisease, int selectedSeverity,
+            int marginOfError, IEnumerable<int> availableSeverities)
+        {
+            if (availableSeverities == null) return false;
+            bool selectedAvailable = false;
+            bool expectedAvailable = spot.Severity == -1;
+            foreach (int severity in availableSeverities)
+            {
+                if (severity == selectedSeverity) selectedAvailable = true;
+                if (severity == spot.Severity) expectedAvailable = true;
+            }
+            return selectedAvailable && expectedAvailable && Matches(spot, selectedDisease, selectedSeverity, marginOfError);
         }
 
         /// <summary>
