@@ -86,16 +86,18 @@ public class PlantDiseasePanelController : MonoBehaviour
     /// No publica DiseaseAnalysisCompleted: de eso se encarga UIGameListener,
     /// que es quien sabe en que momento del flujo estamos.
     /// </summary>
-    public void Show(PanelDiseaseData data)
+    public void Show(DiseaseDefinition disease)
     {
+        var data = disease != null ? disease.data : null;
         if (_root == null || data == null) return;
 
         RepositionPanel();
 
         _diseaseTitle.text = data.title;
         _scientificName.text = data.scientificName;
-        _diseaseDescription.text = data.description;
+        _diseaseDescription.text = data.description + "\n\nSeveridades disponibles: " + disease.SeveritySummary;
         SetSeverityEvolutionImage(data.severityEvolutionImage);
+        DiseaseSeverityReferences.Apply(_root, disease.AvailableSeverities);
 
         if (data.images != null && data.images.Length > 0)
             carouselImages = data.images;

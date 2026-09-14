@@ -13,7 +13,7 @@ using UnityEngine.UIElements;
 ///
 ///   1) Portada       — que enfermedad toca (nombre, nombre cientifico, imagen)
 ///   2) La enfermedad — que es, como se propaga, que buscar en la hoja
-///   3) El daño       — como se mide de 1 a 5
+///   3) El daño       — valores disponibles y referencias del modelo
 ///
 /// DONDE ENCAJA EN EL FLUJO:
 ///   GameFlowController publica LevelStarted y deja el flujo esperando en
@@ -107,6 +107,7 @@ public class DiseaseIntroController : MonoBehaviour
 
     private void Awake()
     {
+        CacheContinueButton();
         HideAll();
     }
 
@@ -125,7 +126,7 @@ public class DiseaseIntroController : MonoBehaviour
     /// Si no hay nada configurado, llama al callback igualmente para no dejar el
     /// flujo del juego colgado.
     /// </summary>
-    public void ShowIntro(PanelDiseaseData data, Action onCompleted)
+    public void ShowIntro(DiseaseDefinition data, Action onCompleted)
     {
         if (_sequenceRunning)
         {
@@ -162,6 +163,7 @@ public class DiseaseIntroController : MonoBehaviour
     {
         if (!_sequenceRunning || !_waitingForPlayer) return;
         _continueClicked = true;
+        GameEventBus.PublishDiseaseIntroContinued();
     }
 
     /// <summary>
@@ -291,9 +293,10 @@ public class DiseaseIntroController : MonoBehaviour
     /// Traduce los datos de la enfermedad a los tres paneles. Un panel sin
     /// componente asignado se omite en vez de romper la secuencia.
     /// </summary>
-    private List<Step> BuildSteps(PanelDiseaseData data)
+    private List<Step> BuildSteps(DiseaseDefinition disease)
     {
         var steps = new List<Step>(3);
+        var data = disease != null ? disease.data : null;
         if (data == null) return steps;
 
         DiseaseIntroContent content = data.intro;
@@ -349,8 +352,9 @@ public class DiseaseIntroController : MonoBehaviour
                 view = new DiseaseIntroStepView
                 {
                     title         = content.severityHeadline,
-                    body          = content.severityBody,
+                    body          = content.severityBody + "\nEscala de referencia: 1, 3, 5, 7 y 9.",
                     severityImage = data.severityEvolutionImage,
+                    severityReferences = disease.AvailableSeverities,
                     rows          = content.severityRows
                 }
             });

@@ -635,3 +635,14 @@
     -unity-background-scale-mode: stretch-to-fill;
     translate: -3px 0;
 }
+
+.quest-severity-references { flex-direction: row; height: 190px; flex-shrink: 0; }
+.quest-severity-reference { flex-grow: 1; flex-basis: 0; align-items: center; }
+.quest-severity-reference-image { width: 100%; height: 145px; }
+.quest-severity-reference-color { width: 100%; height: 8px; margin-top: 4px; border-radius: 4px; }
+.quest-severity-reference-color--1 { background-color: rgb(82, 196, 101); }
+.quest-severity-reference-color--2 { background-color: rgb(155, 201, 83); }
+.quest-severity-reference-color--3 { background-color: rgb(235, 196, 74); }
+.quest-severity-reference-color--4 { background-color: rgb(238, 139, 66); }
+.quest-severity-reference-color--5 { background-color: rgb(222, 73, 73); }
+.quest-severity-reference-label { color: var(--quest-text); font-size: 18px; -unity-font-style: bold; margin-top: 3px; }

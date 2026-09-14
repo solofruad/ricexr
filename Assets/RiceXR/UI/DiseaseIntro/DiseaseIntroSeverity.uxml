@@ -1,77 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <!-- ============================================================
-         Panel 3 de 3 — EL DAÑO (severidad)
-
-         El panel que decide la partida: para acertar un diagnostico
-         hay que dar con la enfermedad Y con cuanto ha avanzado. Aqui
-         se ve la lamina de como progresa la enfermedad y la misma
-         escala de cinco bloques que el jugador vera luego en el
-         marcador de la hoja y en el menu de diagnostico, para que le
-         suene cuando le toque elegir.
-
-         Al pulsar "Continuar" en este panel crecen las hojas y aparece
-         la ficha de consulta.
-
-         Lo llena DiseaseIntroStepPanel:
-           message-title          ← severityHeadline
-           message-body           ← severityBody
-           severity-evolution     ← PanelDiseaseData.severityEvolutionImage
-           disease-intro-row-0..1 ← severityRows (las vacias se ocultan)
-
-         La escala y sus etiquetas son fijas: enseñan el rango, no
-         reflejan nada. El orden de los elementos con clase 'reveal' es
-         el orden en que entran.
-         ============================================================ -->
-    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss" />
-    <Style src="project://database/Assets/RiceXR/UI/DiseaseIntro/DiseaseIntro.uss" />
-
+    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss?fileID=7433441132597879392&amp;guid=aa710d7cc42d420895fc62535ed1a2c5&amp;type=3#RiceXRUI"/>
+    <Style src="project://database/Assets/RiceXR/UI/DiseaseIntro/DiseaseIntro.uss?fileID=7433441132597879392&amp;guid=382e58b009ca23740a9e2e8b5f4c6893&amp;type=3#DiseaseIntro"/>
     <ui:VisualElement name="message-panel" class="disease-intro">
-
         <ui:VisualElement class="disease-intro__dots">
-            <ui:VisualElement class="disease-intro__dot" />
-            <ui:VisualElement class="disease-intro__dot" />
-            <ui:VisualElement class="disease-intro__dot disease-intro__dot--active" />
+            <ui:VisualElement class="disease-intro__dot"/>
+            <ui:VisualElement class="disease-intro__dot"/>
+            <ui:VisualElement class="disease-intro__dot disease-intro__dot--active"/>
         </ui:VisualElement>
-
-        <ui:Label name="message-title" text="Cuánto ha avanzado"
-                  class="disease-intro__title reveal" />
-        <ui:Label name="message-body"
-                  text="No basta con nombrar la enfermedad: hay que decir cuánto ha avanzado, del 1 al 5."
-                  class="disease-intro__body reveal" />
-
-        <ui:Image name="severity-evolution" scale-mode="ScaleToFit"
-                  class="disease-intro__severity-image reveal" />
-
-        <ui:VisualElement class="reveal">
-            <ui:VisualElement class="disease-intro__scale">
-                <ui:VisualElement class="disease-intro__seg" />
-                <ui:VisualElement class="disease-intro__seg disease-intro__seg--2" />
-                <ui:VisualElement class="disease-intro__seg disease-intro__seg--3" />
-                <ui:VisualElement class="disease-intro__seg disease-intro__seg--4" />
-                <ui:VisualElement class="disease-intro__seg disease-intro__seg--5" />
-            </ui:VisualElement>
-            <ui:VisualElement class="disease-intro__scale-labels">
-                <ui:Label text="1 · apenas se nota" class="disease-intro__scale-label" />
-                <ui:Label text="5 · hoja tomada" class="disease-intro__scale-label" />
-            </ui:VisualElement>
-        </ui:VisualElement>
-
-        <ui:VisualElement class="disease-intro__rows">
-
-            <ui:VisualElement name="disease-intro-row-0"
-                              class="disease-intro__row disease-intro__row--first reveal">
-                <ui:Label text="Niveles bajos (1-2)" class="disease-intro__row-title" />
-                <ui:Label text="Pocas manchas, pequeñas y separadas entre sí."
-                          class="disease-intro__row-detail" />
-            </ui:VisualElement>
-
-            <ui:VisualElement name="disease-intro-row-1" class="disease-intro__row reveal">
-                <ui:Label text="Niveles altos (4-5)" class="disease-intro__row-title" />
-                <ui:Label text="Manchas que se juntan y cubren buena parte de la hoja."
-                          class="disease-intro__row-detail" />
-            </ui:VisualElement>
-
-        </ui:VisualElement>
-
+        <ui:Label name="message-title" text="Cuánto ha avanzado" class="disease-intro__title reveal" style="height: 50px;"/>
+        <ui:Label name="message-body" text="Compara la hoja con las referencias y elige una de las severidades disponibles." class="disease-intro__body reveal" style="height: 30px;"/>
+        <ui:VisualElement name="severity-references" class="quest-severity-references disease-intro__severity-scale reveal" style="height: auto; width: 844px; flex-shrink: 1; flex-grow: 1; min-height: 300px;"/>
     </ui:VisualElement>
 </ui:UXML>

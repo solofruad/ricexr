@@ -25,6 +25,7 @@ public class DiseaseIntroStepView
 
     /// <summary>Imagen que muestra como avanza la enfermedad, solo en el panel 3.</summary>
     public Texture2D severityImage;
+    public IEnumerable<DiseaseSeverity> severityReferences;
 
     /// <summary>Filas de la lista. Las que falten se ocultan.</summary>
     public DiseaseIntroRow[] rows;
@@ -148,6 +149,7 @@ public class DiseaseIntroStepPanel : PlayerFacingMessagePanel
 
         SetImage("disease-intro-image", _pendingView.image);
         SetImage("severity-evolution", _pendingView.severityImage);
+        DiseaseSeverityReferences.Apply(Root, _pendingView.severityReferences);
 
         ApplyRows(_pendingView.rows);
 

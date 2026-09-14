@@ -196,43 +196,18 @@
     flex-shrink: 0;
 }
 
-/* Escala del 1 al 5. Usa los mismos bloques que el marcador que sale
-   sobre la hoja (DiseaseMarker.uss), para que el jugador reconozca la
-   escala cuando le toque elegir en el menu de diagnostico. Los tonos
-   van en rgba escrito a mano porque USS no deja cambiarle la
-   transparencia a una var(). */
-.disease-intro__scale {
-    flex-direction: row;
-    align-items: flex-end;
+.disease-intro__severity-scale {
+    width: 100%;
+    height: 205px;
     margin-top: 16px;
-    flex-shrink: 0;
 }
 
-.disease-intro__seg {
-    flex-grow: 1;
-    height: 10px;
-    border-radius: 3px;
-    margin-right: 6px;
-    background-color: rgba(118, 158, 255, 0.2);
+.disease-intro__severity-scale .quest-severity-reference {
+    margin-right: 8px;
 }
 
-.disease-intro__seg--2 { background-color: rgba(118, 158, 255, 0.4); }
-.disease-intro__seg--3 { background-color: rgba(118, 158, 255, 0.6); }
-.disease-intro__seg--4 { background-color: rgba(118, 158, 255, 0.8); }
-.disease-intro__seg--5 {
-    background-color: rgb(118, 158, 255);
-    margin-right: 0;
-}
-
-.disease-intro__scale-labels {
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 8px;
-}
-
-.disease-intro__scale-label {
-    font-size: 13px;
-    color: var(--quest-text-tertiary);
+.disease-intro__severity-scale .quest-severity-reference-image {
+    height: 160px;
 }
 
 /* ---------- Clase 'reveal' ----------

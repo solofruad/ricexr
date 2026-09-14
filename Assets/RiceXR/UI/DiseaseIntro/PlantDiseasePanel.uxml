@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss"/>
+    <Style src="project://database/Assets/RiceXR/UI/Shared/RiceXRUI.uss?fileID=7433441132597879392&amp;guid=aa710d7cc42d420895fc62535ed1a2c5&amp;type=3#RiceXRUI"/>
     <ui:VisualElement name="panel-root" class="quest-surface quest-disease-panel">
         <ui:VisualElement name="image-side" class="quest-disease-image-side">
             <ui:VisualElement name="carousel-image" class="quest-disease-carousel"/>
@@ -14,17 +14,14 @@
         </ui:VisualElement>
         <ui:VisualElement name="content-side" class="quest-disease-content">
             <ui:VisualElement name="header-block">
-                <!-- disease-title lleva el nombre comun (grande) y scientific-name el
-                     binomial (pequeño, italica). Estaban cruzados: el codigo asigna
-                     data.title a disease-title y data.scientificName a scientific-name,
-                     asi que salia el binomial en grande y el nombre comun en italica. -->
-                <ui:Label name="disease-title" text="Añublo del arroz" class="quest-disease-name"/>
-                <ui:Label name="scientific-name" text="Pyricularia oryzae" class="quest-disease-scientific"/>
+                <ui:Label name="disease-title" text="Enfermedad" class="quest-disease-name"/>
+                <ui:Label name="scientific-name" text="Nombre científico" class="quest-disease-scientific"/>
             </ui:VisualElement>
             <ui:VisualElement class="quest-divider" style="margin-top: 5px; margin-bottom: 5px;"/>
             <ui:VisualElement class="quest-disease-main">
-                <ui:Label name="disease-description" text="Causada por un oomycete, se propaga en condiciones de alta humedad y temperaturas frescas. Las lesiones aparecen como manchas acuosas que se tornan marrones con borde amarillento. Puede destruir un cultivo completo en pocos días sin tratamiento." class="quest-disease-description"/>
-                <ui:Image name="severity-evolution" class="quest-disease-severity-image" style="background-image: url(&quot;project://database/Assets/RiceXR/UI/Images/Pyri/Severity_evolution_pyri.png?fileID=2800000&amp;guid=5afa17f81399a034196015e9fb73ff77&amp;type=3#Severity_evolution_pyri&quot;); background-position-x: left 0;"/>
+                <ui:Label name="disease-description" text="Descripción y referencias de la enfermedad." class="quest-disease-description"/>
+                <ui:Image name="severity-evolution" class="quest-disease-severity-image" style="width: 20%;"/>
+                <ui:VisualElement name="severity-references" class="quest-severity-references"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

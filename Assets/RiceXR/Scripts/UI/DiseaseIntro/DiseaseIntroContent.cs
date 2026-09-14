@@ -23,7 +23,7 @@ public class DiseaseIntroRow
 /// crezcan:
 ///   1) Portada        — que enfermedad toca
 ///   2) La enfermedad  — que es y como se reconoce
-///   3) El daño        — como se mide de 1 a 5
+///   3) El daño        — valores disponibles y referencias del modelo
 ///
 /// Vive dentro de <see cref="PanelDiseaseData"/> a proposito: asi sigue habiendo
 /// UN solo asset por enfermedad (el que ya esta puesto en
@@ -75,7 +75,7 @@ public class DiseaseIntroContent
     [Tooltip("Titular del panel 3. Por ejemplo: 'Como se mide el daño'.")]
     public string severityHeadline;
 
-    [Tooltip("Por que importa la severidad y como se lee la escala del 1 al 5.")]
+    [Tooltip("Por qué importa la severidad y cómo comparar los valores disponibles.")]
     [TextArea(3, 8)]
     public string severityBody;
 
