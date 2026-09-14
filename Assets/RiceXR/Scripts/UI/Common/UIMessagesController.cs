@@ -23,8 +23,12 @@ public class UIMessagesController : MonoBehaviour
     [SerializeField] private float progressVisibleDuration = 2.5f;
 
 
-    [Header("Anclaje sobre superficie")]
+    [Header("Anclaje sobre superficie (felicitación)")]
     [SerializeField] private float surfaceHeightOffset = 0.22f;
+
+    [Header("Anclaje frente al jugador (progreso)")]
+    [Min(0f)] [SerializeField] private float progressDistance = 1.2f;
+    [SerializeField] private float progressHeightOffset = -0.15f;
 
     private VisualElement _rootCongrats;
     private VisualElement _rootProgress;
@@ -73,7 +77,7 @@ public class UIMessagesController : MonoBehaviour
         EnsureProgressDots(total);
         UpdateProgressDots(current);
 
-        PlaceDoc(docProgress, Vector3.zero);
+        PlaceProgressInFrontOfPlayer();
         ShowPanel(_rootProgress);
 
         _progressAutoHideTween?.Kill();
@@ -86,7 +90,7 @@ public class UIMessagesController : MonoBehaviour
     public void ShowCongrats(string subtitle = null)
     {
         if (subtitle != null) _rootCongrats?.Q<Label>("congrats-subtitle").SetText(subtitle);
-        PlaceDoc(docCongrats, Vector3.zero);
+        PlaceOverSelectedSurface(docCongrats, Vector3.zero);
         ShowPanel(_rootCongrats);
     }
 
@@ -203,7 +207,7 @@ public class UIMessagesController : MonoBehaviour
         }
     }
 
-    private void PlaceDoc(UIDocument doc, Vector3 offset)
+    private void PlaceOverSelectedSurface(UIDocument doc, Vector3 offset)
     {
         if (doc == null) return;
 
@@ -221,6 +225,26 @@ public class UIMessagesController : MonoBehaviour
         if (fwd.sqrMagnitude < 0.0001f) fwd = cam.forward;
         doc.gameObject.transform.position =
             cam.position + fwd.normalized;
+    }
+
+    private void PlaceProgressInFrontOfPlayer()
+    {
+        if (docProgress == null || Camera.main == null) return;
+
+        Transform cam = Camera.main.transform;
+        Vector3 forward = cam.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 0.0001f) forward = cam.forward;
+
+        Transform panel = docProgress.gameObject.transform;
+        Vector3 position = cam.position + forward.normalized * progressDistance;
+        position.y += progressHeightOffset;
+        panel.position = position;
+
+        Vector3 toHead = cam.position - panel.position;
+        toHead.y = 0f;
+        if (toHead.sqrMagnitude > 0.0001f)
+            panel.rotation = Quaternion.LookRotation(-toHead, Vector3.up);
     }
 }
 
