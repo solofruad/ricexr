@@ -23,7 +23,7 @@ public static class GameNarrationLineIds
     public const string TutorialDone = "TUTORIAL_DONE";
 
     // Los 3 paneles que presentan la enfermedad antes de que crezcan las hojas.
-    // Se escriben en el asset de cada enfermedad (PanelDiseaseDataObject), no en
+    // Se escriben en el asset de cada enfermedad (DiseaseDefinition), no en
     // codigo: la presentacion solo publica el id que trae el asset.
     public const string DiseaseIntroPyriculariaCover = "DISEASE_INTRO_PYRICULARIA_COVER";
     public const string DiseaseIntroPyriculariaInfo = "DISEASE_INTRO_PYRICULARIA_INFO";

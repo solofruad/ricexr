@@ -16,8 +16,9 @@ using UnityEngine;
 ///   Al continuar en el último → diseasePanel.Show(asset del índice)
 ///                    + PublishDiseaseAnalysisCompleted (diferido un frame)
 ///   OnDiseaseAnalysisCompleted → las hojas crecen
-///   OnPlantSelected(correcto)  → MsgCorrect → MsgProgress
-///   OnPlantSelected(incorrecto)→ MsgIncorrect → MsgProgress
+///   DiseaseSelectionSystem muestra MsgCorrect/MsgIncorrect junto al selector.
+///   Al terminar MsgCorrect publica OnPlantSelected(correcto) → MsgProgress
+///   OnPlantSelected(incorrecto) oculta progreso previo, pero no lo vuelve a mostrar
 ///   OnAllPlantsSelected        → MsgCongrats(nivel)
 ///   OnLevelCompleted           → diseasePanel.Hide() + HideAll mensajes
 ///
@@ -62,7 +63,7 @@ public class UIGameListener : MonoBehaviour
     [Tooltip("Un PlantDiseaseDataAsset por cada nivel de aprendizaje, en el mismo " +
              "orden que levelConfigs en SceneInteractionManager. " +
              "El nivel final no necesita entrada.")]
-    [SerializeField] private PanelDiseaseDataObject[] diseaseDataPerLevel;
+    [SerializeField] private DiseaseDefinition[] diseaseDataPerLevel;
 
     [Header("Índices especiales")]
     [Tooltip("Índice base-0 del nivel de tutorial jugable (práctica sin panel de enfermedad).")]
@@ -162,7 +163,7 @@ public class UIGameListener : MonoBehaviour
         CancelFlowCoroutine();
         messagesController.HideAll();
 
-        if (plantsSelected < _currentPlantsRequired)
+        if (isCorrect && plantsSelected < _currentPlantsRequired)
             messagesController.ShowProgress(plantsSelected, _currentPlantsRequired);
     }
 
@@ -233,7 +234,7 @@ public class UIGameListener : MonoBehaviour
     /// </summary>
     private void ShowDiseasePanelForLevel(int levelIndex)
     {
-        PanelDiseaseData data = ResolveDiseaseData(levelIndex);
+        DiseaseDefinition data = ResolveDiseaseData(levelIndex);
 
         // Sin datos no hay nada que enseñar, pero el nivel tiene que arrancar
         // igual: GameFlowController está esperando este evento, y sin él la
@@ -257,9 +258,9 @@ public class UIGameListener : MonoBehaviour
     /// Deja la ficha de la enfermedad a mano para el resto del nivel y libera el
     /// flujo para que las hojas crezcan.
     /// </summary>
-    private void ShowDiseaseCard(PanelDiseaseData data)
+    private void ShowDiseaseCard(DiseaseDefinition data)
     {
-        diseasePanelController?.SetSeverityEvolutionImage(data.severityEvolutionImage);
+        diseasePanelController?.SetSeverityEvolutionImage(data.data.severityEvolutionImage);
         diseasePanelController?.Show(data);
 
         _flowCoroutine = StartCoroutine(PublishAnalysisNextFrame());
@@ -280,7 +281,7 @@ public class UIGameListener : MonoBehaviour
     /// Datos del asset configurado para el nivel indicado, o null con un warning
     /// si el índice no tiene asset asignado.
     /// </summary>
-    private PanelDiseaseData ResolveDiseaseData(int levelIndex)
+    private DiseaseDefinition ResolveDiseaseData(int levelIndex)
     {
         if (diseaseDataPerLevel == null
             || levelIndex < 0
@@ -292,7 +293,7 @@ public class UIGameListener : MonoBehaviour
             return null;
         }
 
-        PanelDiseaseData data = diseaseDataPerLevel[levelIndex].data;
+        DiseaseDefinition data = diseaseDataPerLevel[levelIndex];
         if (data == null)
             Debug.LogWarning($"[UIGameListener] El asset del nivel {levelIndex} existe pero 'data' está vacío.");
 

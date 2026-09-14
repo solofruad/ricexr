@@ -6,15 +6,11 @@ using Oculus.Interaction;
 [System.Serializable]
 public class DiseaseSpot
 {
-    [Tooltip("Nombre de la enfermedad (ej: Pyricularia, Rhynchosporium)")]
-    public string diseaseName = "Pyricularia oryzae";
+    [Tooltip("Modelo compartido de la enfermedad.")]
+    public DiseaseDefinition disease;
 
-    [Range(1, 5)]
-    [Tooltip("Severidad de la infeccion (1-5)")]
+    [Tooltip("Valor real del ejemplar (1–9); -1 acepta cualquier severidad disponible.")]
     public int severity = 3;
-
-    [Tooltip("Nombre cientifico mostrado en el panel de enfermedad")]
-    public string scientificName;
 
     [Tooltip("GameObject del marcador UIDocument ya posicionado en la escena")]
     public GameObject markerObject;
@@ -39,6 +35,11 @@ public class Leaf : MonoBehaviour
     [Tooltip("Lista de manchas. Cada una referencia su propio marcador UIDocument en la escena.")]
     public List<DiseaseSpot> diseaseSpots = new List<DiseaseSpot>();
 
+    public bool IsHealthy => diseaseSpots != null && diseaseSpots.Count == 0;
+    public bool IsDiagnosable(DiseaseCatalog catalog) => diseaseSpots != null && diseaseSpots.Exists(
+        spot => spot != null && catalog != null && catalog.Contains(spot.disease)
+            && (spot.severity == -1 || spot.disease.AllowsSeverity(spot.severity)));
+
     [Header("Visibilidad")]
     public bool showMarkers = true;
     public bool ableToShowMarkers = true;
@@ -54,9 +55,26 @@ public class Leaf : MonoBehaviour
 
     private bool _isBurning = false;
 
+    /// <summary>
+    /// True desde que la hoja fue diagnosticada correctamente y empezo a quemarse.
+    /// </summary>
+    public bool IsBurning => _isBurning;
+
     // -------------------------------------------------------------------------
     // Unity lifecycle
     // -------------------------------------------------------------------------
+
+    void Awake()
+    {
+        if (diseaseSpots == null)
+            diseaseSpots = new List<DiseaseSpot>();
+
+        if (IsHealthy)
+        {
+            showMarkers = false;
+            _hideAllMarkerDocuments = true;
+        }
+    }
 
     void Start()
     {
@@ -78,6 +96,7 @@ public class Leaf : MonoBehaviour
 
     // Spots pendientes de poblar: se intentan cada frame hasta que el panel exista
     private readonly List<DiseaseSpot> _pendingSpots = new List<DiseaseSpot>();
+    private bool _hideAllMarkerDocuments;
 
     /// <summary>
     /// Activa los marcadores y los encola para poblar su UI en Update,
@@ -85,16 +104,29 @@ public class Leaf : MonoBehaviour
     /// </summary>
     public void PopulateAndShowMarkers()
     {
-        foreach (DiseaseSpot spot in diseaseSpots)
+        _pendingSpots.Clear();
+        for (int i = 0; i < diseaseSpots.Count; i++)
         {
+            DiseaseSpot spot = diseaseSpots[i];
+            if (spot == null)
+            {
+                Debug.LogError($"[Leaf] '{gameObject.name}' tiene un DiseaseSpot nulo en la posición {i}.");
+                continue;
+            }
+            if (spot.disease == null)
+            {
+                Debug.LogError($"[Leaf] '{gameObject.name}' tiene un DiseaseSpot sin enfermedad en la posición {i}.");
+                SetMarkerVisible(spot, false);
+                continue;
+            }
             if (spot.markerObject == null)
             {
-                Debug.LogWarning($"[Leaf] DiseaseSpot '{spot.diseaseName}' no tiene markerObject asignado.");
+                Debug.LogWarning($"[Leaf] '{spot.disease.DisplayName}' no tiene marcador asignado.");
                 continue;
             }
 
-            spot.markerObject.SetActive(showMarkers && ableToShowMarkers);
-            _pendingSpots.Add(spot);
+            QueuePendingSpot(spot);
+            SetMarkerVisible(spot, showMarkers && ableToShowMarkers);
         }
 
         leafWindController?.SetMarkersVisible(showMarkers && ableToShowMarkers);
@@ -107,11 +139,23 @@ public class Leaf : MonoBehaviour
     /// </summary>
     void Update()
     {
+        if (_hideAllMarkerDocuments)
+        {
+            _hideAllMarkerDocuments = !HideAllMarkerDocuments();
+        }
+
+        if (IsHealthy) return;
         if (_pendingSpots.Count == 0) return;
 
         for (int i = _pendingSpots.Count - 1; i >= 0; i--)
         {
             DiseaseSpot spot = _pendingSpots[i];
+
+            if (spot == null || spot.disease == null)
+            {
+                _pendingSpots.RemoveAt(i);
+                continue;
+            }
 
             if (spot.markerObject == null) { _pendingSpots.RemoveAt(i); continue; }
 
@@ -126,8 +170,8 @@ public class Leaf : MonoBehaviour
             VisualElement root = doc.rootVisualElement;
             if (root == null) continue;  // panel todavia no listo, reintentar el proximo frame
 
-            Debug.Log($"[Leaf] Poblando '{spot.markerObject.name}' | doc={doc.name} | diseaseName={spot.diseaseName} | severity={spot.severity}");
             ApplySpotToRoot(spot, root);
+            SetMarkerRootVisible(root, showMarkers && ableToShowMarkers);
             _pendingSpots.RemoveAt(i);
         }
     }
@@ -137,25 +181,77 @@ public class Leaf : MonoBehaviour
     /// </summary>
     private static void ApplySpotToRoot(DiseaseSpot spot, VisualElement root)
     {
+        if (spot?.disease == null) return;
+
         Label nameLabel = root.Q<Label>("disease-name");
-        Debug.Log($"[Leaf] disease-name label encontrado: {nameLabel != null}");
         if (nameLabel != null)
-            nameLabel.text = string.IsNullOrEmpty(spot.scientificName)
-                ? spot.diseaseName
-                : $"{spot.diseaseName}\n<i>{spot.scientificName}</i>";
+        {
+            string scientificName = spot.disease.data != null ? spot.disease.data.scientificName : string.Empty;
+            nameLabel.text = $"{spot.disease.DisplayName}\n<i>{scientificName}</i>";
+        }
 
         Label severityLabel = root.Q<Label>("severity-value");
-        Debug.Log($"[Leaf] severity-value label encontrado: {severityLabel != null}");
         if (severityLabel != null)
-            severityLabel.text = spot.severity.ToString();
+            severityLabel.text = spot.severity == -1 ? "—" : spot.severity.ToString();
 
-        for (int i = 1; i <= 5; i++)
+        VisualElement bar = root.Q<VisualElement>("severity-bar");
+        if (bar == null) return;
+        bar.Clear();
+        foreach (var severity in spot.disease.AvailableSeverities)
         {
-            VisualElement segment = root.Q<VisualElement>($"seg-{i}");
-            if (segment == null) { Debug.LogWarning($"[Leaf] seg-{i} no encontrado"); continue; }
-            segment.EnableInClassList("active",   i <= spot.severity);
-            segment.EnableInClassList("inactive", i >  spot.severity);
+            var segment = new Label(severity.value.ToString());
+            segment.AddToClassList("severity-tick");
+            segment.EnableInClassList("active", severity.value == spot.severity);
+            bar.Add(segment);
         }
+    }
+
+    private void SetMarkerVisible(DiseaseSpot spot, bool visible)
+    {
+        if (spot?.markerObject == null) return;
+
+        UIDocument doc = spot.markerObject.GetComponentInChildren<UIDocument>(true);
+        if (doc == null) return;
+
+        VisualElement root = doc.rootVisualElement;
+        if (root == null)
+        {
+            QueuePendingSpot(spot);
+            return;
+        }
+
+        SetMarkerRootVisible(root, visible);
+    }
+
+    private void QueuePendingSpot(DiseaseSpot spot)
+    {
+        if (spot != null && !_pendingSpots.Contains(spot))
+            _pendingSpots.Add(spot);
+    }
+
+    private static void SetMarkerRootVisible(VisualElement root, bool visible)
+    {
+        root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
+    private bool HideAllMarkerDocuments()
+    {
+        bool allReady = true;
+        foreach (UIDocument doc in GetComponentsInChildren<UIDocument>(true))
+        {
+            if (doc == null) continue;
+
+            VisualElement root = doc.rootVisualElement;
+            if (root == null)
+            {
+                allReady = false;
+                continue;
+            }
+
+            SetMarkerRootVisible(root, false);
+        }
+
+        return allReady;
     }
 
     /// <summary>
@@ -164,14 +260,14 @@ public class Leaf : MonoBehaviour
     public void SetMarkersVisibility(bool visible)
     {
         bool actualVisibility = visible && ableToShowMarkers;
+        showMarkers = visible;
         leafWindController?.SetMarkersVisible(actualVisibility);
 
         if (!ableToShowMarkers) return;
 
         foreach (DiseaseSpot spot in diseaseSpots)
         {
-            if (spot.markerObject != null)
-                spot.markerObject.SetActive(actualVisibility);
+            SetMarkerVisible(spot, actualVisibility);
         }
     }
 
@@ -181,12 +277,13 @@ public class Leaf : MonoBehaviour
     /// </summary>
     public void HideMarkersImmediate()
     {
+        showMarkers = false;
+        _hideAllMarkerDocuments = true;
         leafWindController?.SetMarkersVisible(false);
 
         foreach (DiseaseSpot spot in diseaseSpots)
         {
-            if (spot.markerObject != null)
-                spot.markerObject.SetActive(false);
+            SetMarkerVisible(spot, false);
         }
     }
 
