@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using RiceXR.Core;
 
 /// <summary>
 /// Clase que gestiona la generacion y animacion de hojas en un area definida.
@@ -34,6 +35,23 @@ public class LeavesSpawner : MonoBehaviour
 {
     [Header("Grass Settings")]
     [SerializeField] private GameObject[] grassPrefabs;
+    [SerializeField] private DiseaseCatalog diseaseCatalog;
+    private int minimumDiagnosable = 1;
+
+    public void ConfigureDiagnosis(int required) => minimumDiagnosable = Mathf.Max(1, required);
+
+    public bool CanDiagnoseWith(DiseaseCatalog catalog, out string error)
+    {
+        error = "El spawner debe usar el mismo catálogo válido que el selector.";
+        if (catalog == null || diseaseCatalog != catalog || !catalog.IsValid(out _)) return false;
+        if (grassPrefabs != null) foreach (var prefab in grassPrefabs)
+        {
+            var leaf = prefab != null ? prefab.GetComponentInChildren<Leaf>(true) : null;
+            if (leaf != null && leaf.IsDiagnosable(catalog)) { error = null; return true; }
+        }
+        error = "No hay hojas diagnosticables con las severidades habilitadas.";
+        return false;
+    }
     [SerializeField] public int grassCount = -1;
     public bool isGrassAbleToShowMarker = true;
     [SerializeField] public Vector2 SpawnAreaSize;
@@ -97,6 +115,29 @@ public class LeavesSpawner : MonoBehaviour
             grassParent.SetParent(transform);
         }
 
+        if (diseaseCatalog == null || !diseaseCatalog.IsValid(out _))
+        {
+            Debug.LogError("[LeavesSpawner] Asigna un catálogo de enfermedades válido.", this);
+            yield break;
+        }
+        var eligible = new List<GameObject>();
+        var diagnosable = new List<bool>();
+        if (grassPrefabs != null) foreach (var prefab in grassPrefabs)
+        {
+            if (prefab == null) continue;
+            var candidate = prefab.GetComponentInChildren<Leaf>(true);
+            if (candidate == null) continue;
+            bool canDiagnose = candidate.IsDiagnosable(diseaseCatalog);
+            if (!canDiagnose && !candidate.IsHealthy) continue;
+            eligible.Add(prefab);
+            diagnosable.Add(canDiagnose);
+        }
+        if (!diagnosable.Contains(true))
+        {
+            Debug.LogError("[LeavesSpawner] El nivel no tiene hojas diagnosticables con este catálogo.", this);
+            yield break;
+        }
+        grassCount = Mathf.Max(minimumDiagnosable, grassCount);
         List<Vector3> spawnPositions = GenerateSpawnPositions();
 
         int spawnCount = spawnPositions.Count;
@@ -104,11 +145,12 @@ public class LeavesSpawner : MonoBehaviour
             spawnCount = Mathf.Min(grassCount, spawnPositions.Count);
 
         if (spawnCount == 0) yield break;
-        if (grassPrefabs == null || grassPrefabs.Length == 0) yield break;
+        int[] plan = LeafSpawnPlan.Create(diagnosable, spawnCount, minimumDiagnosable,
+            new System.Random(Random.Range(0, int.MaxValue)));
 
         for (int i = 0; i < spawnCount; i++)
         {
-            GameObject prefab = grassPrefabs[Random.Range(0, grassPrefabs.Length)];
+            GameObject prefab = eligible[plan[i]];
             float randomYRotation = Random.Range(-rotationVariation, rotationVariation);
             float parentYRotation = transform.eulerAngles.y;
             Quaternion spawnRotation = Quaternion.Euler(0, parentYRotation + randomYRotation, 0);
@@ -122,7 +164,7 @@ public class LeavesSpawner : MonoBehaviour
 
                 // Los markers del prefab pueden venir activos: apagarlos aqui evita
                 // el frame visible que habria antes de que corra Leaf.Start().
-                if (!isGrassAbleToShowMarker)
+                if (!isGrassAbleToShowMarker || leaf.IsHealthy)
                     leaf.HideMarkersImmediate();
             }
 
@@ -162,35 +204,20 @@ public class LeavesSpawner : MonoBehaviour
 
     private List<Vector3> GenerateSpawnPositions()
     {
-        List<Vector3> positions = new List<Vector3>();
-        int attempts = 0;
         int targetCount = (grassCount > 0) ? grassCount : 1;
-        int maxAttempts = Mathf.Max(1, targetCount * 3);
+        List<Vector3> positions = new List<Vector3>(targetCount);
 
-        while (positions.Count < targetCount && attempts < maxAttempts)
+        float halfX = Mathf.Max(0f, SpawnAreaSize.x * 0.5f - safeMargin);
+        float halfZ = Mathf.Max(0f, SpawnAreaSize.y * 0.5f - safeMargin);
+
+        for (int i = 0; i < targetCount; i++)
         {
-            attempts++;
+            Vector3 offset = new Vector3(
+                Random.Range(-halfX, halfX),
+                0f,
+                Random.Range(-halfZ, halfZ));
 
-            // SpawnAreaSize llega en metros del mundo, pero TransformPoint aplica
-            // la escala de toda la jerarquia. Convertimos el area a coordenadas
-            // locales para que, por ejemplo, un padre con escala 0.6 no reduzca
-            // el rectangulo de spawn al 60% de la superficie seleccionada.
-            Vector3 worldScale = transform.lossyScale;
-            float localScaleX = Mathf.Max(Mathf.Abs(worldScale.x), 0.0001f);
-            float localScaleZ = Mathf.Max(Mathf.Abs(worldScale.z), 0.0001f);
-
-            float effectiveWidthX = Mathf.Max(0, SpawnAreaSize.x - (safeMargin * 2));
-            float effectiveWidthZ = Mathf.Max(0, SpawnAreaSize.y - (safeMargin * 2));
-
-            float randomX = Random.Range(-effectiveWidthX / localScaleX / 2f,
-                effectiveWidthX / localScaleX / 2f);
-            float randomZ = Random.Range(-effectiveWidthZ / localScaleZ / 2f,
-                effectiveWidthZ / localScaleZ / 2f);
-
-            Vector3 localPos = new Vector3(randomX, 0, randomZ);
-            Vector3 rotatedPos = transform.TransformPoint(localPos);
-
-            positions.Add(rotatedPos);
+            positions.Add(transform.position + transform.rotation * offset);
         }
 
         return positions;

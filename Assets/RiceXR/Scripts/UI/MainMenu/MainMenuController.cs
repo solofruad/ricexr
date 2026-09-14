@@ -79,6 +79,14 @@ public class MainMenuController : MonoBehaviour
     private void BeginStartFlow(bool skipPlaneSelection)
     {
         if (_startFlowTriggered) return;
+        var manager = SceneInteractionManager.Instance;
+        var catalog = DiseaseSelectionSystem.Instance != null ? DiseaseSelectionSystem.Instance.catalog : null;
+        string error = "Falta SceneInteractionManager.";
+        if (manager == null || !manager.CanStartSession(catalog, out error))
+        {
+            Debug.LogError($"[MainMenu] No se puede iniciar la sesión: {error}", this);
+            return;
+        }
         _startFlowTriggered = true;
         SetStartButtonsInteractable(false);
 

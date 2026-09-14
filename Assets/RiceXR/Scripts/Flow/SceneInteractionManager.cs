@@ -152,8 +152,10 @@ public class SceneInteractionManager : MonoBehaviour
 
         // FIX: hojas hijas del nivel actual -> se destruyen con el
         // contenedor cuando el nivel termina.
-        Vector2 spawnArea = new Vector2(targetScale.x, ResolveDepth(targetScale));
+        Vector2 spawnArea = new Vector2(targetScale.x, targetScale.z);
+        Debug.Log($"[SceneInteractionManager] Área de spawn (ancho x profundo): {spawnArea}");
         leafSpawner.ConfigureArea(spawnArea, currentLevelInstance.transform);
+        leafSpawner.ConfigureDiagnosis(GetCurrentPlantsRequired());
 
         if (leafSpawner.grassCount == -1)
             leafSpawner.grassCount = Mathf.Max((int)(spawnArea.x * spawnArea.y * 0.7f), 20);
@@ -190,15 +192,31 @@ public class SceneInteractionManager : MonoBehaviour
         targetScale = scale;
     }
 
-    private static float ResolveDepth(Vector3 scale)
-    {
-        float z = Mathf.Abs(scale.z);
-        if (z > 0.01f) return z;
-        return Mathf.Abs(scale.y);
-    }
-
     // ── Helpers ──────────────────────────────────────────────────────────────
     public int GetCurrentLevelIndex() => currentLevelIndex;
+
+    /// <summary>Comprueba antes del inicio que todos los niveles se pueden completar.</summary>
+    public bool CanStartSession(DiseaseCatalog catalog, out string error)
+    {
+        error = "No hay niveles configurados.";
+        if (_runtimeLevels.Count == 0) return false;
+        foreach (var level in _runtimeLevels)
+        {
+            var spawner = level.levelPrefab.GetComponent<LeavesSpawner>();
+            if (spawner == null)
+            {
+                error = $"{level.levelPrefab.name}: falta LeavesSpawner.";
+                return false;
+            }
+            if (!spawner.CanDiagnoseWith(catalog, out error))
+            {
+                error = $"{level.levelPrefab.name}: {error}";
+                return false;
+            }
+        }
+        error = null;
+        return true;
+    }
     public int GetTotalLevels() => _runtimeLevels.Count;
     public string GetLevelProgress() => $"Nivel {currentLevelIndex + 1} de {_runtimeLevels.Count}";
 

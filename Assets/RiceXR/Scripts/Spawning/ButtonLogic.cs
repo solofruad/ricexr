@@ -58,14 +58,11 @@ public class ButtonPlaneLogic : MonoBehaviour
             return;
         }
 
-        // Publicar al bus — GameFlowController escucha esto
+        Vector3 size = visualTransform.lossyScale;
         GameEventBus.PublishPlaneSelected(
             visualTransform.position,
             transform.rotation,
-            // localScale no incluye el escalado aplicado por MRUK al padre.
-            // lossyscale conserva las dimensiones reales del plano y tambien
-            // funciona para una futura superficie virtual movible.
-            visualTransform.lossyScale
+            new Vector3(size.x, 1f, size.y)
         );
     }
 
