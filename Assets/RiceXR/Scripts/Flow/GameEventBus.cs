@@ -118,6 +118,9 @@ public static class GameEventBus
     /// </summary>
     public static event Action<string> OnDiseaseIntroPanelShown;
 
+    /// <summary>Emitido cuando el jugador pulsa Continuar en uno de los 3 paneles de la enfermedad.</summary>
+    public static event Action OnDiseaseIntroContinued;
+
     /// <summary>
     /// Emitido cuando lo que GameFlowController estaba esperando ya terminó, y
     /// puede seguir. Tiene dos usos según qué esté esperando:
@@ -288,6 +291,12 @@ public static class GameEventBus
         OnDiseaseIntroPanelShown?.Invoke(narrationLineId);
     }
 
+    public static void PublishDiseaseIntroContinued()
+    {
+        Debug.Log("[GameEventBus] DiseaseIntroContinued");
+        OnDiseaseIntroContinued?.Invoke();
+    }
+
     public static void PublishDiseaseAnalysisCompleted()
     {
         Debug.Log("[GameEventBus] DiseaseAnalysisCompleted");
@@ -340,6 +349,7 @@ public static class GameEventBus
         OnDiagnosisAttemptEvaluated = null;
         OnAllPlantsSelected = null;
         OnDiseaseIntroPanelShown = null;
+        OnDiseaseIntroContinued = null;
         OnDiseaseAnalysisCompleted = null;
         OnSessionEnded = null;
         OnFlowStateChanged = null;

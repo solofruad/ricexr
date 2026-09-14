@@ -54,6 +54,8 @@ public class GameNarrationController : MonoBehaviour
     private Coroutine _selectPlaneRoutine;
 
     private int _currentLevelIndex = -1;
+    private int _currentTotalLevels;
+    private int _currentPlantsRequired;
     private bool _sessionActive;
     private bool _tutorialGuidedCompleted;
 
@@ -123,6 +125,8 @@ public class GameNarrationController : MonoBehaviour
         GameEventBus.OnSessionStartRequested += HandleStartFlowRequested;
         GameEventBus.OnSessionIntroPanelShown += HandleSessionIntroPanelShown;
         GameEventBus.OnDiseaseIntroPanelShown += HandleDiseaseIntroPanelShown;
+        GameEventBus.OnDiseaseIntroContinued += HandleDiseaseIntroContinued;
+        GameEventBus.OnLevelSpawned += HandleLevelSpawned;
         GameEventBus.OnFlowStateChanged += HandleFlowStateChanged;
         GameEventBus.OnLevelIntroStarted += HandleLevelIntroStarted;
         GameEventBus.OnTutorialStarted += HandleTutorialStarted;
@@ -145,6 +149,8 @@ public class GameNarrationController : MonoBehaviour
         GameEventBus.OnSessionStartRequested -= HandleStartFlowRequested;
         GameEventBus.OnSessionIntroPanelShown -= HandleSessionIntroPanelShown;
         GameEventBus.OnDiseaseIntroPanelShown -= HandleDiseaseIntroPanelShown;
+        GameEventBus.OnDiseaseIntroContinued -= HandleDiseaseIntroContinued;
+        GameEventBus.OnLevelSpawned -= HandleLevelSpawned;
         GameEventBus.OnFlowStateChanged -= HandleFlowStateChanged;
         GameEventBus.OnLevelIntroStarted -= HandleLevelIntroStarted;
         GameEventBus.OnTutorialStarted -= HandleTutorialStarted;
@@ -253,6 +259,11 @@ public class GameNarrationController : MonoBehaviour
         SpeakLine(narrationLineId, true);
     }
 
+    private void HandleDiseaseIntroContinued()
+    {
+        StopNarration();
+    }
+
     private void HandleLevelIntroStarted()
     {
         SpeakSequence(true,
@@ -306,45 +317,37 @@ public class GameNarrationController : MonoBehaviour
     private void HandleLevelStarted(int levelIndex, int totalLevels, int plantsRequired)
     {
         _currentLevelIndex = levelIndex;
+        _currentTotalLevels = totalLevels;
+        _currentPlantsRequired = plantsRequired;
         if (levelIndex == tutorialLevelIndex)
             // Si se omitió la guía, el nivel tutorial usa las mismas frases de progreso
             // que una prueba normal en lugar de las frases de la fase guiada.
             _tutorialGuidedCompleted = GameOptions.SkipTutorial;
         EnsureLevelBucket(levelIndex);
 
-        string progressRemainId = GetProgressRemainId(plantsRequired);
-        bool appendProgress = !string.IsNullOrEmpty(progressRemainId) && plantsRequired >= 2;
-
-        // Último nivel: aviso final. El índice se calcula (totalLevels - 1), no está hardcodeado.
         if (levelIndex == totalLevels - 1)
         {
-            if (appendProgress)
-            {
-                SpeakSequence(true, GameNarrationLineIds.FinalWarning, progressRemainId);
-            }
-            else
-            {
-                SpeakLine(GameNarrationLineIds.FinalWarning, true);
-            }
+            SpeakLine(GameNarrationLineIds.FinalWarning, true);
             return;
         }
 
-        // Resto de niveles: guion definido por datos en levelIntroNarrations.
         string[] baseLines = GetLevelIntroLines(levelIndex);
-        if (baseLines == null || baseLines.Length == 0)
-            return;
-
-        if (appendProgress)
-        {
-            var sequence = new string[baseLines.Length + 1];
-            System.Array.Copy(baseLines, sequence, baseLines.Length);
-            sequence[baseLines.Length] = progressRemainId;
-            SpeakSequence(true, sequence);
-        }
-        else
-        {
+        if (baseLines != null && baseLines.Length > 0)
             SpeakSequence(true, baseLines);
-        }
+    }
+
+    private void HandleLevelSpawned(int levelIndex)
+    {
+        if (levelIndex != _currentLevelIndex || levelIndex == tutorialLevelIndex) return;
+        if (_currentPlantsRequired < 2) return;
+
+        string progressRemainId = GetProgressRemainId(_currentPlantsRequired);
+        if (string.IsNullOrEmpty(progressRemainId)) return;
+
+        if (levelIndex == _currentTotalLevels - 1)
+            SpeakLineQueued(progressRemainId);
+        else
+            SpeakLine(progressRemainId, true);
     }
 
     private void HandlePlantSelected(bool isCorrect, int plantsSelected, int plantsRequired)
@@ -464,6 +467,21 @@ public class GameNarrationController : MonoBehaviour
         
         RegisterPlayed(line);
         Log($"Speak: {lineId}");
+        return true;
+    }
+
+    private bool SpeakLineQueued(string lineId)
+    {
+        if (narrationReproductor == null) return false;
+        if (!narrationReproductor.VoicesEnabled) return false;
+        if (!TryResolveLine(lineId, out NarrationLineEntry line)) return false;
+        if (!CanPlay(line)) return false;
+        if (!TryGetRandomClip(line, out AudioClip clip)) return false;
+
+        narrationReproductor.SpeakQueued(clip);
+
+        RegisterPlayed(line);
+        Log($"SpeakQueued: {lineId}");
         return true;
     }
 
