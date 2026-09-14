@@ -49,48 +49,48 @@ public static class RiceXRMigration
     // prefab | nombre del mesh (y del material .mat) | textura (mismo nombre que el material, otra extension)
     private static readonly string[] RynchoMapping =
     {
-        "Ryncho1|0Ryncho (1)|0Ryncho (1).jpg",
-        "Ryncho2|0Ryncho (2)|0Ryncho (2).jpg",
-        "Ryncho3|1Ryncho (1)|1Ryncho (1).png",
-        "Ryncho4|1Ryncho (2)|1Ryncho (2).jpg",
-        "Ryncho5|3Ryncho (1)|3Ryncho (1).png",
-        "Ryncho6|5Ryncho (1)|5Ryncho (1).png",
-        "Ryncho7|7Ryncho (1)|7Ryncho (1).png",
-        "Ryncho8|9Ryncho (1)|9Ryncho (1).png",
-        "Ryncho9|9Ryncho (2)|9Ryncho (2).png",
+        "0Ryncho|0Ryncho (1)|0Ryncho (1).jpg",
+        "0Ryncho (2)|0Ryncho (2)|0Ryncho (2).jpg",
+        "1Ryncho|1Ryncho (1)|1Ryncho (1).png",
+        "1Ryncho (2)|1Ryncho (2)|1Ryncho (2).jpg",
+        "3Ryncho|3Ryncho (1)|3Ryncho (1).png",
+        "5Ryncho|5Ryncho (1)|5Ryncho (1).png",
+        "7Ryncho|7Ryncho (1)|7Ryncho (1).png",
+        "9Ryncho|9Ryncho (1)|9Ryncho (1).png",
+        "9Ryncho (2)|9Ryncho (2)|9Ryncho (2).png",
     };
 
     private static readonly string[] PyriMapping =
     {
-        "Pyricularia1|0Pyri (3)|0Pyri (3).jpg",
-        "Pyricularia2|1Pyri (3)|1Pyri (3).png",
-        "Pyricularia3|2Pyri (1) G|2Pyri (1) G.png",
-        "Pyricularia4|3Pyri (2)|3Pyri (2).png",
-        "Pyricularia5|4Pyri (1) G|4Pyri (1) G.png",
-        "Pyricularia6|4Pyri (2) G|4Pyri (2) G.png",
-        "Pyricularia7|5Pyri (1) G|5Pyri (1) G.png",
-        "Pyricularia8|5Pyri (2) G|5Pyri (2) G.png",
-        "Pyricularia9|5Pyri (3) G|5Pyri (3) G.png",
-        "Pyricularia10|6Pyri (1) G|6Pyri (1) G.png",
-        "Pyricularia11|6Pyri (2) G|6Pyri (2) G.png",
-        "Pyricularia12|6Pyri (3) G|6Pyri (3) G.png",
-        "Pyricularia13|7Pyri (1) G|7Pyri (1) G.png",
-        "Pyricularia14|7Pyri (3) G|7Pyri (3) G.png",
-        "Pyricularia15|8Pyri (2) G|8Pyri (2) G.png",
-        "Pyricularia16|9Pyri (2) G|9Pyri (2) G.png",
-        "Pyricularia17|9Pyri (3) G|9Pyri (3) G.png",
+        "0Pyri|0Pyri (3)|0Pyri (3).jpg",
+        "1Pyri|1Pyri (3)|1Pyri (3).png",
+        "2Pyri|2Pyri (1) G|2Pyri (1) G.png",
+        "3Pyri|3Pyri (2)|3Pyri (2).png",
+        "4Pyri|4Pyri (1) G|4Pyri (1) G.png",
+        "4Pyri (2)|4Pyri (2) G|4Pyri (2) G.png",
+        "5Pyri|5Pyri (1) G|5Pyri (1) G.png",
+        "5Pyri (2)|5Pyri (2) G|5Pyri (2) G.png",
+        "5Pyri (3)|5Pyri (3) G|5Pyri (3) G.png",
+        "6Pyri|6Pyri (1) G|6Pyri (1) G.png",
+        "6Pyri (2)|6Pyri (2) G|6Pyri (2) G.png",
+        "6Pyri (3)|6Pyri (3) G|6Pyri (3) G.png",
+        "7Pyri|7Pyri (1) G|7Pyri (1) G.png",
+        "7Pyri (2)|7Pyri (3) G|7Pyri (3) G.png",
+        "8Pyri|8Pyri (2) G|8Pyri (2) G.png",
+        "9Pyri|9Pyri (2) G|9Pyri (2) G.png",
+        "9Pyri (2)|9Pyri (3) G|9Pyri (3) G.png",
     };
 
     [MenuItem("Tools/RiceXR/Migrar Hojas Ryncho v2")]
     public static void MigrateRyncho()
     {
-        RunMigration("Ryncho", RynchoFbxPath, RynchoOldFbxPath, RynchoMatDir, RynchoTexDir, RynchoPrefabDir, RynchoMapping, "Ryncho1");
+        RunMigration("Ryncho", RynchoFbxPath, RynchoOldFbxPath, RynchoMatDir, RynchoTexDir, RynchoPrefabDir, RynchoMapping, "1Ryncho");
     }
 
     [MenuItem("Tools/RiceXR/Migrar Hojas Pyri v2")]
     public static void MigratePyri()
     {
-        RunMigration("Pyri", PyriFbxPath, PyriOldFbxPath, PyriMatDir, PyriTexDir, PyriPrefabDir, PyriMapping, "Pyricularia1");
+        RunMigration("Pyri", PyriFbxPath, PyriOldFbxPath, PyriMatDir, PyriTexDir, PyriPrefabDir, PyriMapping, "1Pyri");
     }
 
     private static void RunMigration(
@@ -299,6 +299,11 @@ public static class RiceXRMigration
         Material leafMat, Material baseMat, Texture2D tex,
         string oldFbxPath, string fbxPath)
     {
+        string modelName = prefabPath.Contains("/Pyricularia/") ? "Pyricularia" : "Rynchosporium";
+        var disease = AssetDatabase.LoadAssetAtPath<DiseaseDefinition>($"Assets/RiceXR/ScriptableObjects/Diseases/{modelName}.asset");
+        if (!RiceXR.Core.LeafSeverity.TryParseMeshName(leafMesh.name, out int severity) || disease == null
+            || (severity > 0 && !disease.AllowsSeverity(severity)))
+            throw new System.InvalidOperationException($"[RiceXRMigration] Diagnóstico inválido para {prefabPath}.");
         GameObject contents = PrefabUtility.LoadPrefabContents(prefabPath);
         try
         {
@@ -373,6 +378,7 @@ public static class RiceXRMigration
             var leaf = contents.GetComponentInChildren<Leaf>(true);
             if (leaf != null)
             {
+                DiseaseModelMigration.AssignDiagnosis(leaf, disease, severity);
                 var so = new SerializedObject(leaf);
                 SerializedProperty prop = so.FindProperty("burnLeafRenderer");
                 if (prop != null)
@@ -387,11 +393,11 @@ public static class RiceXRMigration
             if (rootT.GetComponent<LeafWindController>() == null)
                 rootT.gameObject.AddComponent<LeafWindController>();
 
+            PrefabUtility.SaveAsPrefabAsset(contents, prefabPath);
             Debug.Log($"[RiceXRMigration] {prefabPath}: hoja '{leafGo.name}' bajo {(visualsT != null ? "Visuals" : "raiz")}, rot={leafGo.transform.localRotation.eulerAngles} pos={leafGo.transform.localPosition}");
         }
         finally
         {
-            PrefabUtility.SaveAsPrefabAsset(contents, prefabPath);
             PrefabUtility.UnloadPrefabContents(contents);
         }
     }
