@@ -9,6 +9,6 @@
         </ui:VisualElement>
         <ui:Label name="message-title" text="Cuánto ha avanzado" class="disease-intro__title reveal" style="height: 50px;"/>
         <ui:Label name="message-body" text="Compara la hoja con las referencias y elige una de las severidades disponibles." class="disease-intro__body reveal" style="height: 30px;"/>
-        <ui:VisualElement name="severity-references" class="quest-severity-references disease-intro__severity-scale reveal" style="height: auto; width: 844px; flex-shrink: 1; flex-grow: 1; min-height: 300px;"/>
+        <ui:VisualElement name="severity-references" class="quest-severity-references disease-intro__severity-scale reveal" style="height: auto; width: auto; flex-shrink: 1; flex-grow: 1; min-height: auto;"/>
     </ui:VisualElement>
 </ui:UXML>
