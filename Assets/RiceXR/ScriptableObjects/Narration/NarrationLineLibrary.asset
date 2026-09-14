@@ -20,7 +20,8 @@ MonoBehaviour:
     oncePerSession: 1
     oncePerLevel: 0
     firstErrorOnly: 0
-    audioClips: []
+    audioClips:
+    - {fileID: 8300000, guid: 7c1f86061f37cf74f933633cf938c7c4, type: 3}
   - id: SESSION_INTRO_CONTENT
     description: 'Introduccion: que se va a encontrar el jugador.'
     enabled: 1
@@ -28,7 +29,8 @@ MonoBehaviour:
     oncePerSession: 1
     oncePerLevel: 0
     firstErrorOnly: 0
-    audioClips: []
+    audioClips:
+    - {fileID: 8300000, guid: b41bbb80b3299444d9df79326edb2b34, type: 3}
   - id: SESSION_INTRO_STEPS
     description: 'Introduccion: los tres pasos (observar, identificar, aprender).'
     enabled: 1
@@ -36,7 +38,8 @@ MonoBehaviour:
     oncePerSession: 1
     oncePerLevel: 0
     firstErrorOnly: 0
-    audioClips: []
+    audioClips:
+    - {fileID: 8300000, guid: 251d5e5f4ae77aa459649c0f5d3fd048, type: 3}
   - id: SESSION_INTRO_READY
     description: 'Introduccion: invitacion a pulsar el boton para empezar.'
     enabled: 1
@@ -44,7 +47,8 @@ MonoBehaviour:
     oncePerSession: 1
     oncePerLevel: 0
     firstErrorOnly: 0
-    audioClips: []
+    audioClips:
+    - {fileID: 8300000, guid: 5a93052dfe28f744ead494dbd094711e, type: 3}
   - id: START_SELECT_PLANE
     description: 'Inicio de sesion: pedir seleccionar plano.'
     enabled: 1
@@ -106,7 +110,8 @@ MonoBehaviour:
     oncePerSession: 0
     oncePerLevel: 0
     firstErrorOnly: 0
-    audioClips: []
+    audioClips:
+    - {fileID: 8300000, guid: 7b6398d7f7fed7845bb19903686dfd67, type: 3}
   - id: TUTORIAL_MENU_OPEN
     description: 'Paso: abrir menu de diagnostico.'
     enabled: 1
@@ -170,42 +175,94 @@ MonoBehaviour:
     firstErrorOnly: 0
     audioClips:
     - {fileID: 8300000, guid: fed0e18d90137a645aa89028f5248d1d, type: 3}
+  - id: DISEASE_INTRO_PYRICULARIA_COVER
+    description: 'Panel enfermedad Pyricularia: portada.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 39ee4b4aabd765a44aa10fb854dfd03a, type: 3}
+  - id: DISEASE_INTRO_PYRICULARIA_INFO
+    description: 'Panel enfermedad Pyricularia: informacion.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 3f16f3fee27dc4349a609a3b84f5000e, type: 3}
+  - id: DISEASE_INTRO_PYRICULARIA_SEVERITY
+    description: 'Panel enfermedad Pyricularia: severidad.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: e90dc9254dd39cd40ba689ba1e9af3e3, type: 3}
   - id: LEVEL2_INTRO
-    description: Intro nivel 2.
+    description: 'Intro nivel 2. Retirada: reemplazada por los paneles DISEASE_INTRO_PYRICULARIA_*.'
     enabled: 1
     cooldownSec: 0
     oncePerSession: 1
     oncePerLevel: 0
     firstErrorOnly: 0
-    audioClips:
-    - {fileID: 8300000, guid: 13a4613df83304d4a95e28a2c878a77b, type: 3}
+    audioClips: []
   - id: LEVEL2_EXPLAIN
-    description: Explicacion Pyricularia.
+    description: 'Explicacion Pyricularia. Retirada: reemplazada por los paneles
+      DISEASE_INTRO_PYRICULARIA_*.'
     enabled: 1
     cooldownSec: 0
     oncePerSession: 1
     oncePerLevel: 0
     firstErrorOnly: 0
+    audioClips: []
+  - id: DISEASE_INTRO_RYNCHOSPORIUM_COVER
+    description: 'Panel enfermedad Rynchosporium: portada.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
     audioClips:
-    - {fileID: 8300000, guid: e96290eb29eb4dc4189f63082916b5a6, type: 3}
+    - {fileID: 8300000, guid: 01e4c3d1ced9b1e47910f1efbd5b9d58, type: 3}
+  - id: DISEASE_INTRO_RYNCHOSPORIUM_INFO
+    description: 'Panel enfermedad Rynchosporium: informacion.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 9fab164b453ca9848a9881dcf4be680c, type: 3}
+  - id: DISEASE_INTRO_RYNCHOSPORIUM_SEVERITY
+    description: 'Panel enfermedad Rynchosporium: severidad.'
+    enabled: 1
+    cooldownSec: 0
+    oncePerSession: 0
+    oncePerLevel: 1
+    firstErrorOnly: 0
+    audioClips:
+    - {fileID: 8300000, guid: 8721acfe4087fb349acd76c87701df68, type: 3}
   - id: LEVEL3_INTRO
-    description: Intro nivel 3.
+    description: 'Intro nivel 3. Retirada: reemplazada por los paneles DISEASE_INTRO_RYNCHOSPORIUM_*.'
     enabled: 1
     cooldownSec: 0
     oncePerSession: 1
     oncePerLevel: 0
     firstErrorOnly: 0
-    audioClips:
-    - {fileID: 8300000, guid: 8d9aeb7e616b2074a806a778f6c02e71, type: 3}
+    audioClips: []
   - id: LEVEL3_EXPLAIN
-    description: Explicacion Rhynchosporium.
+    description: 'Explicacion Rhynchosporium. Retirada: reemplazada por los paneles
+      DISEASE_INTRO_RYNCHOSPORIUM_*.'
     enabled: 1
     cooldownSec: 0
     oncePerSession: 1
     oncePerLevel: 0
     firstErrorOnly: 0
-    audioClips:
-    - {fileID: 8300000, guid: 2f208cdc797e969438136992fd6682ea, type: 3}
+    audioClips: []
   - id: FINAL_WARNING
     description: Advertencia nivel final sin ayudas.
     enabled: 1
@@ -312,8 +369,7 @@ MonoBehaviour:
     oncePerSession: 0
     oncePerLevel: 1
     firstErrorOnly: 0
-    audioClips:
-    - {fileID: 0}
+    audioClips: []
   - id: FIRST_CORRECT
     description: 'Feedback: primer acierto.'
     enabled: 1
