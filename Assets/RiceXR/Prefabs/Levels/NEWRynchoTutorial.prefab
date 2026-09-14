@@ -16,12 +16,18 @@ PrefabInstance:
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
       propertyPath: grassCount
-      value: 30
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
+      propertyPath: diseaseCatalog
+      value: 
+      objectReference: {fileID: 11400000, guid: 720c012b86dc52a4eb4cb61ea040544e,
+        type: 2}
+    - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
+        type: 3}
       propertyPath: grassPrefabs.Array.size
-      value: 9
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
@@ -32,25 +38,25 @@ PrefabInstance:
         type: 3}
       propertyPath: 'grassPrefabs.Array.data[0]'
       value: 
-      objectReference: {fileID: 1352225811443589816, guid: b8c8facfb72dc0240807df3b894f31ec,
+      objectReference: {fileID: 1352225811443589816, guid: f2c7cf16dd2abac448c5995b6a528188,
         type: 3}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
       propertyPath: 'grassPrefabs.Array.data[1]'
       value: 
-      objectReference: {fileID: 1352225811443589816, guid: 5526eceb1d7ea46488ea1207d96cb1af,
+      objectReference: {fileID: 1352225811443589816, guid: 4b3a73dd01ee1ff4195ff7eb9fff2f0e,
         type: 3}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
       propertyPath: 'grassPrefabs.Array.data[2]'
       value: 
-      objectReference: {fileID: 1352225811443589816, guid: e683d0328d1ca854d8fc6b3466e2e248,
+      objectReference: {fileID: 1352225811443589816, guid: 457c0b5edd696af4fb69537e4b4d2edc,
         type: 3}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
       propertyPath: 'grassPrefabs.Array.data[3]'
       value: 
-      objectReference: {fileID: 1352225811443589816, guid: 457c0b5edd696af4fb69537e4b4d2edc,
+      objectReference: {fileID: 1352225811443589816, guid: e683d0328d1ca854d8fc6b3466e2e248,
         type: 3}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
@@ -74,13 +80,13 @@ PrefabInstance:
         type: 3}
       propertyPath: 'grassPrefabs.Array.data[7]'
       value: 
-      objectReference: {fileID: 1352225811443589816, guid: f2c7cf16dd2abac448c5995b6a528188,
+      objectReference: {fileID: 1352225811443589816, guid: 4b3a73dd01ee1ff4195ff7eb9fff2f0e,
         type: 3}
     - target: {fileID: 2724775236167150408, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}
       propertyPath: 'grassPrefabs.Array.data[8]'
       value: 
-      objectReference: {fileID: 1352225811443589816, guid: 4b3a73dd01ee1ff4195ff7eb9fff2f0e,
+      objectReference: {fileID: 1352225811443589816, guid: f2c7cf16dd2abac448c5995b6a528188,
         type: 3}
     - target: {fileID: 5826340320688208170, guid: 7593d80ed75534943be026f0e2cab1c5,
         type: 3}

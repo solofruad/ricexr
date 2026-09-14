@@ -267,13 +267,18 @@ PrefabInstance:
       objectReference: {fileID: 3376533365165179335}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
+      propertyPath: ableToShowMarkers
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
       propertyPath: burnMaterialOverride
       value: 
       objectReference: {fileID: 2100000, guid: ea3935ea34944be41b5762ca708e6fe3, type: 2}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: diseaseSpots.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
@@ -287,6 +292,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
+      propertyPath: diseaseSpots.Array.data[0].disease
+      value: 
+      objectReference: {fileID: 11400000, guid: e1fe9b826fd15e142a3e70a62563b8a6,
+        type: 2}
+    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
+      propertyPath: diseaseSpots.Array.data[1].disease
+      value: 
+      objectReference: {fileID: 11400000, guid: e1fe9b826fd15e142a3e70a62563b8a6,
+        type: 2}
+    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
+        type: 3}
       propertyPath: diseaseSpots.Array.data[0].severity
       value: 1
       objectReference: {fileID: 0}
@@ -294,16 +311,6 @@ PrefabInstance:
         type: 3}
       propertyPath: diseaseSpots.Array.data[1].severity
       value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
-        type: 3}
-      propertyPath: diseaseSpots.Array.data[0].diseaseName
-      value: Pyricularia oryzae
-      objectReference: {fileID: 0}
-    - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
-        type: 3}
-      propertyPath: diseaseSpots.Array.data[1].diseaseName
-      value: Pyricularia oryzae
       objectReference: {fileID: 0}
     - target: {fileID: 7527870196964183638, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
@@ -453,7 +460,7 @@ PrefabInstance:
     - target: {fileID: 9020422268904497308, guid: 1a142eb8b4977ca44be9d22de1c3be2a,
         type: 3}
       propertyPath: m_Name
-      value: Pyricularia1
+      value: 0Pyri
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

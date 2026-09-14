@@ -46,6 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grassPrefabs:
   - {fileID: 1670554414867062916, guid: 02b5b5cb87957394abf6d9528f734262, type: 3}
+  diseaseCatalog: {fileID: 11400000, guid: 720c012b86dc52a4eb4cb61ea040544e, type: 2}
   grassCount: 1
   isGrassAbleToShowMarker: 1
   SpawnAreaSize: {x: 0, y: 0}
