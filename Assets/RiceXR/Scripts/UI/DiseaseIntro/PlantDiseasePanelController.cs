@@ -48,6 +48,8 @@ public class PlantDiseasePanelController : MonoBehaviour
     private Label _scientificName;
     private Label _diseaseDescription;
     private Image _severityEvolutionImage;
+    private VisualElement _severityReferences;
+    private Label _severityCaption;
 
     private int _currentImageIndex;
     private Coroutine _carouselCoroutine;
@@ -95,9 +97,10 @@ public class PlantDiseasePanelController : MonoBehaviour
 
         _diseaseTitle.text = data.title;
         _scientificName.text = data.scientificName;
-        _diseaseDescription.text = data.description + "\n\nSeveridades disponibles: " + disease.SeveritySummary;
+        _diseaseDescription.text = data.description;
         SetSeverityEvolutionImage(data.severityEvolutionImage);
         DiseaseSeverityReferences.Apply(_root, disease.AvailableSeverities);
+        UpdateSeverityCaption();
 
         if (data.images != null && data.images.Length > 0)
             carouselImages = data.images;
@@ -134,11 +137,28 @@ public class PlantDiseasePanelController : MonoBehaviour
     public void SetSeverityEvolutionImage(Texture2D image)
     {
         if (_severityEvolutionImage == null) return;
-        if (_severityEvolutionImage.image == image) return;
 
         _severityEvolutionImage.style.backgroundImage = StyleKeyword.None;
         _severityEvolutionImage.image = image;
         _severityEvolutionImage.style.display = image != null ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
+    /// <summary>
+    /// Muestra el rotulo del bloque de severidad solo si hay algo debajo:
+    /// la imagen de avance o las referencias de la escala.
+    /// </summary>
+    private void UpdateSeverityCaption()
+    {
+        if (_severityCaption == null) return;
+
+        bool hasEvolution = _severityEvolutionImage != null
+            && _severityEvolutionImage.style.display == DisplayStyle.Flex;
+        bool hasReferences = _severityReferences != null
+            && _severityReferences.style.display == DisplayStyle.Flex;
+
+        _severityCaption.style.display = hasEvolution || hasReferences
+            ? DisplayStyle.Flex
+            : DisplayStyle.None;
     }
 
     // ─────────────────────────────────────────────
@@ -231,6 +251,8 @@ public class PlantDiseasePanelController : MonoBehaviour
         _scientificName = _root.Q<Label>("scientific-name");
         _diseaseDescription = _root.Q<Label>("disease-description");
         _severityEvolutionImage = _root.Q<Image>("severity-evolution");
+        _severityReferences = _root.Q<VisualElement>("severity-references");
+        _severityCaption = _root.Q<Label>("severity-caption");
         _dots = new[]
         {
             _root.Q<VisualElement>("dot-0"),

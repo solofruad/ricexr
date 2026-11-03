@@ -20,8 +20,11 @@
             <ui:VisualElement class="quest-divider" style="margin-top: 5px; margin-bottom: 5px;"/>
             <ui:VisualElement class="quest-disease-main">
                 <ui:Label name="disease-description" text="Descripción y referencias de la enfermedad." class="quest-disease-description"/>
-                <ui:Image name="severity-evolution" class="quest-disease-severity-image" style="width: 20%;"/>
-                <ui:VisualElement name="severity-references" class="quest-severity-references"/>
+                <ui:VisualElement name="severity-block" class="quest-disease-severity-block">
+                    <ui:Label name="severity-caption" text="Avance de la enfermedad" class="quest-disease-severity-caption"/>
+                    <ui:Image name="severity-evolution" scale-mode="ScaleToFit" class="quest-disease-severity-image"/>
+                    <ui:VisualElement name="severity-references" class="quest-severity-references"/>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

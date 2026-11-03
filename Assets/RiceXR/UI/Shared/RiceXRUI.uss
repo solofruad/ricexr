@@ -552,7 +552,8 @@
 
 .quest-disease-main {
     flex-grow: 1;
-    flex-direction: row;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .quest-disease-name {
@@ -578,12 +579,40 @@
     flex-grow: 1;
     flex-shrink: 1;
     margin-top: 2px;
-    -unity-text-align: middle-left;
+    overflow: hidden;
+    -unity-text-align: upper-left;
+}
+
+/* Bloque inferior de la ficha: rotulo, imagen de avance y referencias de
+   severidad a todo el ancho de la columna de texto. Las referencias y la
+   imagen llevan ancho propio: en un padre de direccion fila el bloque se
+   encogia a su contenido y las laminas quedaban en unos pocos pixeles. */
+.quest-disease-severity-block {
+    flex-shrink: 0;
+    width: 100%;
+    margin-top: 6px;
+}
+
+.quest-disease-severity-caption {
+    font-size: 14px;
+    color: var(--quest-text-secondary);
+    -unity-font-style: bold;
+    margin-bottom: 4px;
 }
 
 .quest-disease-severity-image {
-    flex-grow: 1;
-    -unity-background-scale-mode: scale-to-fit;
+    width: 100%;
+    height: 110px;
+    flex-shrink: 0;
+}
+
+.quest-disease-severity-block .quest-severity-references {
+    width: 100%;
+    height: auto;
+}
+
+.quest-disease-severity-block .quest-severity-reference-image {
+    height: 125px;
 }
 
 /* ---------- Selección de plano ---------- */
