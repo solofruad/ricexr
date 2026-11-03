@@ -3205,6 +3205,7 @@ GameObject:
   - component: {fileID: 354849476}
   - component: {fileID: 354849477}
   - component: {fileID: 7718200301}
+  - component: {fileID: 7718200311}
   m_Layer: 0
   m_Name: ReadyButton
   m_TagString: Untagged
@@ -3243,6 +3244,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactable: {fileID: 354849476}
   backTolerance: 0.005
+--- !u!114 &7718200311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 354849474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
+  interactable: {fileID: 354849476}
+  document: {fileID: 1992228107}
+  buttonElementName: intro-ready-button
+  hoverMinScale: 0.94
+  pressedScale: 0.9
+  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
+  audioSource: {fileID: 0}
+  hoverClip: {fileID: 0}
+  pressClip: {fileID: 0}
 --- !u!114 &354849476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3451,6 +3473,7 @@ GameObject:
   - component: {fileID: 425712609}
   - component: {fileID: 425712610}
   - component: {fileID: 7718200302}
+  - component: {fileID: 7718200312}
   m_Layer: 0
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -3489,6 +3512,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactable: {fileID: 425712609}
   backTolerance: 0.005
+--- !u!114 &7718200312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 425712607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
+  interactable: {fileID: 425712609}
+  document: {fileID: 1457785803}
+  buttonElementName: intro-continue-button
+  hoverMinScale: 0.94
+  pressedScale: 0.9
+  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
+  audioSource: {fileID: 0}
+  hoverClip: {fileID: 0}
+  pressClip: {fileID: 0}
 --- !u!114 &425712609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5237,6 +5281,9 @@ MonoBehaviour:
   surfaceHeightOffset: 0.28
   progressDistance: 1.2
   progressHeightOffset: -0.15
+  avoidPlayVolume: 1
+  leafHeight: 0.9
+  volumeMargin: 0.15
 --- !u!1 &608336916
 GameObject:
   m_ObjectHideFlags: 0
@@ -8371,6 +8418,7 @@ GameObject:
   - component: {fileID: 3100000044}
   - component: {fileID: 3100000045}
   - component: {fileID: 7718200303}
+  - component: {fileID: 7718200313}
   m_Layer: 0
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -8409,6 +8457,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactable: {fileID: 3100000043}
   backTolerance: 0.005
+--- !u!114 &7718200313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100000041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
+  interactable: {fileID: 3100000043}
+  document: {fileID: 3100000073}
+  buttonElementName: disease-intro-continue-button
+  hoverMinScale: 0.94
+  pressedScale: 0.9
+  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
+  audioSource: {fileID: 0}
+  hoverClip: {fileID: 0}
+  pressClip: {fileID: 0}
 --- !u!114 &3100000043
 MonoBehaviour:
   m_ObjectHideFlags: 0

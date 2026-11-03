@@ -58,6 +58,16 @@ public class PlayerFacingMessagePanel : MonoBehaviour
     [Tooltip("Desplazamiento vertical respecto a la altura de la cabeza. Negativo = un poco debajo de la linea de los ojos.")]
     [SerializeField] private float heightOffset = -0.15f;
 
+    [Header("Evitar el volumen de juego")]
+    [Tooltip("Si hay un plano seleccionado, el panel se coloca fuera del volumen que ocupan las hojas.")]
+    [SerializeField] private bool avoidPlayVolume = true;
+
+    [Tooltip("Altura en metros que alcanzan las hojas sobre la superficie.")]
+    [Min(0f)] [SerializeField] private float leafHeight = 0.9f;
+
+    [Tooltip("Holgura en metros alrededor del volumen de juego.")]
+    [Min(0f)] [SerializeField] private float volumeMargin = 0.15f;
+
     [Header("Animacion")]
     [SerializeField] private float fadeInDuration = 0.3f;
     [SerializeField] private float fadeOutDuration = 0.25f;
@@ -183,12 +193,18 @@ public class PlayerFacingMessagePanel : MonoBehaviour
     /// <summary>
     /// Posicion del panel: frente a la cabeza del jugador, a la distancia
     /// configurada y con el offset vertical. Hook virtual para que otro sistema
-    /// pueda heredar y anclar donde le convenga.
+    /// pueda heredar y anclar donde le convenga. Con avoidPlayVolume y un plano
+    /// seleccionado, la posicion se aparta del volumen de las hojas (ver
+    /// GuidancePlacement).
     /// </summary>
     protected virtual Vector3 ResolvePlacementPosition()
     {
         Camera cam = Camera.main;
         if (cam == null) return transform.position;
+
+        if (avoidPlayVolume &&
+            GuidancePanelPlacer.TryResolve(distance, heightOffset, leafHeight, volumeMargin, out Vector3 safePosition))
+            return safePosition;
 
         Vector3 forward = cam.transform.forward;
         forward.y = 0f;

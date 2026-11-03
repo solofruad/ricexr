@@ -26,6 +26,16 @@ public class UIMessagesController : MonoBehaviour
     [Header("Anclaje sobre superficie (felicitación)")]
     [SerializeField] private float surfaceHeightOffset = 0.22f;
 
+    [Header("Evitar el volumen de juego")]
+    [Tooltip("Con un plano seleccionado, los paneles se colocan fuera del volumen que ocupan las hojas.")]
+    [SerializeField] private bool avoidPlayVolume = true;
+
+    [Tooltip("Altura en metros que alcanzan las hojas sobre la superficie.")]
+    [Min(0f)] [SerializeField] private float leafHeight = 0.9f;
+
+    [Tooltip("Holgura en metros alrededor del volumen de juego.")]
+    [Min(0f)] [SerializeField] private float volumeMargin = 0.15f;
+
     [Header("Anclaje frente al jugador (progreso)")]
     [Min(0f)] [SerializeField] private float progressDistance = 1.2f;
     [SerializeField] private float progressHeightOffset = -0.15f;
@@ -211,6 +221,14 @@ public class UIMessagesController : MonoBehaviour
     {
         if (doc == null) return;
 
+        if (avoidPlayVolume &&
+            GuidancePanelPlacer.TryResolve(progressDistance, progressHeightOffset, leafHeight, volumeMargin, out Vector3 safePosition))
+        {
+            doc.gameObject.transform.position = safePosition + offset;
+            FaceHead(doc.gameObject.transform);
+            return;
+        }
+
         if (SceneInteractionManager.Instance != null && SceneInteractionManager.Instance.HasSelectedPlane)
         {
             Vector3 basePos = SceneInteractionManager.Instance.SelectedPlanePosition
@@ -237,11 +255,30 @@ public class UIMessagesController : MonoBehaviour
         if (forward.sqrMagnitude < 0.0001f) forward = cam.forward;
 
         Transform panel = docProgress.gameObject.transform;
-        Vector3 position = cam.position + forward.normalized * progressDistance;
-        position.y += progressHeightOffset;
-        panel.position = position;
 
-        Vector3 toHead = cam.position - panel.position;
+        if (avoidPlayVolume &&
+            GuidancePanelPlacer.TryResolve(progressDistance, progressHeightOffset, leafHeight, volumeMargin, out Vector3 safePosition))
+        {
+            panel.position = safePosition;
+        }
+        else
+        {
+            Vector3 position = cam.position + forward.normalized * progressDistance;
+            position.y += progressHeightOffset;
+            panel.position = position;
+        }
+
+        FaceHead(panel);
+    }
+
+    /// <summary>
+    /// Orienta el panel hacia la cabeza del jugador manteniendolo vertical (Y-lock).
+    /// </summary>
+    private static void FaceHead(Transform panel)
+    {
+        if (Camera.main == null) return;
+
+        Vector3 toHead = Camera.main.transform.position - panel.position;
         toHead.y = 0f;
         if (toHead.sqrMagnitude > 0.0001f)
             panel.rotation = Quaternion.LookRotation(-toHead, Vector3.up);
