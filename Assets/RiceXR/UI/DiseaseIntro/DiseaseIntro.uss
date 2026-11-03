@@ -199,13 +199,13 @@
 }
 
 .disease-intro__header .disease-intro__title {
-    font-size: 38px;
+    font-size: 34px;
 }
 
 .disease-intro__header .disease-intro__body {
-    font-size: 26px;
+    font-size: 22px;
     color: var(--quest-text);
-    margin-top: 10px;
+    margin-top: 6px;
 }
 
 .disease-intro__header .disease-intro__image {
@@ -217,7 +217,7 @@
 .disease-intro__cards {
     flex-direction: row;
     align-items: stretch;
-    margin-top: 28px;
+    margin-top: 18px;
     flex-shrink: 0;
 }
 
@@ -225,7 +225,7 @@
     flex-grow: 1;
     flex-basis: 0;
     margin-right: 16px;
-    padding: 20px 20px 24px 20px;
+    padding: 16px 18px 18px 18px;
     border-radius: 20px;
     background-color: var(--quest-surface-raised);
     border-width: 1px;
@@ -240,18 +240,19 @@
     width: 40px;
     height: 5px;
     border-radius: 3px;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     background-color: var(--quest-blue);
     flex-shrink: 0;
 }
 
 .disease-intro__cards .disease-intro__row-title {
-    font-size: 25px;
+    font-size: 22px;
+    white-space: nowrap;
 }
 
 .disease-intro__cards .disease-intro__row-detail {
-    font-size: 22px;
-    margin-top: 8px;
+    font-size: 19px;
+    margin-top: 6px;
 }
 
 /* ---------- Panel 3 — el daño ---------- */

@@ -17,11 +17,7 @@ MonoBehaviour:
     title: "A\xF1ublo del arroz"
     scientificName: Pyricularia oryzae
     category: "Enfermedad F\xFAngica"
-    description: "Se manifiesta visualmente como manchas necr\xF3ticas en forma de
-      \"ojo\" o diamante, con centros de color gris ceniza y bordes marrones bien
-      definidos. Su peligro real aparece cuando infecta el \"cuello\" de la espiga,
-      volvi\xE9ndolo marr\xF3n y quebradizo, lo que impide el llenado del grano y
-      hace que la espiga se doble o se desprenda."
+    description: "Manchas en forma de ojo o diamante, con centro gris y borde marr\xF3n. Si alcanza el cuello de la espiga, el grano no se llena."
     severityEvolutionImage: {fileID: 0}
     images:
     - {fileID: 2800000, guid: 9eb29fab2d4560443a8121c624f33552, type: 3}
