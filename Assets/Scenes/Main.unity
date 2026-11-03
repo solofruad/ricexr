@@ -3230,41 +3230,6 @@ Transform:
   - {fileID: 146026558}
   m_Father: {fileID: 116915375}
   m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
---- !u!114 &7718200301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 354849474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactable: {fileID: 354849476}
-  backTolerance: 0.005
---- !u!114 &7718200311
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 354849474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
-  interactable: {fileID: 354849476}
-  document: {fileID: 1992228107}
-  buttonElementName: intro-ready-button
-  hoverMinScale: 0.94
-  pressedScale: 0.9
-  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
-  audioSource: {fileID: 0}
-  hoverClip: {fileID: 0}
-  pressClip: {fileID: 0}
 --- !u!114 &354849476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3498,41 +3463,6 @@ Transform:
   - {fileID: 471636108}
   m_Father: {fileID: 2109511634}
   m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
---- !u!114 &7718200302
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 425712607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactable: {fileID: 425712609}
-  backTolerance: 0.005
---- !u!114 &7718200312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 425712607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
-  interactable: {fileID: 425712609}
-  document: {fileID: 1457785803}
-  buttonElementName: intro-continue-button
-  hoverMinScale: 0.94
-  pressedScale: 0.9
-  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
-  audioSource: {fileID: 0}
-  hoverClip: {fileID: 0}
-  pressClip: {fileID: 0}
 --- !u!114 &425712609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5279,11 +5209,11 @@ MonoBehaviour:
   fadeOutDuration: 1
   progressVisibleDuration: 3
   surfaceHeightOffset: 0.28
-  progressDistance: 1.2
-  progressHeightOffset: -0.15
   avoidPlayVolume: 1
   leafHeight: 0.9
   volumeMargin: 0.15
+  progressDistance: 1.2
+  progressHeightOffset: -0.15
 --- !u!1 &608336916
 GameObject:
   m_ObjectHideFlags: 0
@@ -5650,7 +5580,7 @@ MonoBehaviour:
     body: "Elige la enfermedad y la severidad en el men\xFA, y confirma."
     iconElement: icon-diagnose
   - title: "\xA1Correcto! Sigue as\xED"
-    body: "Diagnostica otra hoja por tu cuenta. Hojas por diagnosticar: {0}."
+    body: 'Diagnostica otra hoja por tu cuenta. Hojas por diagnosticar: {0}.'
     iconElement: 
   observeToDiagnoseDelay: 8
   hintToDiagnoseDelay: 20
@@ -8171,6 +8101,9 @@ MonoBehaviour:
   iconClassName: message-icon
   distance: 1.2
   heightOffset: -0.15
+  avoidPlayVolume: 1
+  leafHeight: 0.9
+  volumeMargin: 0.15
   fadeInDuration: 0.3
   fadeOutDuration: 0.25
   revealStagger: 0.14
@@ -8266,6 +8199,9 @@ MonoBehaviour:
   iconClassName: message-icon
   distance: 1.2
   heightOffset: -0.15
+  avoidPlayVolume: 1
+  leafHeight: 0.9
+  volumeMargin: 0.15
   fadeInDuration: 0.3
   fadeOutDuration: 0.25
   revealStagger: 0.14
@@ -8289,9 +8225,9 @@ MonoBehaviour:
     type: 3}
   m_SortingOrder: 0
   m_Position: 0
-  m_WorldSpaceSizeMode: 0
+  m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 900
-  m_WorldSpaceHeight: 600
+  m_WorldSpaceHeight: 440
   m_PivotReferenceSize: 0
   m_Pivot: 7
   m_WorldSpaceCollider: {fileID: 0}
@@ -8361,6 +8297,9 @@ MonoBehaviour:
   iconClassName: message-icon
   distance: 1.2
   heightOffset: -0.15
+  avoidPlayVolume: 1
+  leafHeight: 0.9
+  volumeMargin: 0.15
   fadeInDuration: 0.3
   fadeOutDuration: 0.25
   revealStagger: 0.14
@@ -8443,41 +8382,6 @@ Transform:
   - {fileID: 3100000062}
   m_Father: {fileID: 3100000002}
   m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
---- !u!114 &7718200303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3100000041}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactable: {fileID: 3100000043}
-  backTolerance: 0.005
---- !u!114 &7718200313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3100000041}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
-  interactable: {fileID: 3100000043}
-  document: {fileID: 3100000073}
-  buttonElementName: disease-intro-continue-button
-  hoverMinScale: 0.94
-  pressedScale: 0.9
-  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
-  audioSource: {fileID: 0}
-  hoverClip: {fileID: 0}
-  pressClip: {fileID: 0}
 --- !u!114 &3100000043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8765,7 +8669,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.Surfaces.BoundsClipper
   _position: {x: 0, y: 0, z: 0}
-  _size: {x: 3.2, y: 1.5, z: 0.1}
+  _size: {x: 3.5, y: 2, z: 0.2}
 --- !u!1 &3100000061
 GameObject:
   m_ObjectHideFlags: 0
@@ -8944,6 +8848,9 @@ MonoBehaviour:
   iconClassName: message-icon
   distance: 1
   heightOffset: -0.15
+  avoidPlayVolume: 1
+  leafHeight: 0.9
+  volumeMargin: 0.15
   fadeInDuration: 0.3
   fadeOutDuration: 0.25
 --- !u!114 &3100000085
@@ -8961,6 +8868,111 @@ MonoBehaviour:
   smoothSpeed: 5
   lockYAxis: 1
   matchCameraUpVector: 0
+--- !u!114 &7718200301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 354849474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: {fileID: 354849476}
+  backTolerance: 0.005
+--- !u!114 &7718200302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 425712607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: {fileID: 425712609}
+  backTolerance: 0.005
+--- !u!114 &7718200303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100000041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: {fileID: 3100000043}
+  backTolerance: 0.005
+--- !u!114 &7718200311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 354849474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
+  interactable: {fileID: 354849476}
+  document: {fileID: 1992228107}
+  buttonElementName: intro-ready-button
+  hoverMinScale: 0.94
+  pressedScale: 0.9
+  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
+  audioSource: {fileID: 0}
+  hoverClip: {fileID: 0}
+  pressClip: {fileID: 0}
+--- !u!114 &7718200312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 425712607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
+  interactable: {fileID: 425712609}
+  document: {fileID: 1457785803}
+  buttonElementName: intro-continue-button
+  hoverMinScale: 0.94
+  pressedScale: 0.9
+  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
+  audioSource: {fileID: 0}
+  hoverClip: {fileID: 0}
+  pressClip: {fileID: 0}
+--- !u!114 &7718200313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100000041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e3a1d84f2c4975a08d3c5e91f7b2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PokeButtonFeedback
+  interactable: {fileID: 3100000043}
+  document: {fileID: 3100000073}
+  buttonElementName: disease-intro-continue-button
+  hoverMinScale: 0.94
+  pressedScale: 0.9
+  highlightColor: {r: 1, g: 1, b: 1, a: 0.9}
+  audioSource: {fileID: 0}
+  hoverClip: {fileID: 0}
+  pressClip: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
