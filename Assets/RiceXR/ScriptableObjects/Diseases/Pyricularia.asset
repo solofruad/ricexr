@@ -34,16 +34,14 @@ MonoBehaviour:
       coverImage: {fileID: 0}
       coverNarrationLineId: DISEASE_INTRO_PYRICULARIA_COVER
       infoHeadline: "Reconoce el a\xF1ublo del arroz"
-      infoBody: Es una enfermedad causada por el hongo Pyricularia oryzae. Las lesiones
-        aparecen en las hojas y, si avanzan al cuello, pueden impedir el llenado
-        del grano.
+      infoBody: "Un hongo que mancha las hojas y puede da\xF1ar el grano."
       infoRows:
       - title: Causa
         detail: El hongo Pyricularia oryzae.
       - title: "Propagaci\xF3n"
-        detail: "Las esporas viajan con el viento, la lluvia y el roc\xEDo."
+        detail: "Esporas en el viento, la lluvia y el roc\xEDo."
       - title: "Qu\xE9 observar"
-        detail: "Manchas alargadas o en diamante, con centro gris y borde marr\xF3n."
+        detail: "Manchas alargadas, centro gris y borde marr\xF3n."
       infoImage: {fileID: 0}
       infoNarrationLineId: DISEASE_INTRO_PYRICULARIA_INFO
       severityHeadline: "Mide cu\xE1nto da\xF1o hay"

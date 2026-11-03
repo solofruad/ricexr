@@ -33,16 +33,15 @@ MonoBehaviour:
       coverTagline: "El da\xF1o comienza en la punta y avanza hacia la base en bandas."
       coverImage: {fileID: 0}
       coverNarrationLineId: DISEASE_INTRO_RYNCHOSPORIUM_COVER
-      infoHeadline: Reconoce el escaldado del arroz
-      infoBody: "Es una enfermedad f\xFAngica que seca la hoja desde el \xE1pice.
-        El da\xF1o avanza hacia la base formando bandas onduladas."
+      infoHeadline: Reconoce la escaldadura del arroz
+      infoBody: Un hongo que seca la hoja desde la punta.
       infoRows:
       - title: Causa
         detail: El hongo Rhynchosporium oryzae.
       - title: "Patr\xF3n"
-        detail: El tejido se seca desde la punta hacia la base.
+        detail: Se seca de la punta hacia la base.
       - title: "Qu\xE9 observar"
-        detail: "Bandas conc\xE9ntricas de color paja y marr\xF3n en la hoja."
+        detail: "Bandas conc\xE9ntricas de color paja y marr\xF3n."
       infoImage: {fileID: 0}
       infoNarrationLineId: DISEASE_INTRO_RYNCHOSPORIUM_INFO
       severityHeadline: "Observa hasta d\xF3nde avanz\xF3"

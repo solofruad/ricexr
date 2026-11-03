@@ -184,6 +184,76 @@
     margin-top: 3px;
 }
 
+/* ---------- Panel 2 — la enfermedad ----------
+   Cabecera con una frase breve y tres tarjetas en columna. Los
+   selectores con prefijo ganan por especificidad a los de fila, que
+   comparten las etiquetas de titulo y detalle. */
+.disease-intro__header {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.disease-intro__header .disease-intro__col {
+    justify-content: flex-start;
+}
+
+.disease-intro__header .disease-intro__title {
+    font-size: 38px;
+}
+
+.disease-intro__header .disease-intro__body {
+    font-size: 26px;
+    color: var(--quest-text);
+    margin-top: 10px;
+}
+
+.disease-intro__header .disease-intro__image {
+    width: 150px;
+    height: 150px;
+    margin-left: 24px;
+}
+
+.disease-intro__cards {
+    flex-direction: row;
+    align-items: stretch;
+    margin-top: 28px;
+    flex-shrink: 0;
+}
+
+.disease-intro__card {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin-right: 16px;
+    padding: 20px 20px 24px 20px;
+    border-radius: 20px;
+    background-color: var(--quest-surface-raised);
+    border-width: 1px;
+    border-color: var(--quest-border);
+}
+
+.disease-intro__cards .disease-intro__card:last-child {
+    margin-right: 0;
+}
+
+.disease-intro__card-accent {
+    width: 40px;
+    height: 5px;
+    border-radius: 3px;
+    margin-bottom: 16px;
+    background-color: var(--quest-blue);
+    flex-shrink: 0;
+}
+
+.disease-intro__cards .disease-intro__row-title {
+    font-size: 25px;
+}
+
+.disease-intro__cards .disease-intro__row-detail {
+    font-size: 22px;
+    margin-top: 8px;
+}
+
 /* ---------- Panel 3 — el daño ---------- */
 
 /* La lamina que muestra como avanza la enfermedad, a lo ancho del
