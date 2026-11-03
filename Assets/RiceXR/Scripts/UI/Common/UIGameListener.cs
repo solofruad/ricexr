@@ -125,11 +125,10 @@ public class UIGameListener : MonoBehaviour
         if (isFinalLevel || isTutorialGameplayLevel)
         {
             // Las miniguias (FinalLevel, Tutorial) ya las mostró LevelIntroController
-            // antes de este evento. Aquí solo se enciende el contador de progreso,
-            // o se deja pasar el tiempo del mensaje en el nivel final.
-            if (!isFinalLevel)
-                messagesController.ShowProgress(0, _currentPlantsRequired);
-            else
+            // antes de este evento. En el nivel final se deja pasar el tiempo del
+            // mensaje; el tutorial no usa contador de progreso porque su mensaje
+            // ya indica cuántas hojas faltan.
+            if (isFinalLevel)
                 _flowCoroutine = StartCoroutine(DelayedFinalLevelFlow());
         }
         else
@@ -162,6 +161,8 @@ public class UIGameListener : MonoBehaviour
     {
         CancelFlowCoroutine();
         messagesController.HideAll();
+
+        if (_currentLevelIndex == tutorialLevelIndex) return;
 
         if (isCorrect && plantsSelected < _currentPlantsRequired)
             messagesController.ShowProgress(plantsSelected, _currentPlantsRequired);

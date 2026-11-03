@@ -48,7 +48,8 @@ public class TutorialPanelController : MonoBehaviour
     [SerializeField] private PlayerFacingMessagePanel messagePanel;
 
     [Header("Mensajes (en orden de acto)")]
-    [Tooltip("Un mensaje por acto guiado, en orden: tomar hoja, observar, revelar pista, diagnosticar, practica libre.")]
+    [Tooltip("Un mensaje por acto guiado, en orden: tomar hoja, observar, revelar pista, diagnosticar, practica libre. " +
+             "El cuerpo de la practica libre admite el marcador {0}, que se sustituye por las hojas que faltan por diagnosticar.")]
     [SerializeField] private List<TutorialMessage> messages = new List<TutorialMessage>
     {
         new TutorialMessage
@@ -77,8 +78,8 @@ public class TutorialPanelController : MonoBehaviour
         },
         new TutorialMessage
         {
-            title = "¡Bien hecho!",
-            body = "Diagnostica otra hoja por tu cuenta.",
+            title = "¡Correcto! Sigue así",
+            body = "Diagnostica otra hoja por tu cuenta. Hojas por diagnosticar: {0}.",
             iconElement = ""
         }
     };
@@ -376,7 +377,11 @@ public class TutorialPanelController : MonoBehaviour
             return;
         }
 
-        messagePanel?.Show(message.title, message.body, message.iconElement);
+        string body = message.body;
+        if (!string.IsNullOrEmpty(body) && body.Contains("{0}"))
+            body = body.Replace("{0}", Mathf.Max(0, _plantsRequired - _plantsSelected).ToString());
+
+        messagePanel?.Show(message.title, body, message.iconElement);
     }
 
     // ─── Timers de actos ──────────────────────────────────────────────────────

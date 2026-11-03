@@ -5649,8 +5649,8 @@ MonoBehaviour:
   - title: Diagnostica
     body: "Elige la enfermedad y la severidad en el men\xFA, y confirma."
     iconElement: icon-diagnose
-  - title: "\xA1Bien hecho!"
-    body: Diagnostica otra hoja por tu cuenta.
+  - title: "\xA1Correcto! Sigue as\xED"
+    body: "Diagnostica otra hoja por tu cuenta. Hojas por diagnosticar: {0}."
     iconElement: 
   observeToDiagnoseDelay: 8
   hintToDiagnoseDelay: 20
