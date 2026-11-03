@@ -543,6 +543,7 @@ GameObject:
   - component: {fileID: 2696865548740628295}
   - component: {fileID: 6843235017252544348}
   - component: {fileID: 7242613930333368951}
+  - component: {fileID: 8412093476512039017}
   m_Layer: 4
   m_Name: PanelDiagnostico
   m_TagString: Untagged
@@ -568,6 +569,20 @@ Transform:
   - {fileID: 3476941130685241027}
   m_Father: {fileID: 5136219333447397288}
   m_LocalEulerAnglesHint: {x: 17, y: 0, z: 0}
+--- !u!114 &8412093476512039017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2696865548740628290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: {fileID: 2696865548740628289}
+  backTolerance: 0.005
 --- !u!114 &2696865548740628289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -580,15 +595,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 317e663e2bb60ea408fe22b908b59295, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interactorFilters: []
+  _interactorFilters:
+  - {fileID: 8412093476512039017}
   _maxInteractors: -1
   _maxSelectingInteractors: -1
   _data: {fileID: 0}
   _pointableElement: {fileID: 2696865548740628291}
   _surfacePatch: {fileID: 3360625225749057855}
-  _enterHoverNormal: 0.03
+  _enterHoverNormal: 0.06
   _enterHoverTangent: 0
-  _exitHoverNormal: 0.03
+  _exitHoverNormal: 0.12
   _exitHoverTangent: 0
   _cancelSelectNormal: 0.3
   _cancelSelectTangent: 0.03
@@ -1860,7 +1876,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f4a2c8f0d8442f7b1c4a9d6e3f8b527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bodyOffset: {x: 0.35, y: -0.18, z: 0.7}
+  bodyOffset: {x: 0.25, y: -0.25, z: 0.42}
+  tiltAngle: 20
   positionDeadZone: 0.12
   positionSmoothTime: 0.22
   yawDeadZone: 25

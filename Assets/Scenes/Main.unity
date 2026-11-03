@@ -2154,7 +2154,7 @@ PrefabInstance:
     - target: {fileID: 6159037821771416521, guid: 15667e6656432b641b5e5cbbc615ae0d,
         type: 3}
       propertyPath: bodyOffset.y
-      value: -0.2
+      value: -0.25
       objectReference: {fileID: 0}
     - target: {fileID: 6159037821771416521, guid: 15667e6656432b641b5e5cbbc615ae0d,
         type: 3}
@@ -3204,6 +3204,7 @@ GameObject:
   - component: {fileID: 354849475}
   - component: {fileID: 354849476}
   - component: {fileID: 354849477}
+  - component: {fileID: 7718200301}
   m_Layer: 0
   m_Name: ReadyButton
   m_TagString: Untagged
@@ -3228,6 +3229,20 @@ Transform:
   - {fileID: 146026558}
   m_Father: {fileID: 116915375}
   m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
+--- !u!114 &7718200301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 354849474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: {fileID: 354849476}
+  backTolerance: 0.005
 --- !u!114 &354849476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3240,7 +3255,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 317e663e2bb60ea408fe22b908b59295, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.PokeInteractable
-  _interactorFilters: []
+  _interactorFilters:
+  - {fileID: 7718200301}
   _maxInteractors: -1
   _maxSelectingInteractors: -1
   _data: {fileID: 0}
@@ -3434,6 +3450,7 @@ GameObject:
   - component: {fileID: 425712608}
   - component: {fileID: 425712609}
   - component: {fileID: 425712610}
+  - component: {fileID: 7718200302}
   m_Layer: 0
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -3458,6 +3475,20 @@ Transform:
   - {fileID: 471636108}
   m_Father: {fileID: 2109511634}
   m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
+--- !u!114 &7718200302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 425712607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: {fileID: 425712609}
+  backTolerance: 0.005
 --- !u!114 &425712609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3470,7 +3501,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 317e663e2bb60ea408fe22b908b59295, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.PokeInteractable
-  _interactorFilters: []
+  _interactorFilters:
+  - {fileID: 7718200302}
   _maxInteractors: -1
   _maxSelectingInteractors: -1
   _data: {fileID: 0}
@@ -8338,6 +8370,7 @@ GameObject:
   - component: {fileID: 3100000043}
   - component: {fileID: 3100000044}
   - component: {fileID: 3100000045}
+  - component: {fileID: 7718200303}
   m_Layer: 0
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -8362,6 +8395,20 @@ Transform:
   - {fileID: 3100000062}
   m_Father: {fileID: 3100000002}
   m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
+--- !u!114 &7718200303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100000041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3cd47c1a464fbbb9331cb52fcbe8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: {fileID: 3100000043}
+  backTolerance: 0.005
 --- !u!114 &3100000043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8374,7 +8421,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 317e663e2bb60ea408fe22b908b59295, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.PokeInteractable
-  _interactorFilters: []
+  _interactorFilters:
+  - {fileID: 7718200303}
   _maxInteractors: -1
   _maxSelectingInteractors: -1
   _data: {fileID: 0}
@@ -8857,10 +8905,10 @@ SceneRoots:
   - {fileID: 909255109}
   - {fileID: 1886615857}
   - {fileID: 693940579}
+  - {fileID: 46432363}
   - {fileID: 552563270}
   - {fileID: 80270023}
   - {fileID: 564929113}
   - {fileID: 1025822507}
   - {fileID: 699673192}
   - {fileID: 237646264}
-  - {fileID: 46432363}

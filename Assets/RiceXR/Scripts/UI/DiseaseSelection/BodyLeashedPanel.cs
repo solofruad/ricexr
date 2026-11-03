@@ -3,7 +3,10 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class BodyLeashedPanel : MonoBehaviour
 {
-    [SerializeField] private Vector3 bodyOffset = new Vector3(0.3f, -0.18f, 0.6f);
+    [Tooltip("Offset respecto a la cabeza en metros: X hacia el lado de la mano libre, Y vertical, Z hacia delante. Z por encima de ~0.45 queda fuera del alcance cómodo del dedo.")]
+    [SerializeField] private Vector3 bodyOffset = new Vector3(0.25f, -0.25f, 0.42f);
+    [Tooltip("Inclinación hacia atrás del panel en grados, como un atril: la parte de abajo queda más cerca de la mano.")]
+    [SerializeField, Range(0f, 45f)] private float tiltAngle = 20f;
     [SerializeField, Min(0f)] private float positionDeadZone = 0.12f;
     [SerializeField, Min(0.01f)] private float positionSmoothTime = 0.22f;
     [SerializeField, Range(0f, 180f)] private float yawDeadZone = 18f;
@@ -116,7 +119,7 @@ public sealed class BodyLeashedPanel : MonoBehaviour
                 targetYaw,
                 ref _rotationVelocity,
                 rotationSmoothTime);
-        transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+        transform.rotation = Quaternion.Euler(tiltAngle, yaw, 0f);
     }
 
     private Transform ResolveHead()
