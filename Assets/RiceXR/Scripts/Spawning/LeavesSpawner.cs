@@ -65,6 +65,12 @@ public class LeavesSpawner : MonoBehaviour
     [SerializeField] private float growDuration = 4f;
     [SerializeField] private AnimationCurve growCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
+    [Header("Shrink Settings")]
+    [Tooltip("Duracion en segundos del encogimiento de cada hoja al terminar el nivel.")]
+    [SerializeField] private float shrinkDuration = 0.45f;
+    [Tooltip("Retraso maximo aleatorio en segundos entre hojas al encogerse.")]
+    [SerializeField] private float shrinkStagger = 0.4f;
+
     [Header("Variation")]
     [SerializeField] private float spawnTimeVariation = 0.3f;
     [SerializeField] private float growTimeVariation = 0.5f;
@@ -221,6 +227,36 @@ public class LeavesSpawner : MonoBehaviour
         }
 
         return positions;
+    }
+
+    /// <summary>
+    /// Encoge hasta escala cero las hojas ya crecidas, con un retraso aleatorio
+    /// por hoja y Ease.InBack, como inverso del crecimiento. Cancela los
+    /// crecimientos pendientes y devuelve los segundos que tarda en terminar
+    /// la ultima hoja; el llamador destruye el nivel pasado ese tiempo.
+    /// </summary>
+    public float ShrinkOut()
+    {
+        StopAllCoroutines();
+        initializationRoutine = null;
+
+        float totalDuration = 0f;
+        foreach (var t in activeGrass)
+        {
+            if (t == null) continue;
+
+            t.DOKill();
+            if (t.localScale.sqrMagnitude < 0.000001f) continue;
+
+            float delay = Random.Range(0f, Mathf.Max(0f, shrinkStagger));
+            t.DOScale(Vector3.zero, shrinkDuration)
+                .SetDelay(delay)
+                .SetEase(Ease.InBack)
+                .SetLink(t.gameObject, LinkBehaviour.KillOnDestroy);
+            totalDuration = Mathf.Max(totalDuration, delay + shrinkDuration);
+        }
+
+        return totalDuration;
     }
 
     public void RespawnGrass()

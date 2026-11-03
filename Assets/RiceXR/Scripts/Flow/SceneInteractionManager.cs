@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Meta.XR.MRUtilityKit;
@@ -83,12 +84,21 @@ public class SceneInteractionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Destruye el nivel actual y todas las hojas hijas.
-    /// Llamar desde GameFlowController al completar un nivel.
+    /// Encoge las hojas del nivel actual y lo destruye al terminar la animacion.
+    /// Se consume como corrutina desde GameFlowController al completar un nivel.
     /// </summary>
-    public void DestroyCurrentLevel()
+    public IEnumerator DespawnCurrentLevel()
     {
-        DestroyCurrentLeaves();
+        GameObject level = currentLevelInstance;
+        if (level == null) yield break;
+
+        LeavesSpawner spawner = level.GetComponent<LeavesSpawner>();
+        float shrinkTime = spawner != null ? spawner.ShrinkOut() : 0f;
+        if (shrinkTime > 0f)
+            yield return new WaitForSeconds(shrinkTime);
+
+        if (currentLevelInstance == level)
+            DestroyCurrentLeaves();
     }
 
     /// <summary>

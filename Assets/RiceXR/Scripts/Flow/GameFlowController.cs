@@ -406,13 +406,14 @@ public class GameFlowController : MonoBehaviour
         return levelIndex != tutorialLevelIndex;
     }
 
-    private void CompleteLevelAndAdvance(int completedIdx)
+    private IEnumerator CompleteLevelAndAdvance(int completedIdx)
     {
         int currentIdx = sceneInteractionManager?.GetCurrentLevelIndex() ?? -1;
-        if (completedIdx != currentIdx) return;
+        if (completedIdx != currentIdx) yield break;
 
         GameEventBus.PublishLevelCompleted(completedIdx);
-        sceneInteractionManager?.DestroyCurrentLevel();
+        if (sceneInteractionManager != null)
+            yield return sceneInteractionManager.DespawnCurrentLevel();
         sceneInteractionManager?.AdvanceLevelIndex();
 
         int newIdx = sceneInteractionManager?.GetCurrentLevelIndex() ?? 0;
@@ -423,7 +424,7 @@ public class GameFlowController : MonoBehaviour
             GameEventBus.PublishAllLevelsCompleted();
             DiseaseSelectionSystem.Instance?.HideAnimated();
             TransitionTo(FlowState.AllLevelsCompleted, "AllLevelsCompleted");
-            return;
+            yield break;
         }
 
         StartCurrentLevelFlow();
@@ -457,7 +458,8 @@ public class GameFlowController : MonoBehaviour
     private IEnumerator DelayedCompleteLevelAndAdvance(int idx)
     {
         yield return new WaitForSeconds(levelTransitionDelay);
-        CompleteLevelAndAdvance(idx);
+        yield return CompleteLevelAndAdvance(idx);
+        _levelTransitionCoroutine = null;
     }
 
     private void CancelLevelTransition()
