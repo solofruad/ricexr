@@ -412,20 +412,24 @@ public class GameNarrationController : MonoBehaviour
         SpeakSequence(true, GameNarrationLineIds.ThirdCorrect, GameNarrationLineIds.ProgressDone);
     }
 
+    // El cierre de nivel y de sesion encadena varias lineas en pocos segundos
+    // (felicitacion, nivel completo, todos completos, pedir apodo). Se encolan
+    // para que cada una termine antes de empezar la siguiente.
+
     private void HandleLevelCompleted(int levelIndex)
     {
         _currentLevelIndex = levelIndex;
-        SpeakLine(GameNarrationLineIds.LevelComplete, true);
+        SpeakLineQueued(GameNarrationLineIds.LevelComplete);
     }
 
     private void HandleAllLevelsCompleted()
     {
-        SpeakLine(GameNarrationLineIds.AllLevelsComplete, true);
+        SpeakLineQueued(GameNarrationLineIds.AllLevelsComplete);
     }
 
     private void HandleEndPanelShown()
     {
-        SpeakLine(GameNarrationLineIds.EndSessionPromptSave, true);
+        SpeakLineQueued(GameNarrationLineIds.EndSessionPromptSave);
     }
 
     private void HandleSaveCompleted(bool saved)
@@ -435,7 +439,7 @@ public class GameNarrationController : MonoBehaviour
 
     private void HandleReturningToMenu()
     {
-        SpeakLine(GameNarrationLineIds.ReturnMenu, true);
+        SpeakLineQueued(GameNarrationLineIds.ReturnMenu);
         _sessionActive = false;
     }
 
