@@ -41,7 +41,7 @@ public class EndSessionController : MonoBehaviour
     [SerializeField] private GameObject endPanel;
 
     [Header("Posicionamiento en mundo")]
-    [Tooltip("Desplazamiento sobre el plano elegido. Y = altura sobre la superficie")]
+    [Tooltip("Desplazamiento en mundo sobre el punto frente a la camara. Y negativo lo baja respecto a los ojos")]
     [SerializeField] private Vector3 positionOffset = new Vector3(0f, 0.3f, 0f);
     [SerializeField] private float distanceFromCamera = 1.6f;
 
@@ -169,29 +169,6 @@ public class EndSessionController : MonoBehaviour
         if (saveButtonLabel != null) saveButtonLabel.text = "Guardar";
     }
 
-    /// <summary>
-    /// Posiciona el endPanel sobre el plano elegido y lo orienta hacia la camara.
-    /// Llamar justo antes de ShowAnimated().
-    /// </summary>
-    public void PlaceAt(Vector3 planePosition, Vector3 planeNormal)
-    {
-        if (endPanel == null) return;
-
-        Vector3 worldPos = planePosition
-            + Vector3.up * positionOffset.y
-            + planeNormal * positionOffset.z
-            + new Vector3(positionOffset.x, 0f, 0f);
-
-        endPanel.transform.position = worldPos;
-
-        Vector3 toCam = Camera.main != null
-            ? Camera.main.transform.position - worldPos
-            : Vector3.forward;
-        toCam.y = 0f;
-        if (toCam != Vector3.zero)
-            endPanel.transform.rotation = Quaternion.LookRotation(-toCam);
-    }
-
     /// <summary>Muestra el panel de fin con animacion de escala.</summary>
     public void ShowAnimated()
     {
@@ -216,11 +193,22 @@ public class EndSessionController : MonoBehaviour
 
     /// <summary>
     /// Pone el panel flotando frente a la camara, a la distancia configurada,
-    /// y lo gira para que siempre nos mire de frente.
+    /// y lo gira para que nos mire de frente. Se mueve la raiz y no solo el
+    /// endPanel: el BillboardUI de la raiz gira sobre su propio pivote, y si el
+    /// panel quedara lejos de ese pivote orbitaria alrededor de el al moverse
+    /// el jugador.
     /// </summary>
     private void PlaceInFrontOfCamera()
     {
         if (endPanel == null || Camera.main == null) return;
+
+        Transform panelTransform = endPanel.transform;
+        if (panelTransform.parent == transform)
+        {
+            panelTransform.localPosition = Vector3.zero;
+            panelTransform.localRotation = Quaternion.identity;
+            panelTransform = transform;
+        }
 
         Transform cam = Camera.main.transform;
 
@@ -233,13 +221,13 @@ public class EndSessionController : MonoBehaviour
         flatForward.Normalize();
 
         Vector3 worldPos = cam.position + flatForward * distanceFromCamera + positionOffset;
-        endPanel.transform.position = worldPos;
+        panelTransform.position = worldPos;
 
         // El panel mira hacia la camara (por eso invertimos la direccion)
         Vector3 toCam = cam.position - worldPos;
         toCam.y = 0f;
         if (toCam.sqrMagnitude > 0.0001f)
-            endPanel.transform.rotation = Quaternion.LookRotation(-toCam, Vector3.up);
+            panelTransform.rotation = Quaternion.LookRotation(-toCam, Vector3.up);
     }
 
     /// <summary>
