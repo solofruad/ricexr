@@ -100,8 +100,15 @@ InitTestScene*.unity*
 UIElementsSchema
 
 # ── Artefactos específicos del proyecto (no versionar) ──────────────────
-# Documentación de trabajo local
+# Documentación local sin versionar (manuales, notas de trabajo y contexto de agentes)
 /docs/
+/AGENTS.md
+/ENFERMEDADES.md
+/NARRACION_PISTAS_FALTANTES.md
+/REESTRUCTURA.md
+# Índice local de CodeGraph y seguimiento de tareas de agentes
+/.codegraph/
+/odd/
 # Bindings de acciones generados en tiempo de ejecución
 /RuntimeActionBindings.json
 /[Aa]ssets/StreamingAssets/RuntimeActionBindings.json
