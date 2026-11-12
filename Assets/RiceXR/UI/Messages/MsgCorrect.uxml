@@ -3,8 +3,8 @@
     <ui:VisualElement name="msg-correct" class="quest-surface quest-feedback" style="position: relative; bottom: 0; -unity-background-image-tint-color: rgb(6, 250, 0); border-top-width: 4px; border-left-color: rgb(0, 132, 4); border-right-color: rgb(0, 132, 4); border-top-color: rgb(0, 132, 4); border-bottom-color: rgb(0, 132, 4);">
         <ui:VisualElement class="quest-feedback__header">
             <ui:Label text="✓" name="Label" class="quest-feedback__icon quest-feedback__icon--success quest-feedback__icon-label quest-feedback__icon-label--success"/>
-            <ui:Label name="incorrect-title" text="¡Correcto!" class="quest-feedback__title quest-feedback__title--success"/>
+            <ui:Label name="correct-title" text="¡Correcto!" class="quest-feedback__title quest-feedback__title--success"/>
         </ui:VisualElement>
-        <ui:Label name="incorrect-sub" text="La enfermedad y severidad seleccionada son correctas." class="quest-feedback__body" style="-unity-text-align: middle-center;"/>
+        <ui:Label name="correct-progress" text="La enfermedad y severidad seleccionada son correctas." class="quest-feedback__body" style="-unity-text-align: middle-center;"/>
     </ui:VisualElement>
 </ui:UXML>

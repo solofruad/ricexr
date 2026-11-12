@@ -324,27 +324,6 @@
     background-color: var(--quest-error);
 }
 
-.quest-message__progress-icon {
-    font-size: 44px;
-    margin-bottom: 10px;
-}
-
-.quest-message__progress-title {
-    font-size: 26px;
-    color: var(--quest-text);
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    margin-bottom: 6px;
-}
-
-.quest-message__progress-subtitle {
-    font-size: 15px;
-    color: var(--quest-text-secondary);
-    -unity-text-align: middle-center;
-    white-space: normal;
-    margin-bottom: 20px;
-}
-
 /* ---------- Botones ---------- */
 .quest-button {
     flex-direction: row;

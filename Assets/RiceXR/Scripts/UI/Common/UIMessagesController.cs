@@ -9,18 +9,17 @@ using System.Collections.Generic;
 /// No conoce la lógica del juego — recibe órdenes de UIGameListener.
 ///
 /// Nota: los paneles de introducción de nivel (nextLevel, finalLevel, tutorial)
-/// son ahora responsabilidad de <see cref="LevelIntroController"/>.
+/// son ahora responsabilidad de <see cref="LevelIntroController"/>. El progreso
+/// del nivel lo muestra el mensaje de acierto de <see cref="DiseaseSelectionSystem"/>.
 /// </summary>
 public class UIMessagesController : MonoBehaviour
 {
     [Header("UI Documents — uno por mensaje")]
     [SerializeField] private UIDocument docCongrats;
-    [SerializeField] private UIDocument docProgress;
 
     [Header("Animación")]
     [SerializeField] private float fadeInDuration = 0.25f;
     [SerializeField] private float fadeOutDuration = 0.2f;
-    [SerializeField] private float progressVisibleDuration = 2.5f;
 
 
     [Header("Anclaje sobre superficie (felicitación)")]
@@ -36,65 +35,23 @@ public class UIMessagesController : MonoBehaviour
     [Tooltip("Holgura en metros alrededor del volumen de juego.")]
     [Min(0f)] [SerializeField] private float volumeMargin = 0.15f;
 
-    [Header("Anclaje frente al jugador (progreso)")]
-    [Min(0f)] [SerializeField] private float progressDistance = 1.2f;
-    [SerializeField] private float progressHeightOffset = -0.15f;
+    [Header("Anclaje frente al jugador")]
+    [Min(0f)] [SerializeField] private float panelDistance = 1.2f;
+    [SerializeField] private float panelHeightOffset = -0.15f;
 
     private VisualElement _rootCongrats;
-    private VisualElement _rootProgress;
 
-    private VisualElement _progressDotsContainer;
-    private readonly List<VisualElement> _dynamicProgressDots = new List<VisualElement>();
     private readonly Dictionary<VisualElement, Tween> _activeTweens = new Dictionary<VisualElement, Tween>();
-    private Tween _progressAutoHideTween;
 
     private void Awake()
     {
         _rootCongrats = docCongrats?.rootVisualElement.Q<VisualElement>("msg-congrats");
-        _rootProgress = docProgress?.rootVisualElement.Q<VisualElement>("msg-progress");
-
-        _progressDotsContainer = _rootProgress?.Q<VisualElement>("progress-dots");
         HideAllImmediate();
     }
 
     private void OnDestroy()
     {
-        _progressAutoHideTween?.Kill();
         foreach (var t in _activeTweens.Values) t?.Kill();
-    }
-
-    public void ShowProgress(int current, int total)
-    {
-        if (_rootProgress == null) return;
-        total = Mathf.Max(1, total);
-        current = Mathf.Clamp(current, 0, total);
-
-        if (total < 2 || current <= 0)
-        {
-            _progressAutoHideTween?.Kill();
-            FadeOutPanel(_rootProgress);
-            return;
-        }
-
-        int remaining = total - current;
-
-        _rootProgress.Q<Label>("progress-main").SetText($"{current} de {total} plantas");
-        _rootProgress.Q<Label>("progress-sub").SetText(
-            remaining > 0
-                ? $"Te falta{(remaining == 1 ? "" : "n")} {remaining} {(remaining == 1 ? "planta" : "plantas")} por seleccionar."
-                : "¡Seleccionaste todas!");
-
-        EnsureProgressDots(total);
-        UpdateProgressDots(current);
-
-        PlaceProgressInFrontOfPlayer();
-        ShowPanel(_rootProgress);
-
-        _progressAutoHideTween?.Kill();
-        _progressAutoHideTween = DOVirtual.DelayedCall(progressVisibleDuration, () =>
-        {
-            FadeOutPanel(_rootProgress);
-        });
     }
 
     public void ShowCongrats(string subtitle = null)
@@ -108,9 +65,7 @@ public class UIMessagesController : MonoBehaviour
 
     public void HideAll()
     {
-        _progressAutoHideTween?.Kill();
         FadeOutPanel(_rootCongrats);
-        FadeOutPanel(_rootProgress);
     }
 
     private void ShowPanel(VisualElement panel)
@@ -153,7 +108,6 @@ public class UIMessagesController : MonoBehaviour
     private void HideAllImmediate()
     {
         SetHidden(_rootCongrats);
-        SetHidden(_rootProgress);
     }
 
     private static void SetHidden(VisualElement panel)
@@ -168,61 +122,12 @@ public class UIMessagesController : MonoBehaviour
         if (_activeTweens.TryGetValue(panel, out var t)) { t?.Kill(); _activeTweens.Remove(panel); }
     }
 
-    private void EnsureProgressDots(int total)
-    {
-        if (_progressDotsContainer == null) return;
-
-        while (_dynamicProgressDots.Count < total)
-        {
-            var dot = new VisualElement();
-            dot.style.width = dot.style.height = 36;
-            dot.style.borderTopWidth = dot.style.borderRightWidth =
-            dot.style.borderBottomWidth = dot.style.borderLeftWidth = 2;
-            dot.style.borderTopLeftRadius = dot.style.borderTopRightRadius =
-            dot.style.borderBottomLeftRadius = dot.style.borderBottomRightRadius = 18;
-            dot.style.alignItems = Align.Center;
-            dot.style.justifyContent = Justify.Center;
-            dot.style.marginLeft = dot.style.marginRight = 6;
-
-            var lbl = new Label("?");
-            lbl.style.fontSize = 16;
-            lbl.style.unityFontStyleAndWeight = FontStyle.Bold;
-            dot.Add(lbl);
-
-            _progressDotsContainer.Add(dot);
-            _dynamicProgressDots.Add(dot);
-        }
-
-        for (int i = 0; i < _dynamicProgressDots.Count; i++)
-            _dynamicProgressDots[i].style.display = i < total ? DisplayStyle.Flex : DisplayStyle.None;
-    }
-
-    private void UpdateProgressDots(int completedCount)
-    {
-        for (int i = 0; i < _dynamicProgressDots.Count; i++)
-        {
-            var dot = _dynamicProgressDots[i];
-            bool done = i < completedCount;
-            var lbl = dot.Q<Label>();
-
-            lbl.SetText(done ? "✓" : "?");
-            lbl.style.color = done ? new Color(0.33f, 0.78f, 0.43f) : new Color(1f, 1f, 1f, 0.3f);
-
-            var bc = done ? new Color(0.33f, 0.78f, 0.43f) : new Color(1f, 1f, 1f, 0.2f);
-            dot.style.borderTopColor = dot.style.borderRightColor =
-            dot.style.borderBottomColor = dot.style.borderLeftColor = bc;
-            dot.style.backgroundColor = done
-                ? new Color(0.33f, 0.78f, 0.43f, 0.2f)
-                : new Color(1f, 1f, 1f, 0.05f);
-        }
-    }
-
     private void PlaceOverSelectedSurface(UIDocument doc, Vector3 offset)
     {
         if (doc == null) return;
 
         if (avoidPlayVolume &&
-            GuidancePanelPlacer.TryResolve(progressDistance, progressHeightOffset, leafHeight, volumeMargin, out Vector3 safePosition))
+            GuidancePanelPlacer.TryResolve(panelDistance, panelHeightOffset, leafHeight, volumeMargin, out Vector3 safePosition))
         {
             doc.gameObject.transform.position = safePosition + offset;
             FaceHead(doc.gameObject.transform);
@@ -243,32 +148,6 @@ public class UIMessagesController : MonoBehaviour
         if (fwd.sqrMagnitude < 0.0001f) fwd = cam.forward;
         doc.gameObject.transform.position =
             cam.position + fwd.normalized;
-    }
-
-    private void PlaceProgressInFrontOfPlayer()
-    {
-        if (docProgress == null || Camera.main == null) return;
-
-        Transform cam = Camera.main.transform;
-        Vector3 forward = cam.forward;
-        forward.y = 0f;
-        if (forward.sqrMagnitude < 0.0001f) forward = cam.forward;
-
-        Transform panel = docProgress.gameObject.transform;
-
-        if (avoidPlayVolume &&
-            GuidancePanelPlacer.TryResolve(progressDistance, progressHeightOffset, leafHeight, volumeMargin, out Vector3 safePosition))
-        {
-            panel.position = safePosition;
-        }
-        else
-        {
-            Vector3 position = cam.position + forward.normalized * progressDistance;
-            position.y += progressHeightOffset;
-            panel.position = position;
-        }
-
-        FaceHead(panel);
     }
 
     /// <summary>

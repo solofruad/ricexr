@@ -11,6 +11,8 @@ public class DiseaseSelectionSystem : MonoBehaviour
 {
     public static DiseaseSelectionSystem Instance { get; private set; }
 
+    private const string CorrectProgressLabelName = "correct-progress";
+
     public DiseaseCatalog catalog;
     public DiseaseSelectionView view;
     public GameObject diseaseSelectionPanel;
@@ -309,12 +311,37 @@ public class DiseaseSelectionSystem : MonoBehaviour
         _feedbackInProgress = true;
         _feedbackSuspended = false;
 
+        Label progressLabel = correct ? root.Q<Label>(CorrectProgressLabelName) : null;
+        if (progressLabel != null)
+            progressLabel.text = BuildProgressText();
+
         root.style.display = DisplayStyle.Flex;
         root.style.opacity = 0f;
         root.style.translate = new StyleTranslate(new Translate(0, feedbackLiftPixels, 0));
 
         _feedbackRoutine = StartCoroutine(FeedbackRoutine(root, correct));
         return true;
+    }
+
+    /// <summary>
+    /// Texto del mensaje de acierto: el progreso del nivel cuando pide varias
+    /// plantas, o la confirmacion simple cuando basta con una.
+    /// </summary>
+    private string BuildProgressText()
+    {
+        int total = Mathf.Max(1, _plantsRequiredThisLevel);
+        int current = Mathf.Clamp(_correctSelectionsThisLevel, 0, total);
+
+        if (total < 2)
+            return "La enfermedad y severidad seleccionada son correctas.";
+
+        int remaining = total - current;
+        if (remaining == 0)
+            return $"¡{current} de {total} plantas! Nivel completado.";
+
+        return remaining == 1
+            ? $"Llevas {current} de {total} plantas. Te falta 1."
+            : $"Llevas {current} de {total} plantas. Te faltan {remaining}.";
     }
 
     private IEnumerator FeedbackRoutine(VisualElement root, bool correct)
