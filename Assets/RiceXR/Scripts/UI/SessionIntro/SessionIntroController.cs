@@ -78,9 +78,7 @@ public class SessionIntroController : MonoBehaviour
     [SerializeField] private float containerFadeDuration = 0.15f;
 
     [Header("Posicionamiento")]
-    [Tooltip("Altura sobre el plano seleccionado, cuando ya hay uno de una sesión anterior.")]
-    [SerializeField] private float surfaceHeightOffset = 0.3f;
-    [Tooltip("Distancia frente a la cámara cuando todavía no hay plano.")]
+    [Tooltip("Distancia frente a la cámara a la que aparecen los paneles.")]
     [SerializeField] private float distanceFromCamera = 1f;
 
 
@@ -371,17 +369,12 @@ public class SessionIntroController : MonoBehaviour
 
     /// <summary>
     /// Coloca el contenedor una vez al arrancar la secuencia. La orientación la resuelve
-    /// el componente BillboardUI del mismo GameObject.
+    /// el componente BillboardUI del mismo GameObject. Siempre se ancla a la cámara,
+    /// también cuando se reutiliza el plano de una sesión anterior: la introducción
+    /// ocurre antes de elegir superficie y anclarla al plano la hundiría en la mesa.
     /// </summary>
     private void RepositionPanels()
     {
-        if (SceneInteractionManager.Instance != null && SceneInteractionManager.Instance.HasSelectedPlane)
-        {
-            transform.position = SceneInteractionManager.Instance.SelectedPlanePosition
-                                 + SceneInteractionManager.Instance.SelectedPlaneRotation * Vector3.up * surfaceHeightOffset;
-            return;
-        }
-
         if (Camera.main == null)
         {
             Debug.LogWarning("[SessionIntro] No hay Camera.main. Los paneles se quedan donde estén.");

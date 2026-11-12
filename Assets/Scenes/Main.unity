@@ -3754,7 +3754,6 @@ MonoBehaviour:
   revealDuration: 0.45
   revealOffsetY: 24
   containerFadeDuration: 0.15
-  surfaceHeightOffset: 0.3
   distanceFromCamera: 1.2
 --- !u!114 &428290060
 MonoBehaviour:
