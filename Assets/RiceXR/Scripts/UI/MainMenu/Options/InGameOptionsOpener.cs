@@ -11,14 +11,14 @@ using UnityEngine.InputSystem;
 /// nada de esto: OptionsController solo expone OpenInGame() y Close(), y hasta ahora nadie
 /// los llamaba, asi que durante el gameplay no habia forma de salir de la partida.
 ///
-/// DOS DISPARADORES, UN SOLO MECANISMO:
-/// Los dos llegan como IActiveState del Interaction SDK, asi que este componente no lee
-/// input a mano ni depende de OVRInput.
+/// TRES DISPARADORES:
 ///   - Gesto: palma izquierda hacia arriba y mano abierta, sostenido 'gestureHoldSeconds'.
 ///     El grafo del gesto se arma en la escena con ShapeRecognizerActiveState +
 ///     TransformRecognizerActiveState dentro de un ActiveStateGroup en AND.
 ///   - Mando: boton de menu (☰) del mando izquierdo, via ControllerButtonUsageActiveState.
 ///     El del mando derecho es el boton de Meta y lo reserva el sistema.
+///   - Gesto de menu del sistema con la mano izquierda (palma hacia la cara + pinch),
+///     el equivalente con manos al ☰. Llega por OVRInput (ver UpdateHandMenuGesture).
 /// Como OVRManager tiene SimultaneousHandsAndControllersEnabled desactivado, manos y
 /// mandos son excluyentes y los dos disparadores nunca compiten.
 ///
@@ -28,7 +28,7 @@ using UnityEngine.InputSystem;
 /// quien tiene una hoja en la mano esta diagnosticando, no buscando el menu.
 ///
 /// El gesto es de flanco: despues de disparar hay que SOLTARLO para que vuelva a contar.
-/// Si no, con el panel anclado a la mano la postura natural de sujetarlo lo cerraria solo.
+/// Si no, mantener la palma arriba abriria y cerraria el panel cada 'gestureHoldSeconds'.
 /// </summary>
 [DisallowMultipleComponent]
 public class InGameOptionsOpener : MonoBehaviour
@@ -91,6 +91,7 @@ public class InGameOptionsOpener : MonoBehaviour
 
         UpdateGesture();
         UpdateMenuButton();
+        UpdateHandMenuGesture();
 
 #if UNITY_EDITOR
         // Atajo de desarrollo: recorrer el flujo entero en el editor sin casco ni manos,
@@ -133,6 +134,18 @@ public class InGameOptionsOpener : MonoBehaviour
             Toggle();
 
         _menuButtonWasActive = active;
+    }
+
+    /// <summary>
+    /// Gesto de menu del sistema con la mano izquierda (palma hacia la cara + pinch).
+    /// Meta lo entrega a la app como el boton Start del controlador "Hands"; el
+    /// Interaction SDK no lo expone como IActiveState, por eso se lee con OVRInput.
+    /// GetDown ya es de flanco: un pinch abre o cierra una sola vez.
+    /// </summary>
+    private void UpdateHandMenuGesture()
+    {
+        if (OVRInput.GetDown(OVRInput.Button.Start, OVRInput.Controller.Hands))
+            Toggle();
     }
 
     // ─── Apertura y cierre ────────────────────────────────────────────────────
@@ -185,8 +198,8 @@ public class InGameOptionsOpener : MonoBehaviour
         }
     }
 
-    // Si la sesion termina con el panel abierto, se cierra solo: dejarlo colgado en la
-    // mano encima del menu principal seria el peor de los dos mundos.
+    // Si la sesion termina con el panel abierto, se cierra solo y vuelve a su sitio
+    // junto al menu principal.
     private void HandleSessionInterrupted()
     {
         optionsController?.Close();
