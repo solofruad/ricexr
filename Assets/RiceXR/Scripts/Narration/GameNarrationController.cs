@@ -56,6 +56,7 @@ public class GameNarrationController : MonoBehaviour
     private int _currentLevelIndex = -1;
     private int _currentTotalLevels;
     private int _currentPlantsRequired;
+    private int _correctDiagnosesThisLevel;
     private bool _sessionActive;
     private bool _tutorialGuidedCompleted;
 
@@ -134,6 +135,7 @@ public class GameNarrationController : MonoBehaviour
 
         GameEventBus.OnLevelStarted += HandleLevelStarted;
         GameEventBus.OnPlantSelected += HandlePlantSelected;
+        GameEventBus.OnDiagnosisAttemptEvaluated += HandleDiagnosisAttemptEvaluated;
         GameEventBus.OnLevelCompleted += HandleLevelCompleted;
         GameEventBus.OnAllLevelsCompleted += HandleAllLevelsCompleted;
 
@@ -157,6 +159,7 @@ public class GameNarrationController : MonoBehaviour
 
         GameEventBus.OnLevelStarted -= HandleLevelStarted;
         GameEventBus.OnPlantSelected -= HandlePlantSelected;
+        GameEventBus.OnDiagnosisAttemptEvaluated -= HandleDiagnosisAttemptEvaluated;
         GameEventBus.OnLevelCompleted -= HandleLevelCompleted;
         GameEventBus.OnAllLevelsCompleted -= HandleAllLevelsCompleted;
 
@@ -317,6 +320,7 @@ public class GameNarrationController : MonoBehaviour
         _currentLevelIndex = levelIndex;
         _currentTotalLevels = totalLevels;
         _currentPlantsRequired = plantsRequired;
+        _correctDiagnosesThisLevel = 0;
         if (levelIndex == tutorialLevelIndex)
             // Si se omitió la guía, el nivel tutorial usa las mismas frases de progreso
             // que una prueba normal en lugar de las frases de la fase guiada.
@@ -352,8 +356,8 @@ public class GameNarrationController : MonoBehaviour
     {
         if (!_sessionActive) return;
 
-        // El ultimo acierto de la sesion no se felicita aparte: segundos despues
-        // llega el cierre (HandleAllLevelsCompleted) y las dos lineas se pisarian.
+        // El ultimo acierto de la sesion ya se felicito al diagnosticarlo
+        // (HandleDiagnosisAttemptEvaluated) con la felicitacion final.
         if (isCorrect && plantsSelected >= plantsRequired && IsFinalLevel(_currentLevelIndex)) return;
 
         if (_currentLevelIndex == tutorialLevelIndex)
@@ -425,12 +429,28 @@ public class GameNarrationController : MonoBehaviour
         SpeakLineQueued(GameNarrationLineIds.LevelComplete);
     }
 
-    // Cierre de sesion: felicitacion final y peticion de apodo en una sola
-    // secuencia, para que el orden no dependa de que sistema escuche antes
-    // OnAllLevelsCompleted (el panel de fin se abre en ese mismo frame).
+    // La felicitacion final suena en el mismo instante del ultimo acierto, junto
+    // al mensaje "¡Correcto!". OnPlantSelected llega varios segundos despues,
+    // cuando el mensaje ya se oculto, por eso se escucha el intento evaluado.
+    // Los intentos sobre hojas ya resueltas no se publican, asi que el conteo
+    // solo incluye hojas distintas.
+    private void HandleDiagnosisAttemptEvaluated(string disease, int severity, bool isCorrect)
+    {
+        if (!_sessionActive || !isCorrect) return;
+
+        _correctDiagnosesThisLevel++;
+        if (IsFinalLevel(_currentLevelIndex)
+            && _correctDiagnosesThisLevel >= Mathf.Max(1, _currentPlantsRequired))
+        {
+            SpeakLine(GameNarrationLineIds.AllLevelsComplete, true);
+        }
+    }
+
+    // La peticion de apodo se encola tras la felicitacion final por si esta
+    // todavia suena cuando se abre el panel de fin.
     private void HandleAllLevelsCompleted()
     {
-        SpeakSequence(true, GameNarrationLineIds.AllLevelsComplete, GameNarrationLineIds.EndSessionPromptSave);
+        SpeakLineQueued(GameNarrationLineIds.EndSessionPromptSave);
     }
 
     private void HandleSaveCompleted(bool saved)
