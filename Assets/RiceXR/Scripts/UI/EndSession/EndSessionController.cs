@@ -65,10 +65,8 @@ public class EndSessionController : MonoBehaviour
     [SerializeField] private Text saveButtonLabel;
 
     [Header("Referencias post-guardado")]
-    [Tooltip("Panel del menu principal para volver a mostrarlo al terminar")]
-    [SerializeField] private GameObject mainMenuPanel;
-    [Tooltip("LeaderboardController para refrescar la lista al volver al menu")]
-    [SerializeField] private LeaderboardController leaderboardController;
+    [Tooltip("Menu principal que se muestra al terminar. Vacio = se busca en la escena")]
+    [SerializeField] private MainMenuController mainMenuController;
 
     [Header("Animacion")]
     [SerializeField] private float animDuration = 0.3f;
@@ -77,8 +75,6 @@ public class EndSessionController : MonoBehaviour
     private SessionMetricsTracker.SessionResult _pendingResult;
     /// <summary>Escala original del panel de fin, la guardamos para poder animarla despues.</summary>
     private Vector3 _originalScale = Vector3.one;
-    /// <summary>Escala original del menu principal, para animarlo de vuelta al salir.</summary>
-    private Vector3 _menuOriginalScale = Vector3.one;
     /// <summary>Referencia a la corrutina de regreso al menu, por si hay que cancelarla.</summary>
     private Coroutine _returnToMenuRoutine;
 
@@ -127,12 +123,6 @@ public class EndSessionController : MonoBehaviour
             // Guardamos la escala normal antes de esconderlo, asi la animacion sabe a que tamano volver
             _originalScale = endPanel.transform.localScale;
             endPanel.SetActive(false);
-        }
-        
-        if (mainMenuPanel != null)
-        {
-            // Igual que arriba, pero para el menu principal
-            _menuOriginalScale = mainMenuPanel.transform.localScale;
         }
 
         if (saveButton != null) saveButton.onClick.AddListener(OnSaveClicked);
@@ -382,25 +372,21 @@ public class EndSessionController : MonoBehaviour
     }
 
     /// <summary>
-    /// Muestra el menu principal con la misma animacion de escala que el panel
-    /// de fin y, cuando termina, refresca la tabla de posiciones.
+    /// Muestra el menu principal frente al jugador. MainMenuController se encarga
+    /// de colocarlo, animarlo y refrescar la tabla de posiciones.
     /// </summary>
     private void ShowMainMenu()
     {
-        if (mainMenuPanel == null) return;
+        if (mainMenuController == null)
+            mainMenuController = FindAnyObjectByType<MainMenuController>(FindObjectsInactive.Include);
 
-        mainMenuPanel.transform.DOKill();
-        mainMenuPanel.transform.localScale = Vector3.zero;
-        mainMenuPanel.SetActive(true);
-        mainMenuPanel.transform
-            .DOScale(_menuOriginalScale, animDuration)
-            .SetEase(Ease.OutBack)
-            .OnComplete(() =>
-            {
-                // Refrescamos el leaderboard para que aparezca la partida recien guardada
-                if (leaderboardController != null)
-                    leaderboardController.Populate();
-            });
+        if (mainMenuController == null)
+        {
+            Debug.LogWarning("[EndSession] No hay un MainMenuController en la escena.");
+            return;
+        }
+
+        mainMenuController.ShowMainMenu();
     }
 
     /// <summary>
@@ -422,6 +408,5 @@ public class EndSessionController : MonoBehaviour
     {
         if (saveButton != null) saveButton.onClick.RemoveListener(OnSaveClicked);
         endPanel?.transform.DOKill();
-        mainMenuPanel?.transform.DOKill();
     }
 }

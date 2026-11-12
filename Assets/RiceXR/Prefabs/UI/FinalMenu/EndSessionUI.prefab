@@ -599,8 +599,6 @@ MonoBehaviour:
   nicknameInput: {fileID: 7540027997743608230}
   saveButton: {fileID: 1946606474708121022}
   saveButtonLabel: {fileID: 0}
-  mainMenuPanel: {fileID: 0}
-  leaderboardController: {fileID: 0}
   animDuration: 0.3
 --- !u!114 &2847261429111641546
 MonoBehaviour:

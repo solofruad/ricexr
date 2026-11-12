@@ -34,10 +34,20 @@ public class MainMenuController : MonoBehaviour
     private bool _startFlowTriggered;
     private Vector3 _mainMenuOriginalScale = Vector3.one;
 
+    /// <summary>
+    /// Pose de la raiz en la escena. Esta pensada para un jugador en el origen
+    /// mirando hacia +Z, que es donde arranca el casco.
+    /// </summary>
+    private Vector3 _homePosition;
+    private Quaternion _homeRotation;
+
     private void Awake()
     {
         if (mainMenuPanel != null)
             _mainMenuOriginalScale = mainMenuPanel.localScale;
+
+        _homePosition = transform.position;
+        _homeRotation = transform.rotation;
     }
 
     void Start()
@@ -146,6 +156,7 @@ public class MainMenuController : MonoBehaviour
         if (mainMenuPanel == null) return;
 
         _startFlowTriggered = false;
+        PlaceInFrontOfPlayer();
         mainMenuPanel.DOKill();
         mainMenuPanel.gameObject.SetActive(true);
         mainMenuPanel.localScale = Vector3.zero;
@@ -158,6 +169,27 @@ public class MainMenuController : MonoBehaviour
                 RefreshPlaneSkipButton();
                 leaderboardController?.Populate();
             });
+    }
+
+    /// <summary>
+    /// Lleva el menu completo (panel, rayo y panel de opciones, que cuelgan de esta
+    /// raiz) frente al jugador. Aplica a la pose original el giro y desplazamiento
+    /// que separan el origen de la posicion actual de la cabeza: conserva la
+    /// distancia y la altura con las que se diseño el menu.
+    /// </summary>
+    private void PlaceInFrontOfPlayer()
+    {
+        if (Camera.main == null) return;
+
+        Transform cam = Camera.main.transform;
+        Vector3 forward = cam.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 0.0001f) return;
+
+        Quaternion yaw = Quaternion.LookRotation(forward.normalized, Vector3.up);
+        transform.SetPositionAndRotation(
+            new Vector3(cam.position.x, 0f, cam.position.z) + yaw * _homePosition,
+            yaw * _homeRotation);
     }
 
     private void OnDisable()

@@ -5567,11 +5567,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1256800381239343014, guid: cfbc95b1f69c4134da6041be31de97ea,
         type: 3}
-      propertyPath: mainMenuPanel
-      value: 
-      objectReference: {fileID: 449805859}
-    - target: {fileID: 1256800381239343014, guid: cfbc95b1f69c4134da6041be31de97ea,
-        type: 3}
       propertyPath: positionOffset.y
       value: -0.1
       objectReference: {fileID: 0}
@@ -5580,11 +5575,6 @@ PrefabInstance:
       propertyPath: distanceFromCamera
       value: 0.65
       objectReference: {fileID: 0}
-    - target: {fileID: 1256800381239343014, guid: cfbc95b1f69c4134da6041be31de97ea,
-        type: 3}
-      propertyPath: leaderboardController
-      value: 
-      objectReference: {fileID: 1852683953}
     - target: {fileID: 1854018753022185783, guid: cfbc95b1f69c4134da6041be31de97ea,
         type: 3}
       propertyPath: m_Name
