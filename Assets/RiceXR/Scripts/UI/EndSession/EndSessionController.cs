@@ -155,7 +155,6 @@ public class EndSessionController : MonoBehaviour
 
         FillUI(_pendingResult);
         endPanel.SetActive(true);
-        GameEventBus.PublishEndPanelShown();
 
         if (nicknameInput != null)
         {

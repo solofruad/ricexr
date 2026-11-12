@@ -140,9 +140,6 @@ public static class GameEventBus
 
     // ── End Session UI ───────────────────────────────────────────────────────
 
-    /// <summary>Emitido cuando el panel de fin de sesión se muestra.</summary>
-    public static event Action OnEndPanelShown;
-
     /// <summary>Emitido cuando se completa el guardado (true = ok, false = error).</summary>
     public static event Action<bool> OnSaveCompleted;
 
@@ -228,12 +225,6 @@ public static class GameEventBus
     }
 
     // ── End Session UI ───────────────────────────────────────────────────────
-
-    public static void PublishEndPanelShown()
-    {
-        Debug.Log("[GameEventBus] EndPanelShown");
-        OnEndPanelShown?.Invoke();
-    }
 
     public static void PublishSaveCompleted(bool success)
     {
@@ -337,7 +328,6 @@ public static class GameEventBus
         OnReturnToMenuRequested = null;
 
         // End Session UI
-        OnEndPanelShown = null;
         OnSaveCompleted = null;
         OnReturningToMenu = null;
 

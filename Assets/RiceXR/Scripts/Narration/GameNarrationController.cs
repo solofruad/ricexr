@@ -137,7 +137,6 @@ public class GameNarrationController : MonoBehaviour
         GameEventBus.OnLevelCompleted += HandleLevelCompleted;
         GameEventBus.OnAllLevelsCompleted += HandleAllLevelsCompleted;
 
-        GameEventBus.OnEndPanelShown += HandleEndPanelShown;
         GameEventBus.OnSaveCompleted += HandleSaveCompleted;
         GameEventBus.OnReturningToMenu += HandleReturningToMenu;
 
@@ -161,7 +160,6 @@ public class GameNarrationController : MonoBehaviour
         GameEventBus.OnLevelCompleted -= HandleLevelCompleted;
         GameEventBus.OnAllLevelsCompleted -= HandleAllLevelsCompleted;
 
-        GameEventBus.OnEndPanelShown -= HandleEndPanelShown;
         GameEventBus.OnSaveCompleted -= HandleSaveCompleted;
         GameEventBus.OnReturningToMenu -= HandleReturningToMenu;
 
@@ -354,6 +352,10 @@ public class GameNarrationController : MonoBehaviour
     {
         if (!_sessionActive) return;
 
+        // El ultimo acierto de la sesion no se felicita aparte: segundos despues
+        // llega el cierre (HandleAllLevelsCompleted) y las dos lineas se pisarian.
+        if (isCorrect && plantsSelected >= plantsRequired && IsFinalLevel(_currentLevelIndex)) return;
+
         if (_currentLevelIndex == tutorialLevelIndex)
         {
             if (!_tutorialGuidedCompleted)
@@ -412,24 +414,23 @@ public class GameNarrationController : MonoBehaviour
         SpeakSequence(true, GameNarrationLineIds.ThirdCorrect, GameNarrationLineIds.ProgressDone);
     }
 
-    // El cierre de nivel y de sesion encadena varias lineas en pocos segundos
-    // (felicitacion, nivel completo, todos completos, pedir apodo). Se encolan
-    // para que cada una termine antes de empezar la siguiente.
-
+    // Cierre de nivel: se encola para no cortar la felicitacion del ultimo acierto.
+    // En el ultimo nivel no se narra: "Nivel completado. Preparate para la
+    // siguiente fase" no tiene sentido y el cierre lo hace HandleAllLevelsCompleted.
     private void HandleLevelCompleted(int levelIndex)
     {
         _currentLevelIndex = levelIndex;
+        if (IsFinalLevel(levelIndex)) return;
+
         SpeakLineQueued(GameNarrationLineIds.LevelComplete);
     }
 
+    // Cierre de sesion: felicitacion final y peticion de apodo en una sola
+    // secuencia, para que el orden no dependa de que sistema escuche antes
+    // OnAllLevelsCompleted (el panel de fin se abre en ese mismo frame).
     private void HandleAllLevelsCompleted()
     {
-        SpeakLineQueued(GameNarrationLineIds.AllLevelsComplete);
-    }
-
-    private void HandleEndPanelShown()
-    {
-        SpeakLineQueued(GameNarrationLineIds.EndSessionPromptSave);
+        SpeakSequence(true, GameNarrationLineIds.AllLevelsComplete, GameNarrationLineIds.EndSessionPromptSave);
     }
 
     private void HandleSaveCompleted(bool saved)
@@ -446,6 +447,12 @@ public class GameNarrationController : MonoBehaviour
     // ═══════════════════════════════════════════════════════════════════════
     // Core Reproducción utilizando NarrationReproductor
     // ═══════════════════════════════════════════════════════════════════════
+
+    /// <summary>Indica si el indice corresponde al ultimo nivel de la sesion.</summary>
+    private bool IsFinalLevel(int levelIndex)
+    {
+        return _currentTotalLevels > 0 && levelIndex == _currentTotalLevels - 1;
+    }
 
     private void SpeakFirstErrorOnlyForCurrentLevel()
     {
