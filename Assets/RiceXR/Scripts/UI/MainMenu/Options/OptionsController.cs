@@ -22,11 +22,19 @@ public class OptionsController : MonoBehaviour
     [SerializeField] private NarrationReproductor narrationReproductor;
     [SerializeField] private MainMenuController mainMenuController;
 
-    [Tooltip("Ancla el panel a la mano cuando se abre en partida. Vacío = el panel se " +
-             "queda en el sitio fijo que tiene junto al menú principal.")]
-    [SerializeField] private HandAnchoredPanel handAnchoredPanel;
+    [Header("Apertura en partida")]
+    [Tooltip("Distancia horizontal en metros entre la cabeza y el panel al abrirlo en partida.")]
+    [Min(0.2f)] [SerializeField] private float inGameDistance = 0.8f;
+    [Tooltip("Desplazamiento vertical en metros respecto a los ojos al abrirlo en partida.")]
+    [SerializeField] private float inGameHeightOffset = -0.1f;
 
     private OptionsContext _context = OptionsContext.MainMenu;
+
+    // Pose local del panel junto al menú principal. En partida el panel se lleva frente
+    // al jugador y al cerrarse vuelve aquí, para que el menú lo encuentre en su sitio.
+    private Vector3 _homeLocalPosition;
+    private Quaternion _homeLocalRotation;
+    private bool _homeSaved;
 
     // El tutorial también bloquea el menú de diagnóstico durante sus actos guiados, así
     // que al cerrar hay que devolverlo a como estaba y no darlo por habilitado.
@@ -76,8 +84,8 @@ public class OptionsController : MonoBehaviour
 
         _context = OptionsContext.MainMenu;
         // En el menú principal el panel vive en su sitio fijo del prefab, como panel
-        // lateral del menú, no colgado de la mano.
-        HandPanel?.Detach();
+        // lateral del menú.
+        RestoreHomePose();
         Open();
     }
 
@@ -90,7 +98,7 @@ public class OptionsController : MonoBehaviour
         Open();
 
         // El panel se abre donde esté el jugador, no donde quedó el menú principal.
-        HandPanel?.Attach();
+        PlaceInFrontOfPlayer();
 
         // La partida sigue corriendo detrás del panel: no se congela nada. Solo se
         // suspende lo que competiría con él — el menú de diagnóstico usa el mismo rayo
@@ -109,9 +117,7 @@ public class OptionsController : MonoBehaviour
 
         if (_context == OptionsContext.InGame)
         {
-            // Detach antes de desactivar: si no, el panel se guardaría en la mano y
-            // reaparecería ahí la próxima vez que se abriera desde el menú principal.
-            HandPanel?.Detach();
+            RestoreHomePose();
             DiseaseSelectionSystem.Instance?.SetPanelAvailability(_diagnosisAvailableBeforeOpen);
         }
 
@@ -119,17 +125,46 @@ public class OptionsController : MonoBehaviour
     }
 
     /// <summary>
-    /// El componente de anclaje vive en este mismo GameObject, que arranca desactivado:
-    /// se resuelve de forma perezosa porque Awake no ha corrido en la primera apertura.
+    /// Coloca el panel frente al jugador, a la altura de los ojos y mirándolo de frente
+    /// (solo gira sobre Y). Se posiciona el centro del Canvas visible y no la raíz: el
+    /// Canvas está desplazado dentro del prefab y, si se moviera la raíz, el panel
+    /// quedaría a un lado. Se coloca una vez y se queda quieto para poder apuntarle.
     /// </summary>
-    private HandAnchoredPanel HandPanel
+    private void PlaceInFrontOfPlayer()
     {
-        get
-        {
-            if (handAnchoredPanel == null)
-                handAnchoredPanel = GetComponent<HandAnchoredPanel>();
-            return handAnchoredPanel;
-        }
+        if (Camera.main == null) return;
+
+        SaveHomePose();
+
+        Transform cam = Camera.main.transform;
+        Vector3 forward = cam.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 0.0001f) return;
+        forward.Normalize();
+
+        Vector3 target = cam.position + forward * inGameDistance + Vector3.up * inGameHeightOffset;
+        transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+
+        Canvas canvas = GetComponentInChildren<Canvas>(true);
+        Vector3 visualCenter = canvas != null ? canvas.transform.position : transform.position;
+        transform.position += target - visualCenter;
+    }
+
+    private void SaveHomePose()
+    {
+        if (_homeSaved) return;
+
+        _homeLocalPosition = transform.localPosition;
+        _homeLocalRotation = transform.localRotation;
+        _homeSaved = true;
+    }
+
+    private void RestoreHomePose()
+    {
+        if (!_homeSaved) return;
+
+        transform.localPosition = _homeLocalPosition;
+        transform.localRotation = _homeLocalRotation;
     }
 
     private void Open()
